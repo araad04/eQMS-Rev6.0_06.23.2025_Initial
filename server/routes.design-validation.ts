@@ -95,8 +95,8 @@ router.get("/plans/:planId", authMiddleware.isAuthenticated, async (req, res) =>
     
     const plan = await db
       .select()
-      .from(designValidationPlans)
-      .where(eq(designValidationPlans.planId, planId))
+      .from(validationRecords)
+      .where(eq(validationRecords.validationId, planId))
       .limit(1);
 
     if (plan.length === 0) {
@@ -131,19 +131,19 @@ router.post("/plans", authMiddleware.isAuthenticated, async (req, res) => {
 
       // Count existing plans for this project
       const existingPlans = await db
-        .select({ count: designValidationPlans.id })
-        .from(designValidationPlans)
-        .where(eq(designValidationPlans.projectId, validatedData.projectId));
+        .select({ count: validationRecords.id })
+        .from(validationRecords)
+        .where(eq(validationRecords.projectId, validatedData.projectId));
 
       const planNumber = String(existingPlans.length + 1).padStart(3, '0');
       planId = `VAL-${project[0].projectCode.replace('-', '')}-${planNumber}`;
     }
 
     const newPlan = await db
-      .insert(designValidationPlans)
+      .insert(validationRecords)
       .values({
         ...validatedData,
-        planId,
+        validationId: planId,
         createdBy: userId,
       })
       .returning();
@@ -165,12 +165,12 @@ router.put("/plans/:planId", authMiddleware.isAuthenticated, async (req, res) =>
     const validatedData = createValidationPlanSchema.partial().parse(req.body);
 
     const updatedPlan = await db
-      .update(designValidationPlans)
+      .update(validationRecords)
       .set({
         ...validatedData,
         updatedAt: new Date(),
       })
-      .where(eq(designValidationPlans.planId, planId))
+      .where(eq(validationRecords.validationId, planId))
       .returning();
 
     if (updatedPlan.length === 0) {
@@ -194,25 +194,25 @@ router.get("/records/plan/:planId", authMiddleware.isAuthenticated, async (req, 
     
     const records = await db
       .select({
-        id: designValidationRecords.id,
-        recordId: designValidationRecords.recordId,
-        executionDate: designValidationRecords.executionDate,
-        result: designValidationRecords.result,
-        userFeedback: designValidationRecords.userFeedback,
-        performanceData: designValidationRecords.performanceData,
-        deviations: designValidationRecords.deviations,
-        conclusions: designValidationRecords.conclusions,
-        recommendations: designValidationRecords.recommendations,
-        attachments: designValidationRecords.attachments,
-        capaRequired: designValidationRecords.capaRequired,
-        capaId: designValidationRecords.capaId,
-        createdAt: designValidationRecords.createdAt,
+        id: validationRecords.id,
+        recordId: validationRecords.validationId,
+        executionDate: validationRecords.validationDate,
+        result: validationRecords.result,
+        userFeedback: validationRecords.userFeedback,
+        performanceData: validationRecords.performanceData,
+        deviations: validationRecords.deviations,
+        conclusions: validationRecords.conclusions,
+        recommendations: validationRecords.recommendations,
+        attachments: validationRecords.attachments,
+        capaRequired: validationRecords.capaRequired,
+        capaId: validationRecords.capaId,
+        createdAt: validationRecords.createdAt,
         executedBy: users.firstName,
       })
-      .from(designValidationRecords)
-      .leftJoin(users, eq(designValidationRecords.executedBy, users.id))
-      .where(eq(designValidationRecords.planId, planId))
-      .orderBy(desc(designValidationRecords.executionDate));
+      .from(validationRecords)
+      .leftJoin(users, eq(validationRecords.executedBy, users.id))
+      .where(eq(validationRecords.projectId, planId))
+      .orderBy(desc(validationRecords.validationDate));
 
     res.json(records);
   } catch (error) {
@@ -231,9 +231,9 @@ router.post("/records", authMiddleware.isAuthenticated, async (req, res) => {
     if (!recordId) {
       // Get plan details
       const plan = await db
-        .select({ planId: designValidationPlans.planId })
-        .from(designValidationPlans)
-        .where(eq(designValidationPlans.id, validatedData.planId))
+        .select({ planId: validationRecords.validationId })
+        .from(validationRecords)
+        .where(eq(validationRecords.id, validatedData.planId))
         .limit(1);
 
       if (plan.length === 0) {
@@ -242,49 +242,49 @@ router.post("/records", authMiddleware.isAuthenticated, async (req, res) => {
 
       // Count existing records for this plan
       const existingRecords = await db
-        .select({ count: designValidationRecords.id })
-        .from(designValidationRecords)
-        .where(eq(designValidationRecords.planId, validatedData.planId));
+        .select({ count: validationRecords.id })
+        .from(validationRecords)
+        .where(eq(validationRecords.projectId, validatedData.planId));
 
       const recordNumber = String(existingRecords.length + 1).padStart(3, '0');
       recordId = `VLR-${plan[0].planId}-${recordNumber}`;
     }
 
     const newRecord = await db
-      .insert(designValidationRecords)
+      .insert(validationRecords)
       .values({
         ...validatedData,
-        recordId,
-        executionDate: new Date(validatedData.executionDate),
+        validationId: recordId,
+        validationDate: new Date(validatedData.executionDate),
       })
       .returning();
 
     // Update plan execution progress
     const totalRecords = await db
-      .select({ count: designValidationRecords.id })
-      .from(designValidationRecords)
-      .where(eq(designValidationRecords.planId, validatedData.planId));
+      .select({ count: validationRecords.id })
+      .from(validationRecords)
+      .where(eq(validationRecords.projectId, validatedData.planId));
 
     const passedRecords = await db
-      .select({ count: designValidationRecords.id })
-      .from(designValidationRecords)
+      .select({ count: validationRecords.id })
+      .from(validationRecords)
       .where(and(
-        eq(designValidationRecords.planId, validatedData.planId),
-        eq(designValidationRecords.result, "pass")
+        eq(validationRecords.projectId, validatedData.planId),
+        eq(validationRecords.result, "pass")
       ));
 
     const progress = Math.round((passedRecords.length / totalRecords.length) * 100);
     const status = progress === 100 ? "completed" : progress > 0 ? "in_progress" : "planned";
 
     await db
-      .update(designValidationPlans)
+      .update(validationRecords)
       .set({
         executionProgress: progress,
         status,
         actualDate: validatedData.result === "pass" ? new Date() : undefined,
         updatedAt: new Date(),
       })
-      .where(eq(designValidationPlans.id, validatedData.planId));
+      .where(eq(validationRecords.id, validatedData.planId));
 
     res.status(201).json(newRecord[0]);
   } catch (error) {
@@ -321,9 +321,9 @@ router.patch("/plans/:planId/status", authMiddleware.isAuthenticated, async (req
     }
 
     const updatedPlan = await db
-      .update(designValidationPlans)
+      .update(validationRecords)
       .set(updateData)
-      .where(eq(designValidationPlans.planId, planId))
+      .where(eq(validationRecords.validationId, planId))
       .returning();
 
     if (updatedPlan.length === 0) {
