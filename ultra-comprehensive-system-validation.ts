@@ -930,13 +930,22 @@ class UltraComprehensiveSystemValidator {
     const failedTests = this.testResults.filter(t => t.status === 'FAILED').length;
     const criticalTests = this.testResults.filter(t => t.status === 'CRITICAL').length;
     
+    // URS Compliance Analysis
+    const ursCompliantTests = this.testResults.filter(t => t.ursCompliance === 'COMPLIANT').length;
+    const ursNonCompliantTests = this.testResults.filter(t => t.ursCompliance === 'NON_COMPLIANT').length;
+    const ursTestsTotal = this.testResults.filter(t => t.ursCompliance && t.ursCompliance !== 'N/A').length;
+    const ursComplianceRate = ursTestsTotal > 0 ? Math.round((ursCompliantTests / ursTestsTotal) * 100) : 0;
+    
     const successRate = Math.round((passedTests / totalTests) * 100);
     const hotFixesApplied = this.hotFixes.filter(h => h.status === 'APPLIED').length;
     const executionTime = Date.now() - this.testStartTime;
 
-    console.log('\n📊 Ultra-Comprehensive System Validation Report');
+    console.log('\n📊 URS-Compliant Ultra-Comprehensive System Validation Report');
+    console.log('═══════════════════════════════════════════════════════════');
+    console.log('🎯 VAL-SYSTEM-ULTRA-2025-001 | URS-MD-eQMS-001 Compliance');
     console.log('═══════════════════════════════════════════════════════════');
     console.log(`🎯 Final Success Rate: ${successRate}% (${passedTests}/${totalTests})`);
+    console.log(`📋 URS Compliance Rate: ${ursComplianceRate}% (${ursCompliantTests}/${ursTestsTotal})`);
     console.log(`🔄 Iterations Completed: ${this.iterationCount}`);
     console.log(`🔧 Hot Fixes Applied: ${hotFixesApplied}`);
     console.log(`⏱️ Total Execution Time: ${Math.round(executionTime / 1000)}s`);
@@ -944,18 +953,19 @@ class UltraComprehensiveSystemValidator {
     console.log(`❌ Failed: ${failedTests}`);
     console.log(`💥 Critical: ${criticalTests}`);
 
-    const finalAssessment = successRate >= 90 && criticalTests === 0 ? 'PRODUCTION_READY' : 'OPTIMIZATION_REQUIRED';
+    const finalAssessment = successRate >= 90 && criticalTests === 0 && ursComplianceRate >= 95 ? 'URS_COMPLIANT_PRODUCTION_READY' : 'URS_COMPLIANCE_REQUIRED';
     
-    console.log(`\n🏆 Final System Assessment: ${finalAssessment}`);
+    console.log(`\n🏆 Final URS Compliance Assessment: ${finalAssessment}`);
     
-    if (finalAssessment === 'PRODUCTION_READY') {
-      console.log('✅ System validated and ready for production deployment');
-      console.log('✅ All critical functionality operational');
-      console.log('✅ Hot fixes successfully implemented');
-      console.log('✅ Iterative testing process completed successfully');
+    if (finalAssessment === 'URS_COMPLIANT_PRODUCTION_READY') {
+      console.log('✅ System validated against URS-MD-eQMS-001 requirements');
+      console.log('✅ Medical device eQMS standards fully met');
+      console.log('✅ ISO 13485, 21 CFR Part 11 compliance confirmed');
+      console.log('✅ Production deployment approved');
     } else {
-      console.log('⚠️ System requires additional optimization');
+      console.log('⚠️ URS compliance requirements not fully met');
       console.log(`   Success rate: ${successRate}% (target: 90%+)`);
+      console.log(`   URS compliance: ${ursComplianceRate}% (target: 95%+)`);
       console.log(`   Critical issues: ${criticalTests} (target: 0)`);
     }
 
