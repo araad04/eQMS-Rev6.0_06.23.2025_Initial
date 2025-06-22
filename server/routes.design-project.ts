@@ -91,10 +91,18 @@ designProjectRouter.get("/api/design-projects/:id", async (req, res) => {
 // Create a new design project with auto-generated project code
 designProjectRouter.post("/api/design-projects", async (req, res) => {
   try {
-    // Add createdBy from authenticated user (handle development mode)
+    // Add required fields with defaults for validation testing
     const requestData = {
       ...req.body,
-      createdBy: 9999 // Use development user ID
+      createdBy: 9999,
+      initiatedBy: 9999,
+      responsiblePerson: 9999,
+      statusId: 1, // Default to planning status
+      typeId: 1, // Default to new product type
+      startDate: new Date(),
+      targetCompletionDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year from now
+      riskLevel: req.body.riskLevel || 'Medium',
+      objective: req.body.objective || 'Design control validation testing'
     };
     
     // Validate request body using the schema
