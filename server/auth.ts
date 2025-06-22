@@ -246,7 +246,23 @@ export function setupAuth(app: Express) {
   });
 
   app.get("/api/user", (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
+    // Development mode authentication bypass
+    if (process.env.NODE_ENV === 'development') {
+      const devUser = {
+        id: 9999,
+        username: 'Biomedical78',
+        email: 'Biomedical78@example.com',
+        firstName: 'Development',
+        lastName: 'User',
+        role: 'user',
+        department: 'Testing',
+        createdAt: new Date().toISOString()
+      };
+      console.log('Deserializing development user:', devUser.username);
+      return res.json(devUser);
+    }
+    
+    if (!req.isAuthenticated || !req.isAuthenticated()) return res.sendStatus(401);
     // Return user without password
     const { password, ...userWithoutPassword } = req.user as UserModel;
     res.json(userWithoutPassword);
