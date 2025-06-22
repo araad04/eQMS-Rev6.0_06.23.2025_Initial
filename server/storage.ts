@@ -4428,6 +4428,358 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  // Phase-Gated Design Control Implementation
+  async getDesignPhases(): Promise<DesignPhase[]> {
+    try {
+      const tableExists = await this.checkIfTableExists('design_phases');
+      if (!tableExists) {
+        console.log("Design phases table doesn't exist in the database yet");
+        return [];
+      }
+      return await db.select().from(designPhases).orderBy(designPhases.sequenceOrder);
+    } catch (error) {
+      console.error("Error fetching design phases:", error);
+      return [];
+    }
+  }
+
+  async getDesignPhase(id: number): Promise<DesignPhase | null> {
+    try {
+      const tableExists = await this.checkIfTableExists('design_phases');
+      if (!tableExists) return null;
+      const result = await db.select().from(designPhases).where(eq(designPhases.id, id));
+      return result[0] || null;
+    } catch (error) {
+      console.error("Error fetching design phase:", error);
+      return null;
+    }
+  }
+
+  async createDesignPhase(data: InsertDesignPhase): Promise<DesignPhase> {
+    try {
+      const result = await db.insert(designPhases).values(data).returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error creating design phase:", error);
+      throw error;
+    }
+  }
+
+  async updateDesignPhase(id: number, data: Partial<InsertDesignPhase>): Promise<DesignPhase | null> {
+    try {
+      const result = await db.update(designPhases).set(data).where(eq(designPhases.id, id)).returning();
+      return result[0] || null;
+    } catch (error) {
+      console.error("Error updating design phase:", error);
+      throw error;
+    }
+  }
+
+  async deleteDesignPhase(id: number): Promise<boolean> {
+    try {
+      const result = await db.delete(designPhases).where(eq(designPhases.id, id));
+      return result.rowCount !== null && result.rowCount > 0;
+    } catch (error) {
+      console.error("Error deleting design phase:", error);
+      throw error;
+    }
+  }
+
+  async getProjectPhaseInstances(projectId: number): Promise<DesignProjectPhaseInstance[]> {
+    try {
+      const tableExists = await this.checkIfTableExists('design_project_phase_instances');
+      if (!tableExists) {
+        console.log("Design project phase instances table doesn't exist in the database yet");
+        return [];
+      }
+      return await db.select().from(designProjectPhaseInstances)
+        .where(eq(designProjectPhaseInstances.projectId, projectId))
+        .orderBy(designProjectPhaseInstances.sequenceOrder);
+    } catch (error) {
+      console.error("Error fetching project phase instances:", error);
+      return [];
+    }
+  }
+
+  async getPhaseInstance(id: number): Promise<DesignProjectPhaseInstance | null> {
+    try {
+      const tableExists = await this.checkIfTableExists('design_project_phase_instances');
+      if (!tableExists) return null;
+      const result = await db.select().from(designProjectPhaseInstances)
+        .where(eq(designProjectPhaseInstances.id, id));
+      return result[0] || null;
+    } catch (error) {
+      console.error("Error fetching phase instance:", error);
+      return null;
+    }
+  }
+
+  async createPhaseInstance(data: InsertDesignProjectPhaseInstance): Promise<DesignProjectPhaseInstance> {
+    try {
+      const result = await db.insert(designProjectPhaseInstances).values(data).returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error creating phase instance:", error);
+      throw error;
+    }
+  }
+
+  async updatePhaseInstance(id: number, data: Partial<InsertDesignProjectPhaseInstance>): Promise<DesignProjectPhaseInstance | null> {
+    try {
+      const result = await db.update(designProjectPhaseInstances).set(data)
+        .where(eq(designProjectPhaseInstances.id, id)).returning();
+      return result[0] || null;
+    } catch (error) {
+      console.error("Error updating phase instance:", error);
+      throw error;
+    }
+  }
+
+  async deletePhaseInstance(id: number): Promise<boolean> {
+    try {
+      const result = await db.delete(designProjectPhaseInstances)
+        .where(eq(designProjectPhaseInstances.id, id));
+      return result.rowCount !== null && result.rowCount > 0;
+    } catch (error) {
+      console.error("Error deleting phase instance:", error);
+      throw error;
+    }
+  }
+
+  async activatePhase(phaseInstanceId: number, userId: number): Promise<DesignProjectPhaseInstance | null> {
+    try {
+      const result = await db.update(designProjectPhaseInstances)
+        .set({
+          status: 'active',
+          actualStartDate: new Date(),
+          activatedBy: userId,
+          updatedAt: new Date()
+        })
+        .where(eq(designProjectPhaseInstances.id, phaseInstanceId))
+        .returning();
+      return result[0] || null;
+    } catch (error) {
+      console.error("Error activating phase:", error);
+      throw error;
+    }
+  }
+
+  async transitionPhase(phaseInstanceId: number, userId: number, newStatus: string): Promise<DesignProjectPhaseInstance | null> {
+    try {
+      const updateData: any = {
+        status: newStatus,
+        updatedAt: new Date()
+      };
+
+      if (newStatus === 'completed') {
+        updateData.actualEndDate = new Date();
+        updateData.completedBy = userId;
+      }
+
+      const result = await db.update(designProjectPhaseInstances)
+        .set(updateData)
+        .where(eq(designProjectPhaseInstances.id, phaseInstanceId))
+        .returning();
+      return result[0] || null;
+    } catch (error) {
+      console.error("Error transitioning phase:", error);
+      throw error;
+    }
+  }
+
+  async getPhaseReviews(phaseInstanceId: number): Promise<DesignPhaseReview[]> {
+    try {
+      const tableExists = await this.checkIfTableExists('design_phase_reviews');
+      if (!tableExists) {
+        console.log("Design phase reviews table doesn't exist in the database yet");
+        return [];
+      }
+      return await db.select().from(designPhaseReviews)
+        .where(eq(designPhaseReviews.phaseInstanceId, phaseInstanceId))
+        .orderBy(desc(designPhaseReviews.reviewDate));
+    } catch (error) {
+      console.error("Error fetching phase reviews:", error);
+      return [];
+    }
+  }
+
+  async createPhaseReview(data: InsertDesignPhaseReview): Promise<DesignPhaseReview> {
+    try {
+      const result = await db.insert(designPhaseReviews).values(data).returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error creating phase review:", error);
+      throw error;
+    }
+  }
+
+  async updatePhaseReview(id: number, data: Partial<InsertDesignPhaseReview>): Promise<DesignPhaseReview | null> {
+    try {
+      const result = await db.update(designPhaseReviews).set(data)
+        .where(eq(designPhaseReviews.id, id)).returning();
+      return result[0] || null;
+    } catch (error) {
+      console.error("Error updating phase review:", error);
+      throw error;
+    }
+  }
+
+  async approvePhaseReview(reviewId: number, userId: number, signature: string): Promise<DesignPhaseReview | null> {
+    try {
+      const result = await db.update(designPhaseReviews)
+        .set({
+          reviewOutcome: 'approved',
+          approvedBy: userId,
+          approvalDate: new Date(),
+          electronicSignature: signature,
+          updatedAt: new Date()
+        })
+        .where(eq(designPhaseReviews.id, reviewId))
+        .returning();
+      return result[0] || null;
+    } catch (error) {
+      console.error("Error approving phase review:", error);
+      throw error;
+    }
+  }
+
+  async getDesignPlans(projectId?: number): Promise<DesignPlan[]> {
+    try {
+      const tableExists = await this.checkIfTableExists('design_plans');
+      if (!tableExists) {
+        console.log("Design plans table doesn't exist in the database yet");
+        return [];
+      }
+      
+      let query = db.select().from(designPlans);
+      if (projectId) {
+        query = query.where(eq(designPlans.projectId, projectId));
+      }
+      return await query.orderBy(desc(designPlans.createdAt));
+    } catch (error) {
+      console.error("Error fetching design plans:", error);
+      return [];
+    }
+  }
+
+  async getDesignPlan(id: number): Promise<DesignPlan | null> {
+    try {
+      const tableExists = await this.checkIfTableExists('design_plans');
+      if (!tableExists) return null;
+      const result = await db.select().from(designPlans).where(eq(designPlans.id, id));
+      return result[0] || null;
+    } catch (error) {
+      console.error("Error fetching design plan:", error);
+      return null;
+    }
+  }
+
+  async createDesignPlan(data: InsertDesignPlan): Promise<DesignPlan> {
+    try {
+      const result = await db.insert(designPlans).values(data).returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error creating design plan:", error);
+      throw error;
+    }
+  }
+
+  async updateDesignPlan(id: number, data: Partial<InsertDesignPlan>): Promise<DesignPlan | null> {
+    try {
+      const result = await db.update(designPlans).set(data)
+        .where(eq(designPlans.id, id)).returning();
+      return result[0] || null;
+    } catch (error) {
+      console.error("Error updating design plan:", error);
+      throw error;
+    }
+  }
+
+  async deleteDesignPlan(id: number): Promise<boolean> {
+    try {
+      const result = await db.delete(designPlans).where(eq(designPlans.id, id));
+      return result.rowCount !== null && result.rowCount > 0;
+    } catch (error) {
+      console.error("Error deleting design plan:", error);
+      throw error;
+    }
+  }
+
+  async getTraceabilityLinks(projectId: number): Promise<DesignTraceabilityLink[]> {
+    try {
+      const tableExists = await this.checkIfTableExists('design_traceability_links');
+      if (!tableExists) {
+        console.log("Design traceability links table doesn't exist in the database yet");
+        return [];
+      }
+      return await db.select().from(designTraceabilityLinks)
+        .where(eq(designTraceabilityLinks.projectId, projectId))
+        .orderBy(designTraceabilityLinks.sourceType, designTraceabilityLinks.targetType);
+    } catch (error) {
+      console.error("Error fetching traceability links:", error);
+      return [];
+    }
+  }
+
+  async createTraceabilityLink(data: InsertDesignTraceabilityLink): Promise<DesignTraceabilityLink> {
+    try {
+      const result = await db.insert(designTraceabilityLinks).values(data).returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error creating traceability link:", error);
+      throw error;
+    }
+  }
+
+  async deleteTraceabilityLink(id: number): Promise<boolean> {
+    try {
+      const result = await db.delete(designTraceabilityLinks)
+        .where(eq(designTraceabilityLinks.id, id));
+      return result.rowCount !== null && result.rowCount > 0;
+    } catch (error) {
+      console.error("Error deleting traceability link:", error);
+      throw error;
+    }
+  }
+
+  async logDesignPhaseActivity(data: InsertDesignPhaseAuditTrail): Promise<DesignPhaseAuditTrail> {
+    try {
+      const result = await db.insert(designPhaseAuditTrail).values(data).returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error logging design phase activity:", error);
+      throw error;
+    }
+  }
+
+  async getDesignPhaseAuditTrail(projectId?: number, phaseInstanceId?: number): Promise<DesignPhaseAuditTrail[]> {
+    try {
+      const tableExists = await this.checkIfTableExists('design_phase_audit_trail');
+      if (!tableExists) {
+        console.log("Design phase audit trail table doesn't exist in the database yet");
+        return [];
+      }
+      
+      let query = db.select().from(designPhaseAuditTrail);
+      
+      if (projectId && phaseInstanceId) {
+        query = query.where(and(
+          eq(designPhaseAuditTrail.projectId, projectId),
+          eq(designPhaseAuditTrail.phaseInstanceId, phaseInstanceId)
+        ));
+      } else if (projectId) {
+        query = query.where(eq(designPhaseAuditTrail.projectId, projectId));
+      } else if (phaseInstanceId) {
+        query = query.where(eq(designPhaseAuditTrail.phaseInstanceId, phaseInstanceId));
+      }
+      
+      return await query.orderBy(desc(designPhaseAuditTrail.timestamp));
+    } catch (error) {
+      console.error("Error fetching design phase audit trail:", error);
+      return [];
+    }
+  }
+
 
 }
 

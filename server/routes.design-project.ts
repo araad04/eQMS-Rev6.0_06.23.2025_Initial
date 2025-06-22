@@ -29,10 +29,10 @@ designProjectRouter.get("/api/design-project-statuses", async (req, res) => {
   }
 });
 
-// Get all design projects with details (filtered to show only DP-2025-001 demonstration project)
+// Get all design projects with details
 designProjectRouter.get("/api/design-projects", async (req, res) => {
   try {
-    // Direct query to get DP-2025-001 Cleanroom project
+    // Fetch all design projects
     const projects = await db
       .select({
         id: designProjects.id,
@@ -50,7 +50,7 @@ designProjectRouter.get("/api/design-projects", async (req, res) => {
         projectTypeId: designProjects.projectTypeId
       })
       .from(designProjects)
-      .where(eq(designProjects.projectCode, 'DP-2025-001'));
+      .orderBy(designProjects.createdAt);
     
     res.json(projects);
   } catch (error) {
