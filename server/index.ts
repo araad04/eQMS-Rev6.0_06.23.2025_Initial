@@ -674,6 +674,10 @@ app.use((req, res, next) => {
   // Setup Design Plan Phase-Gated Control routes for ISO 13485:7.3 compliance
   app.use('/api/design-plan', designPlanRoutes);
 
+  // Setup Sequential Phase-Gated Workflow routes for bottleneck enforcement
+  const { phaseGatedWorkflowRouter } = await import('./routes.phase-gated-workflow');
+  app.use(phaseGatedWorkflowRouter);
+
   // Enhanced Technical Documentation integration will be handled through existing routes
 
   // Error handling middleware
