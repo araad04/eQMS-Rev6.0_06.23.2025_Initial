@@ -1971,6 +1971,154 @@ export type InsertDesignControlActivityLog = z.infer<typeof insertDesignControlA
 
 
 
+// ========================================
+// PHASE-GATED DESIGN CONTROL SYSTEM
+// DCM-001 Implementation - Design Plan Architecture
+// ========================================
+
+// Design Plan Phases (ISO 13485:7.3 + 21 CFR 820.30)
+export const designPhaseStatusEnum = pgEnum('design_phase_status', [
+  'not_started', 'active', 'under_review', 'approved', 'locked'
+]);
+
+export const designPhases = pgTable("design_phases", {
+  id: serial("id").primaryKey(),
+  phaseId: text("phase_id").notNull().unique(), // PHASE-01, PHASE-02, etc.
+  name: text("name").notNull(), // Planning, Inputs, Outputs, Verification, Validation, Transfer
+  description: text("description").notNull(),
+  sortOrder: integer("sort_order").notNull(),
+  entryCriteria: text("entry_criteria").notNull(),
+  exitCriteria: text("exit_criteria").notNull(),
+  deliverables: json("deliverables").notNull().default("[]"), // Array of expected deliverables
+  isTemplate: boolean("is_template").default(true), // Template phases vs project-specific
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Project-specific phase instances linked to design projects
+export const designProjectPhaseInstances = pgTable("design_project_phase_instances", {
+  id: serial("id").primaryKey(),
+  projectId: integer("project_id").notNull().references(() => designProjects.id),
+  phaseId: integer("phase_id").notNull().references(() => designPhases.id),
+  status: designPhaseStatusEnum("status").default("not_started").notNull(),
+  startDate: timestamp("start_date"),
+  completionDate: timestamp("completion_date"),
+  reviewDueDate: timestamp("review_due_date"),
+  assignedTo: integer("assigned_to").references(() => users.id),
+  phaseOrder: integer("phase_order").notNull(), // 1, 2, 3, etc.
+  isActive: boolean("is_active").default(false), // Only one phase active at a time
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Phase Reviews with Electronic Signatures (21 CFR Part 11)
+export const designPhaseReviews = pgTable("design_phase_reviews", {
+  id: serial("id").primaryKey(),
+  reviewId: text("review_id").notNull().unique(), // DR-DP-2025-001-01, DR-DP-2025-001-02
+  phaseInstanceId: integer("phase_instance_id").notNull().references(() => designProjectPhaseInstances.id),
+  projectId: integer("project_id").notNull().references(() => designProjects.id),
+  reviewerUserId: integer("reviewer_user_id").notNull().references(() => users.id),
+  reviewType: text("review_type").notNull(), // phase_gate, milestone, interim
+  outcome: text("outcome"), // approved, approved_with_conditions, rejected
+  reviewDate: timestamp("review_date"),
+  signedDate: timestamp("signed_date"),
+  comments: text("comments"),
+  actionItems: json("action_items").notNull().default("[]"), // Array of action items
+  attachments: json("attachments").notNull().default("[]"), // Supporting documents
+  signatureHash: text("signature_hash"), // Electronic signature compliance
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  createdBy: integer("created_by").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Traceability Links between design artifacts
+export const designTraceabilityLinks = pgTable("design_traceability_links", {
+  id: serial("id").primaryKey(),
+  linkId: text("link_id").notNull().unique(), // TL-001, TL-002, etc.
+  sourceType: text("source_type").notNull(), // user_need, design_input, design_output, verification, validation
+  sourceId: text("source_id").notNull(), // UN-001, DI-001, DO-001, VER-001, VAL-001
+  targetType: text("target_type").notNull(),
+  targetId: text("target_id").notNull(),
+  linkType: text("link_type").notNull(), // derives_from, implements, verifies, validates
+  justification: text("justification").notNull(),
+  projectId: integer("project_id").notNull().references(() => designProjects.id),
+  createdBy: integer("created_by").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Design Plan Overview for each project
+export const designPlans = pgTable("design_plans", {
+  id: serial("id").primaryKey(),
+  planId: text("plan_id").notNull().unique(), // DP-PLAN-2025-001
+  projectId: integer("project_id").notNull().references(() => designProjects.id),
+  currentPhaseId: integer("current_phase_id").references(() => designProjectPhaseInstances.id),
+  planStatus: text("plan_status").default("active").notNull(), // active, on_hold, completed
+  overallProgress: integer("overall_progress").default(0).notNull(), // 0-100%
+  planApprovedBy: integer("plan_approved_by").references(() => users.id),
+  planApprovedDate: timestamp("plan_approved_date"),
+  nextReviewDate: timestamp("next_review_date"),
+  riskAssessment: json("risk_assessment").notNull().default("{}"),
+  milestones: json("milestones").notNull().default("[]"),
+  createdBy: integer("created_by").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Audit trail for phase transitions and gating decisions
+export const designPhaseAuditTrail = pgTable("design_phase_audit_trail", {
+  id: serial("id").primaryKey(),
+  phaseInstanceId: integer("phase_instance_id").notNull().references(() => designProjectPhaseInstances.id),
+  action: text("action").notNull(), // phase_started, phase_completed, review_requested, review_approved, phase_locked
+  fromStatus: designPhaseStatusEnum("from_status"),
+  toStatus: designPhaseStatusEnum("to_status").notNull(),
+  performedBy: integer("performed_by").notNull().references(() => users.id),
+  reasonCode: text("reason_code"), // scheduled, completed_deliverables, review_approved, management_decision
+  comments: text("comments"),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+// Insert schemas for Design Plan system
+export const insertDesignPhaseSchema = createInsertSchema(designPhases)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+
+export const insertDesignProjectPhaseInstanceSchema = createInsertSchema(designProjectPhaseInstances)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+
+export const insertDesignPhaseReviewSchema = createInsertSchema(designPhaseReviews)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+
+export const insertDesignTraceabilityLinkSchema = createInsertSchema(designTraceabilityLinks)
+  .omit({ id: true, createdAt: true });
+
+export const insertDesignPlanSchema = createInsertSchema(designPlans)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+
+export const insertDesignPhaseAuditTrailSchema = createInsertSchema(designPhaseAuditTrail)
+  .omit({ id: true, timestamp: true });
+
+// Types for Design Plan system
+export type DesignPhase = typeof designPhases.$inferSelect;
+export type InsertDesignPhase = z.infer<typeof insertDesignPhaseSchema>;
+
+export type DesignProjectPhaseInstance = typeof designProjectPhaseInstances.$inferSelect;
+export type InsertDesignProjectPhaseInstance = z.infer<typeof insertDesignProjectPhaseInstanceSchema>;
+
+export type DesignPhaseReview = typeof designPhaseReviews.$inferSelect;
+export type InsertDesignPhaseReview = z.infer<typeof insertDesignPhaseReviewSchema>;
+
+export type DesignTraceabilityLink = typeof designTraceabilityLinks.$inferSelect;
+export type InsertDesignTraceabilityLink = z.infer<typeof insertDesignTraceabilityLinkSchema>;
+
+export type DesignPlan = typeof designPlans.$inferSelect;
+export type InsertDesignPlan = z.infer<typeof insertDesignPlanSchema>;
+
+export type DesignPhaseAuditTrail = typeof designPhaseAuditTrail.$inferSelect;
+export type InsertDesignPhaseAuditTrail = z.infer<typeof insertDesignPhaseAuditTrailSchema>;
+
 // Define the types for Management Review tables
 export type ManagementReview = typeof managementReviews.$inferSelect;
 export type InsertManagementReview = z.infer<typeof insertManagementReviewSchema>;

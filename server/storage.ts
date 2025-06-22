@@ -27,7 +27,11 @@ import {
   
   // Import Design Control Traceability tables
   designUserNeeds, traceabilityDesignInputs, traceabilityDesignOutputs, verificationRecords, validationRecords,
-  designTaskDependencies, traceabilityMatrixSnapshots, designControlActivityLog
+  designTaskDependencies, traceabilityMatrixSnapshots, designControlActivityLog,
+  
+  // Import Design Plan Phase-Gated System tables
+  designPhases, designProjectPhaseInstances, designPhaseReviews, designTraceabilityLinks,
+  designPlans, designPhaseAuditTrail
 } from "@shared/schema";
 import type { 
   Document, InsertDocument, DocumentVersion, InsertDocumentVersion, DocumentApproval, InsertDocumentApproval,
@@ -60,7 +64,12 @@ import type {
   DesignUserNeed, InsertDesignUserNeed, TraceabilityDesignInput, InsertTraceabilityDesignInput,
   TraceabilityDesignOutput, InsertTraceabilityDesignOutput, VerificationRecord, InsertVerificationRecord,
   ValidationRecord, InsertValidationRecord, DesignTaskDependency, InsertDesignTaskDependency,
-  TraceabilityMatrixSnapshot, InsertTraceabilityMatrixSnapshot, DesignControlActivityLog, InsertDesignControlActivityLog
+  TraceabilityMatrixSnapshot, InsertTraceabilityMatrixSnapshot, DesignControlActivityLog, InsertDesignControlActivityLog,
+  
+  // Import Design Plan Phase-Gated System types
+  DesignPhase, InsertDesignPhase, DesignProjectPhaseInstance, InsertDesignProjectPhaseInstance,
+  DesignPhaseReview, InsertDesignPhaseReview, DesignTraceabilityLink, InsertDesignTraceabilityLink,
+  DesignPlan, InsertDesignPlan, DesignPhaseAuditTrail, InsertDesignPhaseAuditTrail
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
@@ -223,6 +232,62 @@ export interface IStorage {
   // Activity Log
   logDesignControlActivity(activity: InsertDesignControlActivityLog): Promise<DesignControlActivityLog>;
   getDesignControlActivityLog(entityId?: string, entityType?: string): Promise<DesignControlActivityLog[]>;
+
+  // ========================================
+  // DESIGN PLAN PHASE-GATED SYSTEM
+  // ========================================
+
+  // Design Phases
+  getDesignPhases(): Promise<DesignPhase[]>;
+  getDesignPhase(id: number): Promise<DesignPhase | undefined>;
+  createDesignPhase(phase: InsertDesignPhase): Promise<DesignPhase>;
+  updateDesignPhase(id: number, phase: Partial<InsertDesignPhase>): Promise<DesignPhase | undefined>;
+  deleteDesignPhase(id: number): Promise<boolean>;
+
+  // Design Project Phase Instances
+  getDesignProjectPhaseInstances(projectId: number): Promise<DesignProjectPhaseInstance[]>;
+  getDesignProjectPhaseInstance(id: number): Promise<DesignProjectPhaseInstance | undefined>;
+  createDesignProjectPhaseInstance(instance: InsertDesignProjectPhaseInstance): Promise<DesignProjectPhaseInstance>;
+  updateDesignProjectPhaseInstance(id: number, instance: Partial<InsertDesignProjectPhaseInstance>): Promise<DesignProjectPhaseInstance | undefined>;
+  deleteDesignProjectPhaseInstance(id: number): Promise<boolean>;
+  activatePhase(phaseInstanceId: number, userId: number): Promise<DesignProjectPhaseInstance | undefined>;
+  transitionPhase(phaseInstanceId: number, newStatus: string, userId: number, reasonCode?: string, comments?: string): Promise<DesignProjectPhaseInstance | undefined>;
+
+  // Design Phase Reviews
+  getDesignPhaseReviews(projectId?: number): Promise<DesignPhaseReview[]>;
+  getDesignPhaseReview(id: number): Promise<DesignPhaseReview | undefined>;
+  createDesignPhaseReview(review: InsertDesignPhaseReview): Promise<DesignPhaseReview>;
+  updateDesignPhaseReview(id: number, review: Partial<InsertDesignPhaseReview>): Promise<DesignPhaseReview | undefined>;
+  approvePhaseReview(reviewId: number, userId: number, outcome: string, comments?: string, actionItems?: any[]): Promise<DesignPhaseReview | undefined>;
+
+  // Design Traceability Links
+  getDesignTraceabilityLinks(projectId?: number): Promise<DesignTraceabilityLink[]>;
+  getDesignTraceabilityLink(id: number): Promise<DesignTraceabilityLink | undefined>;
+  createDesignTraceabilityLink(link: InsertDesignTraceabilityLink): Promise<DesignTraceabilityLink>;
+  updateDesignTraceabilityLink(id: number, link: Partial<InsertDesignTraceabilityLink>): Promise<DesignTraceabilityLink | undefined>;
+  deleteDesignTraceabilityLink(id: number): Promise<boolean>;
+
+  // Design Plans
+  getDesignPlans(): Promise<DesignPlan[]>;
+  getDesignPlan(id: number): Promise<DesignPlan | undefined>;
+  getDesignPlanByProjectId(projectId: number): Promise<DesignPlan | undefined>;
+  createDesignPlan(plan: InsertDesignPlan): Promise<DesignPlan>;
+  updateDesignPlan(id: number, plan: Partial<InsertDesignPlan>): Promise<DesignPlan | undefined>;
+  deleteDesignPlan(id: number): Promise<boolean>;
+  updatePlanProgress(planId: number, progress: number): Promise<DesignPlan | undefined>;
+
+  // Design Phase Audit Trail
+  logDesignPhaseActivity(activity: InsertDesignPhaseAuditTrail): Promise<DesignPhaseAuditTrail>;
+  getDesignPhaseAuditTrail(phaseInstanceId?: number): Promise<DesignPhaseAuditTrail[]>;
+
+  // Phase Gating Logic
+  canAdvanceToNextPhase(phaseInstanceId: number): Promise<boolean>;
+  getPhaseGatingStatus(projectId: number): Promise<{
+    currentPhase: DesignProjectPhaseInstance | null;
+    nextPhase: DesignProjectPhaseInstance | null;
+    canAdvance: boolean;
+    blockers: string[];
+  }>;
 }
 
 // In-memory implementation of the IStorage interface
@@ -266,6 +331,14 @@ export class MemStorage implements IStorage {
   private designTaskDependencies: DesignTaskDependency[] = [];
   private traceabilityMatrixSnapshots: TraceabilityMatrixSnapshot[] = [];
   private designControlActivityLog: DesignControlActivityLog[] = [];
+  
+  // Design Plan Phase-Gated System arrays
+  private designPhases: DesignPhase[] = [];
+  private designProjectPhaseInstances: DesignProjectPhaseInstance[] = [];
+  private designPhaseReviews: DesignPhaseReview[] = [];
+  private designTraceabilityLinks: DesignTraceabilityLink[] = [];
+  private designPlans: DesignPlan[] = [];
+  private designPhaseAuditTrail: DesignPhaseAuditTrail[] = [];
   
   sessionStore: SessionStore;
 
