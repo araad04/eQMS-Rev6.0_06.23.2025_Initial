@@ -13,6 +13,8 @@ import { Plus, Stethoscope, Edit, Trash2, Search, Download, Upload, CheckCircle,
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 
 const validationSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -155,12 +157,47 @@ const mockValidations: DesignValidation[] = [
 ];
 
 export default function DesignValidationPage() {
-  const [validations, setValidations] = useState<DesignValidation[]>(mockValidations);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingValidation, setEditingValidation] = useState<DesignValidation | null>(null);
+  const queryClient = useQueryClient();
+
+  // Fetch design validations from API
+  const { data: validations = [], isLoading } = useQuery({
+    queryKey: ['/api/design-validation'],
+  });
+
+  // Create validation mutation
+  const createValidationMutation = useMutation({
+    mutationFn: (data: z.infer<typeof validationSchema>) =>
+      apiRequest('/api/design-validation', { method: 'POST', body: JSON.stringify(data) }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/design-validation'] });
+      setIsCreateDialogOpen(false);
+      form.reset();
+    },
+  });
+
+  // Update validation mutation
+  const updateValidationMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<z.infer<typeof validationSchema>> }) =>
+      apiRequest(`/api/design-validation/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/design-validation'] });
+      setEditingValidation(null);
+    },
+  });
+
+  // Delete validation mutation
+  const deleteValidationMutation = useMutation({
+    mutationFn: (id: string) =>
+      apiRequest(`/api/design-validation/${id}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/design-validation'] });
+    },
+  });
 
   const form = useForm<z.infer<typeof validationSchema>>({
     resolver: zodResolver(validationSchema),

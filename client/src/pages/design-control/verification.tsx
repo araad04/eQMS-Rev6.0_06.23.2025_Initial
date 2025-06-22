@@ -13,6 +13,8 @@ import { Plus, FlaskConical, Edit, Trash2, Search, Download, Upload, CheckCircle
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 
 const verificationSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -139,12 +141,47 @@ const mockVerifications: DesignVerification[] = [
 ];
 
 export default function DesignVerificationPage() {
-  const [verifications, setVerifications] = useState<DesignVerification[]>(mockVerifications);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingVerification, setEditingVerification] = useState<DesignVerification | null>(null);
+  const queryClient = useQueryClient();
+
+  // Fetch design verifications from API
+  const { data: verifications = [], isLoading } = useQuery({
+    queryKey: ['/api/design-verification'],
+  });
+
+  // Create verification mutation
+  const createVerificationMutation = useMutation({
+    mutationFn: (data: z.infer<typeof verificationSchema>) =>
+      apiRequest('/api/design-verification', { method: 'POST', body: JSON.stringify(data) }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/design-verification'] });
+      setIsCreateDialogOpen(false);
+      form.reset();
+    },
+  });
+
+  // Update verification mutation
+  const updateVerificationMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<z.infer<typeof verificationSchema>> }) =>
+      apiRequest(`/api/design-verification/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/design-verification'] });
+      setEditingVerification(null);
+    },
+  });
+
+  // Delete verification mutation
+  const deleteVerificationMutation = useMutation({
+    mutationFn: (id: string) =>
+      apiRequest(`/api/design-verification/${id}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/design-verification'] });
+    },
+  });
 
   const form = useForm<z.infer<typeof verificationSchema>>({
     resolver: zodResolver(verificationSchema),

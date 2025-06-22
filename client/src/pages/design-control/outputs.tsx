@@ -14,6 +14,8 @@ import { Plus, FileText, Edit, Trash2, Search, Download, Upload, CheckCircle, Cl
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 
 const designOutputSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -125,12 +127,47 @@ const mockDesignOutputs: DesignOutput[] = [
 ];
 
 export default function DesignOutputsPage() {
-  const [outputs, setOutputs] = useState<DesignOutput[]>(mockDesignOutputs);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingOutput, setEditingOutput] = useState<DesignOutput | null>(null);
+  const queryClient = useQueryClient();
+
+  // Fetch design outputs from API
+  const { data: outputs = [], isLoading } = useQuery({
+    queryKey: ['/api/design-outputs'],
+  });
+
+  // Create output mutation
+  const createOutputMutation = useMutation({
+    mutationFn: (data: z.infer<typeof designOutputSchema>) =>
+      apiRequest('/api/design-outputs', { method: 'POST', body: JSON.stringify(data) }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/design-outputs'] });
+      setIsCreateDialogOpen(false);
+      form.reset();
+    },
+  });
+
+  // Update output mutation
+  const updateOutputMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<z.infer<typeof designOutputSchema>> }) =>
+      apiRequest(`/api/design-outputs/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/design-outputs'] });
+      setEditingOutput(null);
+    },
+  });
+
+  // Delete output mutation
+  const deleteOutputMutation = useMutation({
+    mutationFn: (id: string) =>
+      apiRequest(`/api/design-outputs/${id}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/design-outputs'] });
+    },
+  });
 
   const form = useForm<z.infer<typeof designOutputSchema>>({
     resolver: zodResolver(designOutputSchema),
