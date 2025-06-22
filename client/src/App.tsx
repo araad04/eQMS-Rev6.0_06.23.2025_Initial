@@ -386,6 +386,16 @@ function App() {
           </Layout>
         )} />
 
+        <ProtectedRoute path="/design-control/projects/:projectId/phase-workflow" component={() => (
+          <Layout>
+            <Suspense fallback={<div className="flex justify-center py-8"><Loader2 className="animate-spin" /></div>}>
+              <React.Suspense>
+                {React.createElement(React.lazy(() => import("./pages/design-control/phase-workflow")))}
+              </React.Suspense>
+            </Suspense>
+          </Layout>
+        )} />
+
         <ProtectedRoute path="/design-control" component={() => (
           <Layout>
             <DesignControlDashboard />

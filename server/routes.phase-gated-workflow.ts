@@ -46,36 +46,34 @@ phaseGatedWorkflowRouter.get("/api/phase-gated-workflow/project/:projectId/phase
 
     // Get all phase instances for this project with current status
     const phaseInstances = await db
-      .select({
-        id: designProjectPhaseInstances.id,
-        phaseId: designProjectPhaseInstances.phaseId,
-        status: designProjectPhaseInstances.status,
-        startedAt: designProjectPhaseInstances.startedAt,
-        completedAt: designProjectPhaseInstances.completedAt,
-        reviewId: designProjectPhaseInstances.reviewId,
-        phaseName: designPhases.name,
-        phaseDescription: designPhases.description,
-        sortOrder: designPhases.sortOrder,
-        entryCriteria: designPhases.entryCriteria,
-        exitCriteria: designPhases.exitCriteria,
-        deliverables: designPhases.deliverables,
-      })
+      .select()
       .from(designProjectPhaseInstances)
       .innerJoin(designPhases, eq(designProjectPhaseInstances.phaseId, designPhases.id))
       .where(eq(designProjectPhaseInstances.projectId, projectId))
       .orderBy(asc(designPhases.sortOrder));
 
     // Calculate phase workflow status
-    const phaseWorkflow = phaseInstances.map((phase, index) => {
+    const phaseWorkflow = phaseInstances.map((instance, index) => {
       const previousPhase = index > 0 ? phaseInstances[index - 1] : null;
-      const canStart = !previousPhase || previousPhase.status === 'approved' || previousPhase.status === 'locked';
-      const isBlocked = !canStart && phase.status === 'not_started';
+      const canStart = !previousPhase || previousPhase.design_project_phase_instances.status === 'approved' || previousPhase.design_project_phase_instances.status === 'locked';
+      const isBlocked = !canStart && instance.design_project_phase_instances.status === 'not_started';
 
       return {
-        ...phase,
+        id: instance.design_project_phase_instances.id,
+        phaseId: instance.design_project_phase_instances.phaseId,
+        status: instance.design_project_phase_instances.status,
+        startedAt: instance.design_project_phase_instances.startedAt,
+        completedAt: instance.design_project_phase_instances.completedAt,
+        reviewId: instance.design_project_phase_instances.reviewId,
+        phaseName: instance.design_phases.name,
+        phaseDescription: instance.design_phases.description,
+        sortOrder: instance.design_phases.sortOrder,
+        entryCriteria: instance.design_phases.entryCriteria,
+        exitCriteria: instance.design_phases.exitCriteria,
+        deliverables: instance.design_phases.deliverables,
         canStart,
         isBlocked,
-        blockingPhase: isBlocked ? previousPhase?.phaseName : null,
+        blockingPhase: isBlocked ? previousPhase?.design_phases.name : null,
         sequencePosition: index + 1,
         totalPhases: phaseInstances.length,
       };
