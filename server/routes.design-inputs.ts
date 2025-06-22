@@ -1,7 +1,7 @@
 import express from "express";
 import { z } from "zod";
 import { eq, and, desc } from "drizzle-orm";
-import { db } from "./storage";
+import { db } from "./db";
 import { designInputs, designInputTypes, designProjects, users } from "../shared/schema";
 import { authMiddleware } from "./middleware/auth";
 

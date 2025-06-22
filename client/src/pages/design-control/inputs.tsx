@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,76 +10,163 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Plus, FileText, Edit, Trash2, Search, Filter, Download, Upload, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
+import { Plus, FileText, Edit, Trash2, Search, Filter, Download, Upload, CheckCircle, Clock, AlertTriangle, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 
 const designInputSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
-  category: z.string().min(1, 'Category is required'),
-  priority: z.string().min(1, 'Priority is required'),
+  inputTypeId: z.number().default(1),
+  priority: z.enum(['critical', 'high', 'medium', 'low']).default('medium'),
   source: z.string().min(1, 'Source is required'),
-  regulatoryRequirement: z.string().optional(),
+  functionalRequirement: z.boolean().default(false),
+  performanceRequirement: z.boolean().default(false),
+  safetyRequirement: z.boolean().default(false),
+  usabilityRequirement: z.boolean().default(false),
+  regulatoryRequirement: z.boolean().default(false),
   acceptanceCriteria: z.string().min(1, 'Acceptance criteria is required'),
-  riskLevel: z.string().min(1, 'Risk level is required'),
-  projectId: z.string().min(1, 'Project ID is required'),
+  verificationMethod: z.string().optional(),
+  riskLevel: z.enum(['high', 'medium', 'low']).optional(),
+  projectId: z.number(),
 });
 
 type DesignInput = {
-  id: string;
+  id: number;
+  inputId: string;
   title: string;
   description: string;
-  category: string;
-  priority: string;
   source: string;
-  regulatoryRequirement?: string;
+  functionalRequirement: boolean;
+  performanceRequirement: boolean;
+  safetyRequirement: boolean;
+  usabilityRequirement: boolean;
+  regulatoryRequirement: boolean;
   acceptanceCriteria: string;
-  riskLevel: string;
+  verificationMethod?: string;
+  priority: string;
+  riskLevel?: string;
   status: string;
-  createdDate: string;
-  lastModified: string;
-  assignedTo: string;
-  linkedOutputs: number;
-  verificationStatus: string;
-  projectId: string;
-  projectCode: string;
-  projectTitle: string;
+  createdAt: string;
+  updatedAt: string;
+  createdBy?: string;
+  reviewedAt?: string;
+  approvedAt?: string;
 };
 
-// All design inputs are now fetched from database - no hardcoded data
-
 export default function DesignInputsPage() {
-  const [inputs, setInputs] = useState<DesignInput[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterCategory, setFilterCategory] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingInput, setEditingInput] = useState<DesignInput | null>(null);
+  const queryClient = useQueryClient();
+
+  // Fetch design inputs from database
+  const { data: inputs = [], isLoading } = useQuery({
+    queryKey: ['/api/design-inputs/project', 16], // DP-2025-001 project ID
+    queryFn: () => fetch('/api/design-inputs/project/16').then(res => res.json()),
+  });
 
   const form = useForm<z.infer<typeof designInputSchema>>({
     resolver: zodResolver(designInputSchema),
     defaultValues: {
       title: '',
       description: '',
-      category: '',
-      priority: '',
+      inputTypeId: 1,
+      priority: 'medium',
       source: '',
-      regulatoryRequirement: '',
+      functionalRequirement: false,
+      performanceRequirement: false,
+      safetyRequirement: false,
+      usabilityRequirement: false,
+      regulatoryRequirement: false,
       acceptanceCriteria: '',
-      riskLevel: '',
-      projectId: '16', // Default to DP-2025-001 project
+      verificationMethod: '',
+      riskLevel: 'medium',
+      projectId: 16, // DP-2025-001 project ID
     },
   });
 
-  const filteredInputs = inputs.filter(input => {
+  // Create design input mutation
+  const createInputMutation = useMutation({
+    mutationFn: (data: z.infer<typeof designInputSchema>) =>
+      apiRequest('/api/design-inputs', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/design-inputs/project', 16] });
+      setIsCreateDialogOpen(false);
+      form.reset();
+    },
+  });
+
+  // Update design input mutation
+  const updateInputMutation = useMutation({
+    mutationFn: ({ inputId, data }: { inputId: string; data: Partial<z.infer<typeof designInputSchema>> }) =>
+      apiRequest(`/api/design-inputs/${inputId}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/design-inputs/project', 16] });
+      setEditingInput(null);
+    },
+  });
+
+  // Delete design input mutation
+  const deleteInputMutation = useMutation({
+    mutationFn: (inputId: string) =>
+      apiRequest(`/api/design-inputs/${inputId}`, {
+        method: 'DELETE',
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/design-inputs/project', 16] });
+    },
+  });
+
+  const filteredInputs = inputs.filter((input: DesignInput) => {
     const matchesSearch = input.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          input.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = filterCategory === 'all' || input.category === filterCategory;
     const matchesStatus = filterStatus === 'all' || input.status === filterStatus;
-    return matchesSearch && matchesCategory && matchesStatus;
+    return matchesSearch && matchesStatus;
   });
+
+  const handleSubmit = (data: z.infer<typeof designInputSchema>) => {
+    if (editingInput) {
+      updateInputMutation.mutate({ inputId: editingInput.inputId, data });
+    } else {
+      createInputMutation.mutate(data);
+    }
+  };
+
+  const handleEdit = (input: DesignInput) => {
+    setEditingInput(input);
+    form.reset({
+      title: input.title,
+      description: input.description,
+      inputTypeId: 1,
+      priority: input.priority as 'critical' | 'high' | 'medium' | 'low',
+      source: input.source,
+      functionalRequirement: input.functionalRequirement,
+      performanceRequirement: input.performanceRequirement,
+      safetyRequirement: input.safetyRequirement,
+      usabilityRequirement: input.usabilityRequirement,
+      regulatoryRequirement: input.regulatoryRequirement,
+      acceptanceCriteria: input.acceptanceCriteria,
+      verificationMethod: input.verificationMethod || '',
+      riskLevel: (input.riskLevel as 'high' | 'medium' | 'low') || 'medium',
+      projectId: 16,
+    });
+    setIsCreateDialogOpen(true);
+  };
+
+  const handleDelete = (inputId: string) => {
+    deleteInputMutation.mutate(inputId);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -100,58 +187,16 @@ export default function DesignInputsPage() {
     }
   };
 
-  const onSubmit = (values: z.infer<typeof designInputSchema>) => {
-    if (editingInput) {
-      setInputs(prev => prev.map(input => 
-        input.id === editingInput.id 
-          ? { 
-              ...input, 
-              ...values, 
-              lastModified: new Date().toISOString().split('T')[0],
-              projectCode: 'DP-2025-001',
-              projectTitle: 'clearoom'
-            }
-          : input
-      ));
-      setEditingInput(null);
-    } else {
-      const newInput: DesignInput = {
-        ...values,
-        id: `DI-DP2025001-${String(inputs.length + 1).padStart(3, '0')}`,
-        status: 'Draft',
-        createdDate: new Date().toISOString().split('T')[0],
-        lastModified: new Date().toISOString().split('T')[0],
-        assignedTo: 'Development User',
-        linkedOutputs: 0,
-        verificationStatus: 'Not Started',
-        projectCode: 'DP-2025-001',
-        projectTitle: 'clearoom'
-      };
-      setInputs(prev => [...prev, newInput]);
-    }
-    form.reset();
-    setIsCreateDialogOpen(false);
-  };
-
-  const handleEdit = (input: DesignInput) => {
-    setEditingInput(input);
-    form.reset({
-      title: input.title,
-      description: input.description,
-      category: input.category,
-      priority: input.priority,
-      source: input.source,
-      regulatoryRequirement: input.regulatoryRequirement || '',
-      acceptanceCriteria: input.acceptanceCriteria,
-      riskLevel: input.riskLevel,
-      projectId: input.projectId,
-    });
-    setIsCreateDialogOpen(true);
-  };
-
-  const handleDelete = (id: string) => {
-    setInputs(prev => prev.filter(input => input.id !== id));
-  };
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-6 space-y-6">
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="animate-spin h-8 w-8" />
+          <span className="ml-2">Loading design inputs...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-6 space-y-6">

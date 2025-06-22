@@ -636,6 +636,12 @@ app.use((req, res, next) => {
   const designControlExtended = await import('./routes.design-control-extended');
   app.use('/api/design-control', designControlExtended.default);
 
+  // Register Design Control Submodule API routes for database integration
+  app.use('/api/design-inputs', designInputsRoutes);
+  app.use('/api/design-outputs', designOutputsRoutes);
+  app.use('/api/design-verification', designVerificationRoutes);
+  app.use('/api/design-validation', designValidationRoutes);
+
   // Register design project routes to ensure they are not intercepted by Vite
   const { designProjectRouter } = await import('./routes.design-project');
   app.use(designProjectRouter);
