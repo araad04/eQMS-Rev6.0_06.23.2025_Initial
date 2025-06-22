@@ -2,7 +2,7 @@ import express from "express";
 import { z } from "zod";
 import { eq, and, desc } from "drizzle-orm";
 import { db } from "./db";
-import { traceabilityDesignOutputs, designProjects, users } from "../shared/schema";
+import { traceabilityDesignOutputs, designProjects, users, designOutputTypes } from "../shared/schema";
 import { authMiddleware } from "./middleware/auth";
 
 const router = express.Router();
@@ -70,8 +70,8 @@ router.get("/:outputId", authMiddleware.isAuthenticated, async (req, res) => {
     
     const output = await db
       .select()
-      .from(designOutputs)
-      .where(eq(designOutputs.outputId, outputId))
+      .from(traceabilityDesignOutputs)
+      .where(eq(traceabilityDesignOutputs.outputId, outputId))
       .limit(1);
 
     if (output.length === 0) {
@@ -104,15 +104,15 @@ router.post("/", authMiddleware.isAuthenticated, async (req, res) => {
 
     // Count existing outputs for this project
     const existingOutputs = await db
-      .select({ count: designOutputs.id })
-      .from(designOutputs)
-      .where(eq(designOutputs.projectId, validatedData.projectId));
+      .select({ count: traceabilityDesignOutputs.id })
+      .from(traceabilityDesignOutputs)
+      .where(eq(traceabilityDesignOutputs.projectId, validatedData.projectId));
 
     const outputNumber = String(existingOutputs.length + 1).padStart(3, '0');
     const outputId = `DO-${project[0].projectCode.replace('-', '')}-${outputNumber}`;
 
     const newOutput = await db
-      .insert(designOutputs)
+      .insert(traceabilityDesignOutputs)
       .values({
         ...validatedData,
         outputId,
@@ -137,12 +137,12 @@ router.put("/:outputId", authMiddleware.isAuthenticated, async (req, res) => {
     const validatedData = createDesignOutputSchema.partial().parse(req.body);
 
     const updatedOutput = await db
-      .update(designOutputs)
+      .update(traceabilityDesignOutputs)
       .set({
         ...validatedData,
         updatedAt: new Date(),
       })
-      .where(eq(designOutputs.outputId, outputId))
+      .where(eq(traceabilityDesignOutputs.outputId, outputId))
       .returning();
 
     if (updatedOutput.length === 0) {
@@ -165,8 +165,8 @@ router.delete("/:outputId", authMiddleware.isAuthenticated, async (req, res) => 
     const outputId = req.params.outputId;
 
     const deletedOutput = await db
-      .delete(designOutputs)
-      .where(eq(designOutputs.outputId, outputId))
+      .delete(traceabilityDesignOutputs)
+      .where(eq(traceabilityDesignOutputs.outputId, outputId))
       .returning();
 
     if (deletedOutput.length === 0) {
@@ -208,9 +208,9 @@ router.patch("/:outputId/status", authMiddleware.isAuthenticated, async (req, re
     }
 
     const updatedOutput = await db
-      .update(designOutputs)
+      .update(traceabilityDesignOutputs)
       .set(updateData)
-      .where(eq(designOutputs.outputId, outputId))
+      .where(eq(traceabilityDesignOutputs.outputId, outputId))
       .returning();
 
     if (updatedOutput.length === 0) {
