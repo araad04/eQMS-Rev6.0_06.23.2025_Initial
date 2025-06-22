@@ -1,0 +1,6 @@
+{
+  "name": "simple-server-test",
+  "scripts": {
+    "run": "simple"
+  }
+}

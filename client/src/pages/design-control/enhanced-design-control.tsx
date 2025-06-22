@@ -1,0 +1,1037 @@
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
+import { CalendarIcon, Plus, Search, Filter, FileText, Users, Clock, AlertTriangle, Trash2, CheckCircle, Circle, Target, Zap, GitBranch, Award, Shield } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import PageHeader from "@/components/page-header";
+
+// Enhanced project schema with aerospace requirements
+const projectSchema = z.object({
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  objective: z.string().min(10, "Objective must be at least 10 characters"),
+  projectTypeId: z.number().min(1, "Project type is required"),
+  statusId: z.number().min(1, "Status is required"),
+  responsiblePerson: z.number().min(1, "Responsible person is required"),
+  startDate: z.date(),
+  targetCompletionDate: z.date(),
+  riskLevel: z.enum(["Low", "Medium", "High", "Critical"]),
+  regulatoryImpact: z.boolean(),
+  hasSoftwareComponent: z.boolean(),
+  notes: z.string().optional(),
+});
+
+type ProjectFormData = z.infer<typeof projectSchema>;
+
+interface EnhancedDesignProject {
+  id: number;
+  projectCode: string;
+  title: string;
+  description: string;
+  objective: string;
+  riskLevel: string;
+  riskClass: string;
+  regulatoryPathway: string;
+  regulatoryImpact: boolean;
+  hasSoftwareComponent: boolean;
+  softwareClassification: string;
+  overallProgress: number;
+  startDate: string;
+  targetCompletionDate: string;
+  actualCompletionDate?: string;
+  createdAt: string;
+  status: {
+    id: number;
+    name: string;
+    description: string;
+  };
+  projectType: {
+    id: number;
+    name: string;
+    code: string;
+    requiresSoftwareLifecycle: boolean;
+  };
+  responsiblePerson: {
+    id: number;
+    firstName: string;
+    lastName: string;
+  };
+  projectManager: {
+    id: number;
+    firstName: string;
+    lastName: string;
+  };
+  phases: Array<{
+    id: number;
+    name: string;
+    status: string;
+    completionPercentage: number;
+    as9100dClause: string;
+  }>;
+}
+
+export default function EnhancedDesignControl() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [riskFilter, setRiskFilter] = useState<string>("all");
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<EnhancedDesignProject | null>(null);
+  const [selectedProject, setSelectedProject] = useState<EnhancedDesignProject | null>(null);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Fetch enhanced design projects
+  const { data: projects = [], isLoading: projectsLoading } = useQuery<EnhancedDesignProject[]>({
+    queryKey: ["/api/design-projects-flow"],
+  });
+
+  // Fetch project types
+  const { data: projectTypes = [] } = useQuery({
+    queryKey: ["/api/design-project-types"],
+  });
+
+  // Fetch project statuses
+  const { data: projectStatuses = [] } = useQuery({
+    queryKey: ["/api/design-project-statuses"],
+  });
+
+  // Create project mutation
+  const createProjectMutation = useMutation({
+    mutationFn: (data: ProjectFormData) => apiRequest("POST", "/api/design-projects-flow", {
+      ...data,
+      createdBy: 9999,
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/design-projects-flow"] });
+      setIsCreateDialogOpen(false);
+      toast({
+        title: "Success",
+        description: "Enhanced design project created successfully",
+      });
+      form.reset();
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to create design project",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const form = useForm<ProjectFormData>({
+    resolver: zodResolver(projectSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      objective: "",
+      projectTypeId: 0,
+      statusId: 1,
+      responsiblePerson: 9999,
+      startDate: new Date(),
+      targetCompletionDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+      riskLevel: "Medium",
+      regulatoryImpact: true,
+      hasSoftwareComponent: false,
+      notes: "",
+    },
+  });
+
+  const onSubmit: SubmitHandler<ProjectFormData> = (data) => {
+    createProjectMutation.mutate(data);
+  };
+
+  // Enhanced filtering
+  const filteredProjects = projects.filter(project => {
+    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         project.projectCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         project.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === "all" || project.status.name === statusFilter;
+    const matchesRisk = riskFilter === "all" || project.riskLevel === riskFilter;
+    return matchesSearch && matchesStatus && matchesRisk;
+  });
+
+  // Enhanced status colors
+  const getStatusColor = (statusName: string) => {
+    switch (statusName) {
+      case "Planning": return "bg-blue-500";
+      case "Active": return "bg-green-500";
+      case "On Hold": return "bg-yellow-500";
+      case "Review": return "bg-purple-500";
+      case "Completed": return "bg-emerald-500";
+      case "Cancelled": return "bg-red-500";
+      default: return "bg-gray-500";
+    }
+  };
+
+  // Enhanced risk level colors
+  const getRiskColor = (riskLevel: string) => {
+    switch (riskLevel) {
+      case "Low": return "bg-green-100 text-green-800 border-green-200";
+      case "Medium": return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "High": return "bg-orange-100 text-orange-800 border-orange-200";
+      case "Critical": return "bg-red-100 text-red-800 border-red-200";
+      default: return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  // Get phase status icon
+  const getPhaseStatusIcon = (status: string) => {
+    switch (status) {
+      case "completed": return <CheckCircle className="h-4 w-4 text-green-600" />;
+      case "in_progress": return <Circle className="h-4 w-4 text-blue-600" />;
+      case "planned": return <Clock className="h-4 w-4 text-yellow-600" />;
+      case "not_started": return <Circle className="h-4 w-4 text-gray-400" />;
+      default: return <Circle className="h-4 w-4 text-gray-400" />;
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Enhanced Design Control System"
+        description="AS9100D:8.3 + ISO 13485:7.3 + NADCAP Compliant Design Management"
+      />
+
+      {/* Enhanced Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <div className="p-2 bg-blue-600 rounded-lg">
+            <Shield className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold text-blue-900">Design Project Portfolio</h2>
+            <p className="text-blue-700 text-sm flex items-center gap-2">
+              <Award className="h-4 w-4" />
+              Aerospace + Medical Device Dual Compliance
+            </p>
+          </div>
+        </div>
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-blue-600 hover:bg-blue-700">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Project
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5 text-blue-600" />
+                Create Enhanced Design Project
+              </DialogTitle>
+              <DialogDescription>
+                Create a new design control project with full AS9100D and ISO 13485 compliance framework.
+              </DialogDescription>
+            </DialogHeader>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                {/* Auto-generated project code notice */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <GitBranch className="h-4 w-4 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-900">Project Code Generation</span>
+                  </div>
+                  <p className="text-sm text-blue-700">
+                    Project code will be automatically generated in format: 
+                    <span className="font-mono bg-white px-2 py-1 rounded mx-2">DP-YYYY-XXX</span>
+                    (Design Project - Year - Sequential Number)
+                  </p>
+                </div>
+
+                {/* Basic Information */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <Target className="h-4 w-4" />
+                          Project Title *
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter project title" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="projectTypeId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Project Type *</FormLabel>
+                        <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select project type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {projectTypes.map((type: any) => (
+                              <SelectItem key={type.id} value={type.id.toString()}>
+                                {type.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description *</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Detailed project description..." 
+                          rows={3}
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="objective"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Project Objective *</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Clear, measurable project objectives..." 
+                          rows={3}
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Dates and Risk */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="startDate"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Start Date *</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Select date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) => date < new Date("1900-01-01")}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="targetCompletionDate"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Target Completion *</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Select date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) => date < new Date("1900-01-01")}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="riskLevel"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4" />
+                          Risk Level *
+                        </FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select risk level" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Low">Low Risk</SelectItem>
+                            <SelectItem value="Medium">Medium Risk</SelectItem>
+                            <SelectItem value="High">High Risk</SelectItem>
+                            <SelectItem value="Critical">Critical Risk</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Regulatory and Software */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="regulatoryImpact"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">Regulatory Impact</FormLabel>
+                            <div className="text-sm text-muted-foreground">
+                              Project requires regulatory approval (FAA, EASA, etc.)
+                            </div>
+                          </div>
+                          <FormControl>
+                            <input
+                              type="checkbox"
+                              checked={field.value}
+                              onChange={field.onChange}
+                              className="h-4 w-4"
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="hasSoftwareComponent"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">Software Component</FormLabel>
+                            <div className="text-sm text-muted-foreground">
+                              Project includes software requiring IEC 62304 compliance
+                            </div>
+                          </div>
+                          <FormControl>
+                            <input
+                              type="checkbox"
+                              checked={field.value}
+                              onChange={field.onChange}
+                              className="h-4 w-4"
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Additional Notes</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Additional project notes and considerations..." 
+                          rows={3}
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex justify-end space-x-4 pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsCreateDialogOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    disabled={createProjectMutation.isPending}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    {createProjectMutation.isPending ? "Creating..." : "Create Project"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Enhanced Dashboard Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{projects.length}</div>
+            <p className="text-xs text-muted-foreground">
+              AS9100D Compliant
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Projects</CardTitle>
+            <Zap className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {projects.filter(p => p.status.name === "Active").length}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              In Development
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">High Risk</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-orange-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-600">
+              {projects.filter(p => p.riskLevel === "High" || p.riskLevel === "Critical").length}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Requiring Attention
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Software Projects</CardTitle>
+            <Shield className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">
+              {projects.filter(p => p.hasSoftwareComponent).length}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              IEC 62304 Required
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Avg Progress</CardTitle>
+            <Target className="h-4 w-4 text-purple-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-purple-600">
+              {projects.length > 0 
+                ? Math.round(projects.reduce((sum, p) => sum + p.overallProgress, 0) / projects.length)
+                : 0}%
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Overall Completion
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Enhanced Search and Filter */}
+      <div className="flex flex-col lg:flex-row items-start lg:items-center space-y-4 lg:space-y-0 lg:space-x-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            placeholder="Search projects by title, code, or description..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-48">
+              <Filter className="h-4 w-4 mr-2" />
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              {projectStatuses.map((status: any) => (
+                <SelectItem key={status.id} value={status.name}>
+                  {status.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={riskFilter} onValueChange={setRiskFilter}>
+            <SelectTrigger className="w-48">
+              <AlertTriangle className="h-4 w-4 mr-2" />
+              <SelectValue placeholder="Filter by risk" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Risk Levels</SelectItem>
+              <SelectItem value="Low">Low Risk</SelectItem>
+              <SelectItem value="Medium">Medium Risk</SelectItem>
+              <SelectItem value="High">High Risk</SelectItem>
+              <SelectItem value="Critical">Critical Risk</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Enhanced Projects Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        {projectsLoading ? (
+          <div className="col-span-full flex items-center justify-center py-12">
+            <div className="text-muted-foreground">Loading enhanced projects...</div>
+          </div>
+        ) : filteredProjects.length === 0 ? (
+          <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
+            <Shield className="h-16 w-16 text-muted-foreground/50 mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No Projects Found</h3>
+            <p className="text-muted-foreground mb-4">
+              {projects.length === 0 
+                ? "Create your first AS9100D compliant design project to get started."
+                : "No projects match your current filters."
+              }
+            </p>
+            {projects.length === 0 && (
+              <Button onClick={() => setIsCreateDialogOpen(true)} className="bg-blue-600 hover:bg-blue-700">
+                <Plus className="h-4 w-4 mr-2" />
+                Create First Project
+              </Button>
+            )}
+          </div>
+        ) : (
+          filteredProjects.map((project) => (
+            <Card 
+              key={project.id} 
+              className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-blue-200" 
+              onClick={() => setSelectedProject(project)}
+            >
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-base">{project.title}</CardTitle>
+                    <CardDescription className="font-mono text-xs">
+                      {project.projectCode}
+                    </CardDescription>
+                  </div>
+                  <Badge className={`text-white ${getStatusColor(project.status.name)}`}>
+                    {project.status.name}
+                  </Badge>
+                </div>
+              </CardHeader>
+              
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground line-clamp-2">
+                  {project.description}
+                </p>
+                
+                {/* Progress Bar */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Overall Progress</span>
+                    <span className="font-medium">{project.overallProgress}%</span>
+                  </div>
+                  <Progress value={project.overallProgress} className="h-2" />
+                </div>
+
+                {/* Project Details */}
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Risk Level:</span>
+                    <Badge variant="outline" className={`ml-2 ${getRiskColor(project.riskLevel)}`}>
+                      {project.riskLevel}
+                    </Badge>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Type:</span>
+                    <span className="ml-2 font-medium">{project.projectType.name}</span>
+                  </div>
+                </div>
+
+                {/* Compliance Indicators */}
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                    AS9100D
+                  </Badge>
+                  {project.regulatoryImpact && (
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                      Regulatory
+                    </Badge>
+                  )}
+                  {project.hasSoftwareComponent && (
+                    <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                      IEC 62304
+                    </Badge>
+                  )}
+                  <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
+                    NADCAP
+                  </Badge>
+                </div>
+
+                {/* Phase Status Summary */}
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-muted-foreground">Phase Status:</div>
+                  <div className="grid grid-cols-3 gap-1">
+                    {project.phases.slice(0, 6).map((phase) => (
+                      <div key={phase.id} className="flex items-center gap-1 text-xs">
+                        {getPhaseStatusIcon(phase.status)}
+                        <span className="truncate">{phase.name.split(' ')[0]}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Dates */}
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <div>Started: {format(new Date(project.startDate), "MMM dd, yyyy")}</div>
+                  <div>Target: {format(new Date(project.targetCompletionDate), "MMM dd, yyyy")}</div>
+                </div>
+
+                {/* Action Buttons */}
+                <Separator />
+                <div className="flex gap-2">
+                  <Button variant="ghost" size="sm" className="flex-1" onClick={(e) => e.stopPropagation()}>
+                    View Details
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setProjectToDelete(project);
+                      setDeleteDialogOpen(true);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
+
+      {/* Project Detail Dialog */}
+      {selectedProject && (
+        <Dialog open={!!selectedProject} onOpenChange={() => setSelectedProject(null)}>
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5 text-blue-600" />
+                {selectedProject.projectCode} - {selectedProject.title}
+              </DialogTitle>
+              <DialogDescription>
+                {selectedProject.description}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <Tabs defaultValue="overview" className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="phases">Phases</TabsTrigger>
+                <TabsTrigger value="compliance">Compliance</TabsTrigger>
+                <TabsTrigger value="documents">Documents</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="overview" className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Project Information</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Objective</label>
+                        <p className="text-sm mt-1">{selectedProject.objective}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Regulatory Pathway</label>
+                        <p className="text-sm mt-1">{selectedProject.regulatoryPathway}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Risk Classification</label>
+                        <Badge className={getRiskColor(selectedProject.riskLevel)}>
+                          {selectedProject.riskLevel} - {selectedProject.riskClass}
+                        </Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Team & Timeline</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Responsible Person</label>
+                        <p className="text-sm mt-1">
+                          {selectedProject.responsiblePerson.firstName} {selectedProject.responsiblePerson.lastName}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Project Manager</label>
+                        <p className="text-sm mt-1">
+                          {selectedProject.projectManager.firstName} {selectedProject.projectManager.lastName}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Timeline</label>
+                        <p className="text-sm mt-1">
+                          {format(new Date(selectedProject.startDate), "MMM dd, yyyy")} - 
+                          {format(new Date(selectedProject.targetCompletionDate), "MMM dd, yyyy")}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="phases" className="space-y-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {selectedProject.phases.map((phase) => (
+                    <Card key={phase.id}>
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-base flex items-center gap-2">
+                            {getPhaseStatusIcon(phase.status)}
+                            {phase.name}
+                          </CardTitle>
+                          <Badge variant="outline" className="text-xs">
+                            {phase.as9100dClause}
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Progress</span>
+                            <span className="font-medium">{phase.completionPercentage}%</span>
+                          </div>
+                          <Progress value={phase.completionPercentage} className="h-2" />
+                          <Badge 
+                            variant="outline" 
+                            className={
+                              phase.status === "completed" ? "bg-green-50 text-green-700" :
+                              phase.status === "in_progress" ? "bg-blue-50 text-blue-700" :
+                              phase.status === "planned" ? "bg-yellow-50 text-yellow-700" :
+                              "bg-gray-50 text-gray-700"
+                            }
+                          >
+                            {phase.status.replace('_', ' ').toUpperCase()}
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="compliance" className="space-y-4">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Award className="h-4 w-4 text-blue-600" />
+                        AS9100D Compliance
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>§8.3.2 Planning</span>
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>§8.3.3 Inputs</span>
+                          <Circle className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>§8.3.4 Outputs</span>
+                          <Circle className="h-4 w-4 text-gray-400" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Shield className="h-4 w-4 text-green-600" />
+                        ISO 13485
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>7.3.2 Planning</span>
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>7.3.3 Inputs</span>
+                          <Circle className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>7.3.4 Outputs</span>
+                          <Circle className="h-4 w-4 text-gray-400" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Target className="h-4 w-4 text-orange-600" />
+                        NADCAP
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>AC7101 Rev E</span>
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Aerospace quality requirements fully integrated
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="documents" className="space-y-4">
+                <div className="text-center py-8 text-muted-foreground">
+                  <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>Document management integration coming soon</p>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Design Project</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{projectToDelete?.title}" ({projectToDelete?.projectCode})? 
+              This action cannot be undone and will permanently remove all project data including compliance records.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteDialogOpen(false)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                // Handle delete
+                setDeleteDialogOpen(false);
+                setProjectToDelete(null);
+                toast({
+                  title: "Project Deleted",
+                  description: "Design project has been permanently deleted.",
+                });
+              }}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete Project
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}

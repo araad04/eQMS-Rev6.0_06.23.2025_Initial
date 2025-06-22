@@ -1,0 +1,21 @@
+{
+  "scripts": {
+    "test": "vitest",
+    "test:unit": "vitest run tests/unit --config vitest.config.testing.ts",
+    "test:integration": "vitest run tests/integration --config vitest.config.testing.ts",
+    "test:watch": "vitest watch --config vitest.config.testing.ts",
+    "test:coverage": "vitest run --coverage --config vitest.config.testing.ts",
+    "test:ci": "vitest run --reporter=junit --reporter=json --config vitest.config.testing.ts",
+    "test:verification": "npm run test:unit && npm run test:integration && npm run test:coverage",
+    "test:validation": "npm run test:verification && npm run test:performance && npm run test:security",
+    "test:performance": "vitest run tests/performance --config vitest.config.testing.ts",
+    "test:security": "vitest run tests/security --config vitest.config.testing.ts",
+    "test:compliance": "npm run test:validation && npm run generate:compliance-report",
+    "generate:test-report": "node scripts/generate-test-report.js",
+    "generate:compliance-report": "node scripts/generate-compliance-report.js",
+    "generate:traceability-matrix": "node scripts/generate-traceability-matrix.js",
+    "validate:fda-21cfr11": "node scripts/validate-fda-compliance.js",
+    "validate:iso13485": "node scripts/validate-iso13485-compliance.js",
+    "archive:test-results": "node scripts/archive-test-results.js"
+  }
+}

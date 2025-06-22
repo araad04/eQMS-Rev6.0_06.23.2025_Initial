@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>KPI Debug Test</title>
+</head>
+<body>
+    <h1>KPI Widget Debug Test</h1>
+    <div id="test">Testing if KPI widgets render...</div>
+    
+    <script>
+        // Test if the dashboard page loads KPI widgets
+        fetch('http://localhost:5000/')
+            .then(response => response.text())
+            .then(html => {
+                console.log('Dashboard HTML length:', html.length);
+                console.log('Contains CAPA widget:', html.includes('CapaKPIWidget'));
+                console.log('Contains Supplier widget:', html.includes('SupplierKPIWidget'));
+                document.getElementById('test').innerHTML = 
+                    'Dashboard loaded. Check console for widget detection results.';
+            });
+    </script>
+</body>
+</html>

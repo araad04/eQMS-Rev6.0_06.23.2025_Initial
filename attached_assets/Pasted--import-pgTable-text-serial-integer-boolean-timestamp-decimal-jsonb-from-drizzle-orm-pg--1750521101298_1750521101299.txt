@@ -1,0 +1,479 @@
+
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+import { users } from "./schema";
+
+// ========================================
+// ENHANCED AEROSPACE DESIGN CONTROL SYSTEM
+// AS9100D:8.3 + ISO 13485:7.3 + NADCAP Compliance
+// ========================================
+
+// Enhanced Design Project Types
+export const enhancedDesignProjectTypes = pgTable("enhanced_design_project_types", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  code: text("code").notNull().unique(), // AC (Aerospace Component), SW (Software), SY (System)
+  description: text("description"),
+  requiresSoftwareLifecycle: boolean("requires_software_lifecycle").default(false),
+  as9100dApplicable: boolean("as9100d_applicable").default(true),
+  iso13485Applicable: boolean("iso13485_applicable").default(false),
+  nadcapRequired: boolean("nadcap_required").default(false),
+  defaultPhaseTemplate: jsonb("default_phase_template"), // JSON template for phases
+  riskAssessmentRequired: boolean("risk_assessment_required").default(true),
+  configurationControlRequired: boolean("configuration_control_required").default(true),
+  supplierInvolvementRequired: boolean("supplier_involvement_required").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Enhanced Design Project Statuses
+export const enhancedDesignProjectStatuses = pgTable("enhanced_design_project_statuses", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  description: text("description"),
+  isTerminal: boolean("is_terminal").default(false),
+  allowedTransitions: jsonb("allowed_transitions"), // JSON array of next allowed statuses
+  requiresApproval: boolean("requires_approval").default(false),
+  complianceGateRequired: boolean("compliance_gate_required").default(false),
+  as9100dPhaseGate: text("as9100d_phase_gate"), // Which AS9100D phase gate this represents
+  auditTrailRequired: boolean("audit_trail_required").default(true),
+  color: text("color").default("gray"),
+  displayOrder: integer("display_order").default(0),
+  isActive: boolean("is_active").default(true),
+});
+
+// Enhanced Design Project Phases
+export const enhancedDesignProjectPhases = pgTable("enhanced_design_project_phases", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  orderIndex: integer("order_index").notNull(),
+  isGate: boolean("is_gate").default(false), // true for gates requiring formal approval
+  as9100dClause: text("as9100d_clause"), // e.g., "8.3.2", "8.3.3"
+  iso13485Clause: text("iso13485_clause"), // e.g., "7.3.2", "7.3.3"
+  nadcapRequirement: text("nadcap_requirement"), // e.g., "AC7101 Rev E Section 3.2"
+  requiredDeliverables: jsonb("required_deliverables"), // JSON array
+  entryExitCriteria: jsonb("entry_exit_criteria"), // JSON object
+  riskAssessmentRequired: boolean("risk_assessment_required").default(false),
+  configurationControlRequired: boolean("configuration_control_required").default(false),
+  supplierReviewRequired: boolean("supplier_review_required").default(false),
+  customerApprovalRequired: boolean("customer_approval_required").default(false),
+  internalApprovalRequired: boolean("internal_approval_required").default(true),
+  estimatedDurationDays: integer("estimated_duration_days"),
+  predecessorPhases: jsonb("predecessor_phases"), // JSON array of phase IDs
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Enhanced Project Phase Instances
+export const enhancedProjectPhaseInstances = pgTable("enhanced_project_phase_instances", {
+  id: serial("id").primaryKey(),
+  projectId: integer("project_id").notNull(),
+  phaseId: integer("phase_id").notNull().references(() => enhancedDesignProjectPhases.id),
+  status: text("status").notNull().default("not_started"), // not_started, in_progress, under_review, approved, completed, on_hold
+  plannedStartDate: timestamp("planned_start_date"),
+  plannedEndDate: timestamp("planned_end_date"),
+  actualStartDate: timestamp("actual_start_date"),
+  actualEndDate: timestamp("actual_end_date"),
+  approver: integer("approver").references(() => users.id),
+  approvedAt: timestamp("approved_at"),
+  approvalComments: text("approval_comments"),
+  rejectionReason: text("rejection_reason"),
+  completionPercentage: integer("completion_percentage").default(0),
+  effortHoursPlanned: decimal("effort_hours_planned", { precision: 8, scale: 2 }),
+  effortHoursActual: decimal("effort_hours_actual", { precision: 8, scale: 2 }),
+  budgetAllocated: decimal("budget_allocated", { precision: 12, scale: 2 }),
+  budgetSpent: decimal("budget_spent", { precision: 12, scale: 2 }),
+  riskLevel: text("risk_level").default("medium"), // low, medium, high, critical
+  issuesEncountered: jsonb("issues_encountered"), // JSON array of issues
+  lessonsLearned: text("lessons_learned"),
+  nextPhaseRecommendations: text("next_phase_recommendations"),
+  qualityMetrics: jsonb("quality_metrics"), // JSON object with quality measurements
+  complianceVerified: boolean("compliance_verified").default(false),
+  complianceVerifiedBy: integer("compliance_verified_by").references(() => users.id),
+  complianceVerifiedAt: timestamp("compliance_verified_at"),
+  auditTrail: jsonb("audit_trail"), // JSON array of audit entries
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Enhanced Design Projects Master
+export const enhancedDesignProjects = pgTable("enhanced_design_projects", {
+  id: serial("id").primaryKey(),
+  projectCode: text("project_code").notNull().unique(), // AUTO: DP-2025-001
+  projectTypeId: integer("project_type_id").notNull().references(() => enhancedDesignProjectTypes.id),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  objective: text("objective").notNull(),
+  statusId: integer("status_id").notNull().references(() => enhancedDesignProjectStatuses.id),
+  
+  // Risk and Compliance
+  riskLevel: text("risk_level").notNull(), // Low, Medium, High, Critical
+  riskClass: text("risk_class"), // Class I, II, III (FDA), Class I, IIa, IIb, III (EU)
+  riskAssessmentRequired: boolean("risk_assessment_required").default(true),
+  riskManagementFileId: integer("risk_management_file_id"), // Link to risk management file
+  
+  // Regulatory and Standards
+  regulatoryPathway: text("regulatory_pathway"), // 510(k), PMA, De Novo, CE Mark, etc.
+  regulatoryImpact: boolean("regulatory_impact").default(false),
+  as9100dApplicable: boolean("as9100d_applicable").default(true),
+  iso13485Applicable: boolean("iso13485_applicable").default(false),
+  nadcapRequired: boolean("nadcap_required").default(false),
+  itar: boolean("itar").default(false), // International Traffic in Arms Regulations
+  ear: boolean("ear").default(false), // Export Administration Regulations
+  
+  // Software Component Management
+  hasSoftwareComponent: boolean("has_software_component").default(false),
+  softwareClassification: text("software_classification"), // Class A, B, C (IEC 62304)
+  iec62304Applicable: boolean("iec62304_applicable").default(false),
+  cybersecurityRequired: boolean("cybersecurity_required").default(false),
+  
+  // Team and Responsibilities
+  responsiblePerson: integer("responsible_person").notNull().references(() => users.id),
+  projectManager: integer("project_manager").references(() => users.id),
+  qualityLead: integer("quality_lead").references(() => users.id),
+  regulatoryLead: integer("regulatory_lead").references(() => users.id),
+  clinicalLead: integer("clinical_lead").references(() => users.id),
+  engineeringLead: integer("engineering_lead").references(() => users.id),
+  testLead: integer("test_lead").references(() => users.id),
+  configurationManager: integer("configuration_manager").references(() => users.id),
+  
+  // Timeline and Milestones
+  startDate: timestamp("start_date").notNull(),
+  targetCompletionDate: timestamp("target_completion_date").notNull(),
+  actualCompletionDate: timestamp("actual_completion_date"),
+  currentPhaseId: integer("current_phase_id").references(() => enhancedProjectPhaseInstances.id),
+  overallProgress: integer("overall_progress").default(0), // 0-100%
+  criticalPath: jsonb("critical_path"), // JSON array of critical path phases
+  
+  // Budget and Resources
+  budgetAllocated: decimal("budget_allocated", { precision: 12, scale: 2 }),
+  budgetSpent: decimal("budget_spent", { precision: 12, scale: 2 }),
+  budgetCurrency: text("budget_currency").default("USD"),
+  resourceAllocation: jsonb("resource_allocation"), // JSON object with resource planning
+  
+  // Configuration Management
+  configurationControlRequired: boolean("configuration_control_required").default(true),
+  baselineConfiguration: jsonb("baseline_configuration"), // JSON object
+  configurationItems: jsonb("configuration_items"), // JSON array of CIs
+  changeControlBoard: jsonb("change_control_board"), // JSON array of CCB members
+  
+  // Supplier Management
+  supplierInvolvementRequired: boolean("supplier_involvement_required").default(false),
+  criticalSuppliers: jsonb("critical_suppliers"), // JSON array of supplier IDs
+  supplierAgreements: jsonb("supplier_agreements"), // JSON array of agreement references
+  
+  // Quality and Metrics
+  qualityObjectives: jsonb("quality_objectives"), // JSON array of quality goals
+  performanceMetrics: jsonb("performance_metrics"), // JSON object with KPIs
+  customerSatisfactionTarget: decimal("customer_satisfaction_target", { precision: 5, scale: 2 }),
+  defectRateTarget: decimal("defect_rate_target", { precision: 10, scale: 6 }),
+  
+  // Documentation and Records
+  designHistoryFileId: integer("design_history_file_id"), // Link to DHF
+  technicalFileId: integer("technical_file_id"), // Link to technical file
+  validationMasterPlanId: integer("validation_master_plan_id"), // Link to VMP
+  
+  // Business Information
+  marketSegment: text("market_segment"), // Commercial, Military, Space, etc.
+  targetMarkets: jsonb("target_markets"), // JSON array of target markets
+  competitiveAdvantage: text("competitive_advantage"),
+  businessCase: text("business_case"),
+  roi: decimal("roi", { precision: 5, scale: 2 }), // Return on Investment %
+  
+  // Project Metadata
+  priority: text("priority").default("medium"), // low, medium, high, critical
+  complexity: text("complexity").default("medium"), // low, medium, high
+  innovationLevel: text("innovation_level").default("incremental"), // incremental, breakthrough, disruptive
+  technologyReadinessLevel: integer("technology_readiness_level"), // TRL 1-9
+  
+  // Notes and Communications
+  notes: text("notes"),
+  executiveSummary: text("executive_summary"),
+  statusReportFrequency: text("status_report_frequency").default("weekly"), // daily, weekly, biweekly, monthly
+  communicationPlan: jsonb("communication_plan"), // JSON object
+  
+  // Archival and Closure
+  isArchived: boolean("is_archived").default(false),
+  archivedBy: integer("archived_by").references(() => users.id),
+  archivedAt: timestamp("archived_at"),
+  archivalReason: text("archival_reason"),
+  retentionPeriodYears: integer("retention_period_years").default(7),
+  
+  // Audit and Tracking
+  createdBy: integer("created_by").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedBy: integer("updated_by").references(() => users.id),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  lastReviewedAt: timestamp("last_reviewed_at"),
+  lastReviewedBy: integer("last_reviewed_by").references(() => users.id),
+  auditHistory: jsonb("audit_history"), // JSON array of major changes
+});
+
+// Enhanced Design Actions/Tasks
+export const enhancedDesignProjectTasks = pgTable("enhanced_design_project_tasks", {
+  id: serial("id").primaryKey(),
+  projectId: integer("project_id").notNull().references(() => enhancedDesignProjects.id),
+  phaseInstanceId: integer("phase_instance_id").references(() => enhancedProjectPhaseInstances.id),
+  taskId: text("task_id").notNull().unique(), // AUTO: TSK-DP-2025-001-001
+  title: text("title").notNull(),
+  description: text("description"),
+  taskType: text("task_type").notNull(), // deliverable, review, verification, validation, gate, milestone
+  priority: text("priority").notNull().default("medium"), // critical, high, medium, low
+  complexity: text("complexity").default("medium"), // low, medium, high
+  
+  // Effort and Timeline
+  estimatedHours: decimal("estimated_hours", { precision: 5, scale: 2 }),
+  actualHours: decimal("actual_hours", { precision: 5, scale: 2 }),
+  plannedStartDate: timestamp("planned_start_date"),
+  plannedEndDate: timestamp("planned_end_date"),
+  actualStartDate: timestamp("actual_start_date"),
+  actualEndDate: timestamp("actual_end_date"),
+  
+  // Status and Progress
+  status: text("status").notNull().default("not_started"), // not_started, in_progress, blocked, under_review, completed, cancelled
+  blockingReason: text("blocking_reason"),
+  blockingIssues: jsonb("blocking_issues"), // JSON array of blocking issues
+  completionPercentage: integer("completion_percentage").default(0),
+  
+  // Assignments and Reviews
+  assigneeId: integer("assignee_id").references(() => users.id),
+  reviewerId: integer("reviewer_id").references(() => users.id),
+  approverId: integer("approver_id").references(() => users.id),
+  backupAssigneeId: integer("backup_assignee_id").references(() => users.id),
+  
+  // Dependencies and Relationships
+  parentTaskId: integer("parent_task_id").references(() => enhancedDesignProjectTasks.id),
+  dependencies: jsonb("dependencies"), // JSON array of task IDs this task depends on
+  dependents: jsonb("dependents"), // JSON array of task IDs that depend on this task
+  
+  // Compliance and Requirements
+  isoRequirement: text("iso_requirement"), // Link to ISO 13485 clause
+  iecRequirement: text("iec_requirement"), // Link to IEC 62304 clause
+  as9100dRequirement: text("as9100d_requirement"), // Link to AS9100D clause
+  nadcapRequirement: text("nadcap_requirement"), // Link to NADCAP requirement
+  complianceVerificationRequired: boolean("compliance_verification_required").default(false),
+  
+  // Deliverables and Evidence
+  expectedDeliverables: jsonb("expected_deliverables"), // JSON array of expected outputs
+  actualDeliverables: jsonb("actual_deliverables"), // JSON array of actual outputs
+  evidenceDocuments: jsonb("evidence_documents"), // JSON array of evidence files
+  acceptanceCriteria: text("acceptance_criteria"),
+  verificationMethod: text("verification_method"), // test, analysis, inspection, demonstration
+  
+  // Quality and Metrics
+  qualityGate: boolean("quality_gate").default(false),
+  qualityMetrics: jsonb("quality_metrics"), // JSON object with quality measurements
+  defectsFound: integer("defects_found").default(0),
+  reworkRequired: boolean("rework_required").default(false),
+  reworkReason: text("rework_reason"),
+  
+  // Risk and Issues
+  riskLevel: text("risk_level").default("medium"), // low, medium, high, critical
+  identifiedRisks: jsonb("identified_risks"), // JSON array of risks
+  mitigationActions: jsonb("mitigation_actions"), // JSON array of mitigation measures
+  
+  // Communication and Reporting
+  statusReports: jsonb("status_reports"), // JSON array of status updates
+  communicationPlan: jsonb("communication_plan"), // JSON object
+  escalationCriteria: text("escalation_criteria"),
+  stakeholderNotifications: jsonb("stakeholder_notifications"), // JSON array
+  
+  // Audit and Tracking
+  createdBy: integer("created_by").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedBy: integer("updated_by").references(() => users.id),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  completedBy: integer("completed_by").references(() => users.id),
+  completedAt: timestamp("completed_at"),
+  auditTrail: jsonb("audit_trail"), // JSON array of changes
+});
+
+// Enhanced Design Inputs
+export const enhancedDesignInputs = pgTable("enhanced_design_inputs", {
+  id: serial("id").primaryKey(),
+  projectId: integer("project_id").notNull().references(() => enhancedDesignProjects.id),
+  inputId: text("input_id").notNull().unique(), // AUTO: DI-DP-2025-001-001
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  
+  // Input Classification
+  inputTypeId: integer("input_type_id"), // Reference to input types
+  source: text("source").notNull(), // User Need, Market Research, Regulatory, Clinical, Risk Analysis
+  sourceDocumentId: text("source_document_id"), // Reference to source document
+  sourceVersion: text("source_version"), // Version of source document
+  
+  // Requirement Types
+  functionalRequirement: boolean("functional_requirement").default(false),
+  performanceRequirement: boolean("performance_requirement").default(false),
+  safetyRequirement: boolean("safety_requirement").default(false),
+  usabilityRequirement: boolean("usability_requirement").default(false),
+  regulatoryRequirement: boolean("regulatory_requirement").default(false),
+  interfaceRequirement: boolean("interface_requirement").default(false),
+  environmentalRequirement: boolean("environmental_requirement").default(false),
+  reliabilityRequirement: boolean("reliability_requirement").default(false),
+  maintainabilityRequirement: boolean("maintainability_requirement").default(false),
+  securityRequirement: boolean("security_requirement").default(false),
+  
+  // Specification Details
+  acceptanceCriteria: text("acceptance_criteria").notNull(),
+  verificationMethod: text("verification_method"), // Test, Analysis, Inspection, Demonstration
+  validationMethod: text("validation_method"), // Clinical, User Testing, Field Testing
+  measurableParameters: jsonb("measurable_parameters"), // JSON object with parameters
+  tolerances: jsonb("tolerances"), // JSON object with tolerance specifications
+  
+  // Priority and Risk
+  priority: text("priority").notNull().default("medium"), // critical, high, medium, low
+  riskLevel: text("risk_level"), // High, Medium, Low
+  failureMode: text("failure_mode"), // What happens if this requirement fails
+  severity: text("severity"), // Critical, Major, Minor
+  occurrence: text("occurrence"), // Frequent, Occasional, Rare
+  detectability: text("detectability"), // High, Medium, Low
+  riskPriorityNumber: integer("risk_priority_number"), // Calculated RPN
+  
+  // Traceability
+  traceabilityUpstream: jsonb("traceability_upstream"), // JSON array of user needs/requirements
+  traceabilityDownstream: jsonb("traceability_downstream"), // JSON array of outputs/specs
+  relatedInputs: jsonb("related_inputs"), // JSON array of related input IDs
+  impactedOutputs: jsonb("impacted_outputs"), // JSON array of outputs affected
+  
+  // Approval Workflow
+  status: text("status").notNull().default("draft"), // draft, reviewed, approved, implemented, verified, obsolete
+  reviewerId: integer("reviewer_id").references(() => users.id),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewComments: text("review_comments"),
+  approverId: integer("approver_id").references(() => users.id),
+  approvedAt: timestamp("approved_at"),
+  approvalComments: text("approval_comments"),
+  rejectionReason: text("rejection_reason"),
+  
+  // Change Management
+  version: text("version").default("1.0"),
+  changeHistory: jsonb("change_history"), // JSON array of changes
+  changeControlNumber: text("change_control_number"),
+  impactAssessment: text("impact_assessment"),
+  
+  // Documentation
+  fileUploads: jsonb("file_uploads"), // JSON array of uploaded files
+  externalReferences: jsonb("external_references"), // JSON array of external documents
+  standards: jsonb("standards"), // JSON array of applicable standards
+  regulations: jsonb("regulations"), // JSON array of applicable regulations
+  
+  // Compliance and Standards
+  iso13485Clause: text("iso13485_clause"), // Reference to ISO 13485 clause
+  iec62304Clause: text("iec62304_clause"), // Reference to IEC 62304 clause
+  as9100dClause: text("as9100d_clause"), // Reference to AS9100D clause
+  nadcapRequirement: text("nadcap_requirement"), // Reference to NADCAP requirement
+  fdaGuidance: text("fda_guidance"), // Reference to FDA guidance
+  
+  // Testing and Verification
+  testProtocol: text("test_protocol"),
+  testProcedure: text("test_procedure"),
+  expectedResults: text("expected_results"),
+  testEquipment: jsonb("test_equipment"), // JSON array of required equipment
+  testEnvironment: text("test_environment"),
+  passFailCriteria: text("pass_fail_criteria"),
+  
+  // Business Information
+  customerRequirement: boolean("customer_requirement").default(false),
+  competitiveAdvantage: boolean("competitive_advantage").default(false),
+  marketDifferentiator: boolean("market_differentiator").default(false),
+  costImplication: text("cost_implication"), // High, Medium, Low, None
+  scheduleImplication: text("schedule_implication"), // High, Medium, Low, None
+  
+  // Audit and Tracking
+  createdBy: integer("created_by").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedBy: integer("updated_by").references(() => users.id),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  auditTrail: jsonb("audit_trail"), // JSON array of changes
+});
+
+// Insert Schemas for Enhanced Design Control
+export const insertEnhancedDesignProjectTypeSchema = createInsertSchema(enhancedDesignProjectTypes);
+export const insertEnhancedDesignProjectStatusSchema = createInsertSchema(enhancedDesignProjectStatuses);
+export const insertEnhancedDesignProjectPhaseSchema = createInsertSchema(enhancedDesignProjectPhases);
+export const insertEnhancedProjectPhaseInstanceSchema = createInsertSchema(enhancedProjectPhaseInstances).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertEnhancedDesignProjectSchema = createInsertSchema(enhancedDesignProjects).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  projectCode: true, // Auto-generated
+  currentPhaseId: true,
+  overallProgress: true,
+}).extend({
+  startDate: z.union([z.date(), z.string().transform((str) => new Date(str))]),
+  targetCompletionDate: z.union([z.date(), z.string().transform((str) => new Date(str))]),
+  actualCompletionDate: z.union([z.date(), z.string().transform((str) => new Date(str))]).optional(),
+});
+
+export const insertEnhancedDesignTaskSchema = createInsertSchema(enhancedDesignProjectTasks).omit({
+  id: true,
+  taskId: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertEnhancedDesignInputSchema = createInsertSchema(enhancedDesignInputs).omit({
+  id: true,
+  inputId: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Types for Enhanced Design Control
+export type EnhancedDesignProjectType = typeof enhancedDesignProjectTypes.$inferSelect;
+export type InsertEnhancedDesignProjectType = z.infer<typeof insertEnhancedDesignProjectTypeSchema>;
+
+export type EnhancedDesignProjectStatus = typeof enhancedDesignProjectStatuses.$inferSelect;
+export type InsertEnhancedDesignProjectStatus = z.infer<typeof insertEnhancedDesignProjectStatusSchema>;
+
+export type EnhancedDesignProjectPhase = typeof enhancedDesignProjectPhases.$inferSelect;
+export type InsertEnhancedDesignProjectPhase = z.infer<typeof insertEnhancedDesignProjectPhaseSchema>;
+
+export type EnhancedProjectPhaseInstance = typeof enhancedProjectPhaseInstances.$inferSelect;
+export type InsertEnhancedProjectPhaseInstance = z.infer<typeof insertEnhancedProjectPhaseInstanceSchema>;
+
+export type EnhancedDesignProjectTask = typeof enhancedDesignProjectTasks.$inferSelect;
+export type InsertEnhancedDesignProjectTask = z.infer<typeof insertEnhancedDesignTaskSchema>;
+
+export type EnhancedDesignProject = typeof enhancedDesignProjects.$inferSelect;
+export type InsertEnhancedDesignProject = z.infer<typeof insertEnhancedDesignProjectSchema>;
+
+export type EnhancedDesignInput = typeof enhancedDesignInputs.$inferSelect;
+export type InsertEnhancedDesignInput = z.infer<typeof insertEnhancedDesignInputSchema>;
+
+// Enhanced Relations
+export const enhancedDesignProjectsRelations = relations(enhancedDesignProjects, ({ one, many }) => ({
+  projectType: one(enhancedDesignProjectTypes, {
+    fields: [enhancedDesignProjects.projectTypeId],
+    references: [enhancedDesignProjectTypes.id],
+  }),
+  status: one(enhancedDesignProjectStatuses, {
+    fields: [enhancedDesignProjects.statusId],
+    references: [enhancedDesignProjectStatuses.id],
+  }),
+  responsiblePerson: one(users, {
+    fields: [enhancedDesignProjects.responsiblePerson],
+    references: [users.id],
+  }),
+  projectManager: one(users, {
+    fields: [enhancedDesignProjects.projectManager],
+    references: [users.id],
+  }),
+  creator: one(users, {
+    fields: [enhancedDesignProjects.createdBy],
+    references: [users.id],
+  }),
+  tasks: many(enhancedDesignProjectTasks),
+  inputs: many(enhancedDesignInputs),
+  phaseInstances: many(enhancedProjectPhaseInstances),
+}));

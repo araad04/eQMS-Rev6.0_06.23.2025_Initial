@@ -1,0 +1,723 @@
+import { useState } from "react";
+import { useLocation } from "wouter";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { PageHeader } from "@/components/layout/page-header";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import { 
+  Card, 
+  CardHeader, 
+  CardTitle, 
+  CardDescription, 
+  CardContent, 
+  CardFooter 
+} from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { 
+  CalendarIcon, 
+  ArrowLeft,
+  AlertTriangle,
+  Check,
+  FileText,
+  Upload,
+  Clipboard,
+  PencilRuler,
+  SearchCheck
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+
+// Form schema for creating a new CAPA
+const capaFormSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  capaId: z.string().min(1, "CAPA ID is required"),
+  description: z.string().min(1, "Description is required"),
+  typeId: z.coerce.number().min(1, "Type is required"),
+  statusId: z.coerce.number().min(1, "Status is required"),
+  initiatedBy: z.coerce.number().min(1, "Initiated by is required"),
+  assignedTo: z.coerce.number().optional(),
+  dueDate: z.date().optional(),
+  // New fields for improved CAPA workflow
+  source: z.string().min(1, "Source is required"),
+  riskPriority: z.string().min(1, "Risk priority is required"),
+  patientSafetyImpact: z.boolean().default(false),
+  productPerformanceImpact: z.boolean().default(false),
+  complianceImpact: z.boolean().default(false),
+  immediateContainment: z.boolean().default(false),
+  containmentActions: z.string().optional(),
+  rcaMethod: z.string().min(1, "RCA method is required"),
+  effectiveness: z.string().optional(),
+});
+
+type CapaFormValues = z.infer<typeof capaFormSchema>;
+
+export default function CapaCreate() {
+  const [, navigate] = useLocation();
+  const { toast } = useToast();
+  
+  // Generate a unique CAPA ID
+  const generateCapaId = () => {
+    const year = new Date().getFullYear();
+    const month = String(new Date().getMonth() + 1).padStart(2, '0');
+    const day = String(new Date().getDate()).padStart(2, '0');
+    const hours = String(new Date().getHours()).padStart(2, '0');
+    const minutes = String(new Date().getMinutes()).padStart(2, '0');
+    const seconds = String(new Date().getSeconds()).padStart(2, '0');
+    const uniqueNumber = Date.now() % 1000;
+    return `CAPA-${year}-${month}-${String(uniqueNumber).padStart(3, '0')}`;
+  };
+  
+  // Form for creating a new CAPA
+  const form = useForm<CapaFormValues>({
+    resolver: zodResolver(capaFormSchema),
+    defaultValues: {
+      title: "",
+      capaId: generateCapaId(),
+      description: "",
+      typeId: 1, // Default to 'Corrective Action'
+      statusId: 1, // Default to 'Open'
+      initiatedBy: 2, // Default to current user (assuming user ID 2)
+      assignedTo: undefined,
+      dueDate: undefined,
+      // New fields for improved CAPA workflow
+      source: "",
+      riskPriority: "medium",
+      patientSafetyImpact: false,
+      productPerformanceImpact: false,
+      complianceImpact: false,
+      immediateContainment: false,
+      containmentActions: "",
+      rcaMethod: "5whys",
+      effectiveness: "",
+    },
+  });
+  
+  // Create CAPA mutation
+  const createCapaMutation = useMutation({
+    mutationFn: async (data: CapaFormValues) => {
+      const res = await apiRequest("POST", "/api/capas", data);
+      if (!res.ok) {
+        const error = await res.text();
+        throw new Error(error);
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success!",
+        description: "CAPA created successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/capas"] });
+      navigate("/capa-management");
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to create CAPA: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // Handle form submission
+  const onSubmit = (data: CapaFormValues) => {
+    createCapaMutation.mutate(data);
+  };
+  
+  return (
+    <>
+      <PageHeader 
+        title="Create CAPA"
+        description="Create a new corrective or preventive action"
+        actions={[
+          {
+            label: "Back to CAPA List",
+            href: "/capa-management",
+            icon: <ArrowLeft className="h-5 w-5" />,
+            variant: "outline",
+          }
+        ]}
+      />
+      
+      <div className="px-6 py-8">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <Tabs defaultValue="identification" className="w-full">
+              <TabsList className="grid grid-cols-5 w-full">
+                <TabsTrigger value="identification" className="flex items-center gap-2">
+                  <Clipboard className="h-4 w-4" />
+                  <span>Identification</span>
+                </TabsTrigger>
+                <TabsTrigger value="risk-assessment" className="flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span>Risk Assessment</span>
+                </TabsTrigger>
+                <TabsTrigger value="containment" className="flex items-center gap-2">
+                  <Check className="h-4 w-4" />
+                  <span>Containment</span>
+                </TabsTrigger>
+                <TabsTrigger value="root-cause" className="flex items-center gap-2">
+                  <SearchCheck className="h-4 w-4" />
+                  <span>Root Cause</span>
+                </TabsTrigger>
+                <TabsTrigger value="plan" className="flex items-center gap-2">
+                  <PencilRuler className="h-4 w-4" />
+                  <span>CAPA Plan</span>
+                </TabsTrigger>
+              </TabsList>
+
+              {/* 1. Issue Identification Tab */}
+              <TabsContent value="identification" className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>CAPA Identification</CardTitle>
+                    <CardDescription>
+                      Identify the source and details of the issue requiring CAPA
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField
+                        control={form.control}
+                        name="capaId"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>CAPA ID</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormDescription>
+                              Auto-generated ID for this CAPA
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="typeId"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>CAPA Type</FormLabel>
+                            <Select
+                              onValueChange={(value) => field.onChange(parseInt(value))}
+                              defaultValue={field.value?.toString()}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select CAPA type" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="1">Corrective Action</SelectItem>
+                                <SelectItem value="2">Preventive Action</SelectItem>
+                                <SelectItem value="3">Customer Complaint</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormDescription>
+                              Type of corrective or preventive action
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    
+                    <FormField
+                      control={form.control}
+                      name="title"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Title</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter CAPA title" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Brief title describing the issue or action
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Description</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Describe the issue and required actions in detail" 
+                              className="min-h-[120px]"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Detailed description of the issue, its impact, and context
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="source"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Source</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select source" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="internal_audit">Internal Audit</SelectItem>
+                              <SelectItem value="customer_complaint">Customer Complaint</SelectItem>
+                              <SelectItem value="nc_report">Nonconformance Report</SelectItem>
+                              <SelectItem value="risk_analysis">Risk Analysis</SelectItem>
+                              <SelectItem value="trend_analysis">Trend Analysis</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormDescription>
+                            Origin or trigger for this CAPA
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <div>
+                      <Label>Evidence Attachments</Label>
+                      <div className="mt-2 border-2 border-dashed rounded-md p-6 flex flex-col items-center justify-center">
+                        <Upload className="h-8 w-8 text-neutral-400 mb-2" />
+                        <p className="text-sm text-neutral-600">
+                          Drag and drop files here, or click to browse
+                        </p>
+                        <p className="text-xs text-neutral-500 mt-1">
+                          Supported file types: PDF, DOC, XLSX, JPG, PNG (max 10MB)
+                        </p>
+                        <Button type="button" variant="outline" size="sm" className="mt-4">
+                          <Upload className="h-4 w-4 mr-2" />
+                          Upload Files
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* 2. Risk Assessment Tab */}
+              <TabsContent value="risk-assessment" className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Preliminary Risk Assessment</CardTitle>
+                    <CardDescription>
+                      Assess the risk to patient safety, product performance, or compliance
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <FormField
+                      control={form.control}
+                      name="riskPriority"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Risk Priority</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select risk priority" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="high">High</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="low">Low</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormDescription>
+                            Assign priority based on risk severity and probability
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <div className="space-y-4">
+                      <Label>Impact Areas</Label>
+                      <div className="space-y-2">
+                        <FormField
+                          control={form.control}
+                          name="patientSafetyImpact"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                              <FormControl>
+                                <Checkbox 
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel>
+                                  Patient Safety
+                                </FormLabel>
+                                <FormDescription>
+                                  Issue impacts patient safety or health outcomes
+                                </FormDescription>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="productPerformanceImpact"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                              <FormControl>
+                                <Checkbox 
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel>
+                                  Product Performance
+                                </FormLabel>
+                                <FormDescription>
+                                  Issue affects product functionality or specifications
+                                </FormDescription>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="complianceImpact"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                              <FormControl>
+                                <Checkbox 
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel>
+                                  Regulatory Compliance
+                                </FormLabel>
+                                <FormDescription>
+                                  Issue relates to compliance with regulations or standards
+                                </FormDescription>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              {/* 3. Containment Actions Tab */}
+              <TabsContent value="containment" className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Containment Actions</CardTitle>
+                    <CardDescription>
+                      Immediate actions to limit the impact of the issue
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <FormField
+                      control={form.control}
+                      name="immediateContainment"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                          <FormControl>
+                            <Checkbox 
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>
+                              Immediate Containment Required
+                            </FormLabel>
+                            <FormDescription>
+                              Check if containment actions are needed prior to full CAPA
+                            </FormDescription>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="containmentActions"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Containment Actions</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Describe actions taken to contain the issue (quarantine, rework, field actions, etc.)" 
+                              className="min-h-[120px]"
+                              {...field} 
+                              disabled={!form.watch("immediateContainment")}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Document specific containment measures implemented
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              {/* 4. Root Cause Analysis Tab */}
+              <TabsContent value="root-cause" className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Root Cause Analysis</CardTitle>
+                    <CardDescription>
+                      Identify the underlying cause of the issue
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <FormField
+                      control={form.control}
+                      name="rcaMethod"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>RCA Method</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select RCA method" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="5whys">5 Whys</SelectItem>
+                              <SelectItem value="fishbone">Fishbone / Ishikawa</SelectItem>
+                              <SelectItem value="fmea">FMEA</SelectItem>
+                              <SelectItem value="fault-tree">Fault Tree Analysis</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormDescription>
+                            Method used to determine root cause
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <div>
+                      <Label>RCA Documentation</Label>
+                      <div className="mt-2 border-2 border-dashed rounded-md p-6 flex flex-col items-center justify-center">
+                        <FileText className="h-8 w-8 text-neutral-400 mb-2" />
+                        <p className="text-sm text-neutral-600">
+                          Attach RCA diagrams, analysis results, or other documentation
+                        </p>
+                        <Button type="button" variant="outline" size="sm" className="mt-4">
+                          <Upload className="h-4 w-4 mr-2" />
+                          Upload Files
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              {/* 5. CAPA Plan Tab */}
+              <TabsContent value="plan" className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>CAPA Plan Development</CardTitle>
+                    <CardDescription>
+                      Define actions, responsibilities, and verification methods
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField
+                        control={form.control}
+                        name="statusId"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Status</FormLabel>
+                            <Select
+                              onValueChange={(value) => field.onChange(parseInt(value))}
+                              defaultValue={field.value?.toString()}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select status" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="1">Open</SelectItem>
+                                <SelectItem value="2">In Progress</SelectItem>
+                                <SelectItem value="3">Closed</SelectItem>
+                                <SelectItem value="4">Cancelled</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="assignedTo"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Assigned To</FormLabel>
+                            <Select
+                              onValueChange={(value) => field.onChange(parseInt(value))}
+                              defaultValue={field.value?.toString()}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select assignee" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="1">Admin User</SelectItem>
+                                <SelectItem value="2">Quality Manager</SelectItem>
+                                <SelectItem value="3">QA Specialist</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormDescription>
+                              Person responsible for implementing this CAPA
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    
+                    <FormField
+                      control={form.control}
+                      name="dueDate"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Due Date</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  className={!field.value ? "text-muted-foreground" : ""}
+                                >
+                                  <CalendarIcon className="mr-2 h-4 w-4" />
+                                  {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                disabled={(date) => date < new Date()}
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
+                          <FormDescription>
+                            Date by which this CAPA should be completed
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="effectiveness"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Effectiveness Criteria</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Define objective criteria to verify CAPA effectiveness" 
+                              className="min-h-[120px]"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Specific, measurable criteria to evaluate whether the CAPA was effective
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+            
+            <div className="flex justify-end space-x-4 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate("/capa-management")}
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit"
+                disabled={createCapaMutation.isPending}
+              >
+                {createCapaMutation.isPending ? "Creating..." : "Create CAPA"}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
+    </>
+  );
+}

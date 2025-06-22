@@ -1,0 +1,95 @@
+import { useState } from "react";
+import { useQuery, useMutation } from "react-query";
+import { useToast } from "your-toast-library"; // Replace with your actual toast library
+import { Dialog, Button, Badge } from "your-component-library"; // Replace with your actual component library
+import { Plus, RefreshCw } from "your-icon-library"; // Replace with your actual icon source
+import { z } from "zod";
+import CalibrationAssetTable from "./CalibrationAssetTable";
+
+// Validation schema for calibration asset
+const createCalibrationAssetSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  assetTag: z.string().min(2, "Asset Tag must be at least 2 characters"),
+  // Other fields...
+});
+
+// Main calibration assets page component
+export default function CalibrationAssetsPage() {
+  const { toast } = useToast();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // Fetch calibration assets
+  const { data: assets, isLoading, isError } = useQuery({
+    queryKey: ["/api/calibration/assets"],
+    queryFn: async () => {
+      const res = await fetch("/api/calibration/assets", {
+        headers: {
+          "X-Auth-Local": "true",
+        },
+      });
+      if (!res.ok) {
+        throw new Error("Failed to fetch calibration assets");
+      }
+      return res.json();
+    }
+  });
+
+  // Loading and Error States
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="flex justify-center items-center h-64">
+          <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+          <span className="ml-2 text-lg">Loading calibration assets...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="bg-destructive/10 p-4 rounded-md text-destructive">
+          <h2 className="text-lg font-semibold">Error</h2>
+          <p>Failed to load calibration assets. Please try again later.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto p-6 bg-gray-100 rounded shadow-md">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800">Calibration Assets</h1>
+          <p className="text-gray-600">
+            Manage equipment that requires periodic calibration
+          </p>
+        </div>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-blue-500 text-white hover:bg-blue-600 transition duration-300">
+              <Plus className="mr-2 h-4 w-4" />
+              Add New Calibration Asset
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Add New Calibration Asset</DialogTitle>
+              <DialogDescription>
+                Enter the details of the calibration asset to add to the system.
+              </DialogDescription>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
+      </div>
+      {assets && assets.length > 0 ? (
+        <CalibrationAssetTable assets={assets} />
+      ) : (
+        <div className="text-center py-6 text-gray-500">
+          No calibration assets found. Add your first one!
+        </div>
+      )}
+    </div>
+  );
+}

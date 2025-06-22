@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Very Simple Test</title>
+</head>
+<body>
+  <h1>Very Simple Test Page</h1>
+  <p>This is a minimal HTML page to test basic connectivity.</p>
+  <p>Current time: <span id="time"></span></p>
+  
+  <script>
+    document.getElementById('time').textContent = new Date().toISOString();
+  </script>
+</body>
+</html>
