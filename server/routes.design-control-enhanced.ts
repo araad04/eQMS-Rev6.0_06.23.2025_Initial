@@ -11,50 +11,83 @@ import path from 'path';
 
 const router = express.Router();
 
-// URS Requirements Management (Sub-module within Design Control)
-router.get("/urs-requirements/:projectId", authMiddleware.isAuthenticated, async (req, res) => {
+// Project-Centric Design Control Management
+router.get("/project/:projectId/design-artifacts", authMiddleware.isAuthenticated, async (req, res) => {
   try {
     const projectId = parseInt(req.params.projectId);
     
-    const ursRequirements = [
-      {
-        id: 1,
-        ursId: `URS-${projectId}-001`,
-        title: "System Safety Requirements",
-        description: "The system shall meet all applicable safety standards and regulations",
-        category: "safety",
-        priority: "critical",
-        source: "ISO 13485:7.3.3",
-        acceptanceCriteria: "System passes all safety validation tests",
-        stakeholder: "Safety Engineer",
-        linkedInputs: [],
-        status: "approved",
-        createdAt: new Date().toISOString(),
-        approvedBy: "Quality Manager",
-        approvedAt: new Date().toISOString()
-      },
-      {
-        id: 2,
-        ursId: `URS-${projectId}-002`,
-        title: "Regulatory Compliance Requirements",
-        description: "System shall comply with FDA 21 CFR Part 820 and ISO 13485:2016",
-        category: "regulatory",
-        priority: "critical",
-        source: "Regulatory Affairs",
-        acceptanceCriteria: "Regulatory submission package approved",
-        stakeholder: "Regulatory Affairs Manager",
-        linkedInputs: [],
-        status: "approved",
-        createdAt: new Date().toISOString(),
-        approvedBy: "Regulatory Manager",
-        approvedAt: new Date().toISOString()
-      }
-    ];
+    const designArtifacts = {
+      projectId,
+      ursRequirements: [
+        {
+          id: 1,
+          ursId: `URS-${projectId}-001`,
+          title: "System Safety Requirements",
+          description: "The system shall meet all applicable safety standards and regulations",
+          category: "safety",
+          priority: "critical",
+          source: "ISO 13485:7.3.3",
+          acceptanceCriteria: "System passes all safety validation tests",
+          stakeholder: "Safety Engineer",
+          linkedInputs: [],
+          status: "approved",
+          createdAt: new Date().toISOString(),
+          approvedBy: "Quality Manager",
+          approvedAt: new Date().toISOString()
+        }
+      ],
+      designInputs: [
+        {
+          inputId: `DI-${projectId}-001`,
+          title: "User Interface Safety Requirements",
+          description: "Interface shall prevent accidental activation during critical procedures",
+          linkedURS: [`URS-${projectId}-001`],
+          linkedOutputs: [`DO-${projectId}-001`],
+          verificationPlan: [`VER-${projectId}-001`],
+          validationPlan: [`VAL-${projectId}-001`],
+          status: "approved",
+          traceabilityComplete: true,
+          riskLevel: "high"
+        }
+      ],
+      designOutputs: [
+        {
+          outputId: `DO-${projectId}-001`,
+          title: "Safety Interface Specification",
+          description: "Technical specification for safety interface implementation",
+          linkedInputs: [`DI-${projectId}-001`],
+          verificationStatus: "planned",
+          validationStatus: "not_started"
+        }
+      ],
+      verificationActivities: [
+        {
+          verificationId: `VER-${projectId}-001`,
+          title: "Interface Safety Verification",
+          linkedInputs: [`DI-${projectId}-001`],
+          linkedOutputs: [`DO-${projectId}-001`],
+          method: "testing",
+          protocol: "VER-PROTOCOL-001",
+          status: "planned"
+        }
+      ],
+      validationActivities: [
+        {
+          validationId: `VAL-${projectId}-001`,
+          title: "End-User Safety Validation",
+          linkedRequirements: [`URS-${projectId}-001`],
+          linkedInputs: [`DI-${projectId}-001`],
+          method: "user_testing",
+          protocol: "VAL-PROTOCOL-001",
+          status: "planned"
+        }
+      ]
+    };
     
-    res.json(ursRequirements);
+    res.json(designArtifacts);
   } catch (error) {
-    console.error("Error fetching URS requirements:", error);
-    res.status(500).json({ error: "Failed to fetch URS requirements" });
+    console.error("Error fetching project design artifacts:", error);
+    res.status(500).json({ error: "Failed to fetch project design artifacts" });
   }
 });
 
@@ -97,8 +130,62 @@ router.post("/urs-requirements", authMiddleware.isAuthenticated, async (req, res
   }
 });
 
-// Phase Gate Review Management (Steering Control)
-router.get("/phase-gate-reviews/:projectId", authMiddleware.isAuthenticated, async (req, res) => {
+// Project-Specific Phase Management
+router.get("/project/:projectId/phases", authMiddleware.isAuthenticated, async (req, res) => {
+  try {
+    const projectId = parseInt(req.params.projectId);
+    
+    const projectPhases = {
+      projectId,
+      currentPhase: "Design Inputs",
+      phases: [
+        {
+          id: 1,
+          name: "Planning Phase",
+          status: "completed",
+          artifacts: ["Project Plan", "URS Requirements", "Risk Assessment"],
+          gateReview: {
+            reviewId: `PGR-${projectId}-001`,
+            status: "completed",
+            decision: "approved",
+            completedDate: "2025-02-16"
+          }
+        },
+        {
+          id: 2,
+          name: "Design Inputs Phase",
+          status: "in_progress",
+          artifacts: ["Design Inputs", "Traceability Matrix", "Input Validation"],
+          gateReview: {
+            reviewId: `PGR-${projectId}-002`,
+            status: "in_progress",
+            decision: "pending",
+            scheduledDate: "2025-06-22"
+          }
+        },
+        {
+          id: 3,
+          name: "Design Outputs Phase",
+          status: "not_started",
+          artifacts: ["Technical Specifications", "Design Drawings", "Software Code"],
+          gateReview: {
+            reviewId: `PGR-${projectId}-003`,
+            status: "not_started",
+            decision: "pending"
+          }
+        }
+      ]
+    };
+    
+    res.json(projectPhases);
+  } catch (error) {
+    console.error("Error fetching project phases:", error);
+    res.status(500).json({ error: "Failed to fetch project phases" });
+  }
+});
+
+// Project Phase Gate Reviews
+router.get("/project/:projectId/phase-gate-reviews", authMiddleware.isAuthenticated, async (req, res) => {
   try {
     const projectId = parseInt(req.params.projectId);
     
