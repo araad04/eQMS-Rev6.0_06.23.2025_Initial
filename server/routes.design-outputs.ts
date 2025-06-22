@@ -2,7 +2,7 @@ import express from "express";
 import { z } from "zod";
 import { eq, and, desc } from "drizzle-orm";
 import { db } from "./db";
-import { designOutputs, designOutputTypes, designProjects, users } from "../shared/schema";
+import { traceabilityDesignOutputs, designProjects, users } from "../shared/schema";
 import { authMiddleware } from "./middleware/auth";
 
 const router = express.Router();

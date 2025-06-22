@@ -32,31 +32,31 @@ router.get("/project/:projectId", authMiddleware.isAuthenticated, async (req, re
     
     const inputs = await db
       .select({
-        id: designInputs.id,
-        inputId: designInputs.inputId,
-        title: designInputs.title,
-        description: designInputs.description,
-        source: designInputs.source,
-        functionalRequirement: designInputs.functionalRequirement,
-        performanceRequirement: designInputs.performanceRequirement,
-        safetyRequirement: designInputs.safetyRequirement,
-        usabilityRequirement: designInputs.usabilityRequirement,
-        regulatoryRequirement: designInputs.regulatoryRequirement,
-        acceptanceCriteria: designInputs.acceptanceCriteria,
-        verificationMethod: designInputs.verificationMethod,
-        priority: designInputs.priority,
-        riskLevel: designInputs.riskLevel,
-        status: designInputs.status,
-        createdAt: designInputs.createdAt,
-        updatedAt: designInputs.updatedAt,
+        id: traceabilityDesignInputs.id,
+        inputId: traceabilityDesignInputs.inputId,
+        title: traceabilityDesignInputs.title,
+        description: traceabilityDesignInputs.description,
+        source: traceabilityDesignInputs.source,
+        functionalRequirement: traceabilityDesignInputs.functionalRequirement,
+        performanceRequirement: traceabilityDesignInputs.performanceRequirement,
+        safetyRequirement: traceabilityDesignInputs.safetyRequirement,
+        usabilityRequirement: traceabilityDesignInputs.usabilityRequirement,
+        regulatoryRequirement: traceabilityDesignInputs.regulatoryRequirement,
+        acceptanceCriteria: traceabilityDesignInputs.acceptanceCriteria,
+        verificationMethod: traceabilityDesignInputs.verificationMethod,
+        priority: traceabilityDesignInputs.priority,
+        riskLevel: traceabilityDesignInputs.riskLevel,
+        status: traceabilityDesignInputs.status,
+        createdAt: traceabilityDesignInputs.createdAt,
+        updatedAt: traceabilityDesignInputs.updatedAt,
         createdBy: users.firstName,
-        reviewedAt: designInputs.reviewedAt,
-        approvedAt: designInputs.approvedAt,
+        reviewedAt: traceabilityDesignInputs.reviewedAt,
+        approvedAt: traceabilityDesignInputs.approvedAt,
       })
-      .from(designInputs)
-      .leftJoin(users, eq(designInputs.createdBy, users.id))
-      .where(eq(designInputs.projectId, projectId))
-      .orderBy(desc(designInputs.createdAt));
+      .from(traceabilityDesignInputs)
+      .leftJoin(users, eq(traceabilityDesignInputs.createdBy, users.id))
+      .where(eq(traceabilityDesignInputs.projectId, projectId))
+      .orderBy(desc(traceabilityDesignInputs.createdAt));
 
     res.json(inputs);
   } catch (error) {
@@ -72,8 +72,8 @@ router.get("/:inputId", authMiddleware.isAuthenticated, async (req, res) => {
     
     const input = await db
       .select()
-      .from(designInputs)
-      .where(eq(designInputs.inputId, inputId))
+      .from(traceabilityDesignInputs)
+      .where(eq(traceabilityDesignInputs.inputId, inputId))
       .limit(1);
 
     if (input.length === 0) {
@@ -106,9 +106,9 @@ router.post("/", authMiddleware.isAuthenticated, async (req, res) => {
 
     // Count existing inputs for this project
     const existingInputs = await db
-      .select({ count: designInputs.id })
-      .from(designInputs)
-      .where(eq(designInputs.projectId, validatedData.projectId));
+      .select({ count: traceabilityDesignInputs.id })
+      .from(traceabilityDesignInputs)
+      .where(eq(traceabilityDesignInputs.projectId, validatedData.projectId));
 
     const inputNumber = String(existingInputs.length + 1).padStart(3, '0');
     const inputId = `DI-${project[0].projectCode.replace('-', '')}-${inputNumber}`;
