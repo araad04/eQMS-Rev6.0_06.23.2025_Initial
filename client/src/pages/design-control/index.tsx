@@ -1,237 +1,483 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { 
-  FolderOpen, 
+  Building2,
   Plus, 
-  Settings, 
-  FileText, 
-  CheckCircle, 
+  Search,
+  Filter,
+  Grid3X3, 
   Clock,
-  Users,
+  CheckCircle,
+  AlertTriangle,
+  TrendingUp,
   Calendar,
-  ArrowRight
+  ArrowRight,
+  User,
+  FileText,
+  Target,
+  Layers,
+  Activity,
+  Settings,
+  Eye,
+  MoreHorizontal
 } from 'lucide-react';
+
+interface DesignProject {
+  id: number;
+  projectCode: string;
+  title: string;
+  description: string;
+  status: string;
+  riskLevel: string;
+  responsiblePerson: string;
+  createdAt: string;
+  targetDate: string;
+  currentPhase: string;
+  overallProgress: number;
+  phaseStatus: {
+    planning: string;
+    inputs: string;
+    outputs: string;
+    verification: string;
+    validation: string;
+    transfer: string;
+  };
+}
 
 export default function DesignControlIndex() {
   const [, setLocation] = useLocation();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-  // Fetch all design projects
   const { data: projects, isLoading } = useQuery({
     queryKey: ['/api/design-projects'],
   });
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      'planning': { label: 'Planning', variant: 'secondary' as const },
-      'in_progress': { label: 'In Progress', variant: 'default' as const },
-      'completed': { label: 'Completed', variant: 'default' as const },
-      'on_hold': { label: 'On Hold', variant: 'secondary' as const }
+  const filteredProjects = projects?.filter((project: DesignProject) => {
+    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         project.projectCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         project.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = selectedStatus === 'all' || project.status === selectedStatus;
+    return matchesSearch && matchesStatus;
+  }) || [];
+
+  const getStatusConfig = (status: string) => {
+    const configs = {
+      'planning': { label: 'Planning', variant: 'secondary' as const, color: 'bg-blue-100 text-blue-700' },
+      'in_progress': { label: 'In Progress', variant: 'default' as const, color: 'bg-green-100 text-green-700' },
+      'review': { label: 'Review', variant: 'outline' as const, color: 'bg-yellow-100 text-yellow-700' },
+      'completed': { label: 'Completed', variant: 'default' as const, color: 'bg-gray-100 text-gray-700' },
+      'on_hold': { label: 'On Hold', variant: 'destructive' as const, color: 'bg-red-100 text-red-700' }
     };
-    
-    const config = statusConfig[status] || statusConfig['planning'];
-    return <Badge variant={config.variant}>{config.label}</Badge>;
+    return configs[status] || configs['planning'];
+  };
+
+  const getRiskConfig = (risk: string) => {
+    const configs = {
+      'low': { color: 'bg-green-50 text-green-600 border-green-200' },
+      'medium': { color: 'bg-yellow-50 text-yellow-600 border-yellow-200' },
+      'high': { color: 'bg-orange-50 text-orange-600 border-orange-200' },
+      'critical': { color: 'bg-red-50 text-red-600 border-red-200' }
+    };
+    return configs[risk] || configs['medium'];
+  };
+
+  const getPhaseProgress = (phaseStatus: any) => {
+    const phases = ['planning', 'inputs', 'outputs', 'verification', 'validation', 'transfer'];
+    const completed = phases.filter(phase => 
+      phaseStatus?.[phase] === 'completed' || phaseStatus?.[phase] === 'approved'
+    ).length;
+    return Math.round((completed / phases.length) * 100);
   };
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <Clock className="h-8 w-8 animate-spin mx-auto mb-4" />
-            <p>Loading design projects...</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+        <div className="container mx-auto">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading design control projects...</p>
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
+  const activeProjects = filteredProjects.filter(p => p.status === 'in_progress' || p.status === 'planning');
+  const completedProjects = filteredProjects.filter(p => p.status === 'completed');
+  const reviewProjects = filteredProjects.filter(p => p.status === 'review');
+
   return (
-    <div className="container mx-auto p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Design Control Projects</h1>
-          <p className="text-muted-foreground">
-            Unified project-based design control with all phases accessible from within each project
-          </p>
-        </div>
-        <Button onClick={() => setLocation('/design-control/create')} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          New Project
-        </Button>
-      </div>
-
-      {/* Projects Grid */}
-      {projects && projects.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project: any) => (
-            <Card 
-              key={project.id} 
-              className="hover:shadow-lg transition-all cursor-pointer group"
-              onClick={() => setLocation(`/design-control/project/${project.id}`)}
-            >
-              <CardHeader className="pb-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
-                      <FolderOpen className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg group-hover:text-primary transition-colors">
-                        {project.title}
-                      </CardTitle>
-                      <p className="text-sm text-muted-foreground">
-                        {project.projectCode}
-                      </p>
-                    </div>
-                  </div>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                </div>
-              </CardHeader>
-              
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                  {project.description}
+      <div className="bg-white border-b border-slate-200 shadow-sm">
+        <div className="container mx-auto px-6 py-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-primary rounded-xl">
+                <Building2 className="h-8 w-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-slate-900">Design Control Center</h1>
+                <p className="text-slate-600 mt-1">
+                  Enterprise design project management with ISO 13485:7.3 compliance
                 </p>
-
-                <div className="flex items-center justify-between">
-                  {getStatusBadge(project.status)}
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Calendar className="h-3 w-3" />
-                    {new Date(project.createdAt).toLocaleDateString()}
-                  </div>
-                </div>
-
-                {/* Phase Progress Indicators */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium">Design Phases</span>
-                    <span className="text-xs text-muted-foreground">
-                      {project.overallProgress || 0}% complete
-                    </span>
-                  </div>
-                  
-                  <div className="grid grid-cols-6 gap-1">
-                    {[
-                      { name: 'Plan', status: project.phaseStatus?.planning || 'not_started' },
-                      { name: 'Input', status: project.phaseStatus?.inputs || 'not_started' },
-                      { name: 'Output', status: project.phaseStatus?.outputs || 'not_started' },
-                      { name: 'V&V', status: project.phaseStatus?.verification || 'not_started' },
-                      { name: 'Valid', status: project.phaseStatus?.validation || 'not_started' },
-                      { name: 'Transfer', status: project.phaseStatus?.transfer || 'not_started' }
-                    ].map((phase, index) => (
-                      <div key={index} className="text-center">
-                        <div className={`w-full h-2 rounded-full mb-1 ${
-                          phase.status === 'completed' || phase.status === 'approved' 
-                            ? 'bg-green-500' 
-                            : phase.status === 'in_progress'
-                            ? 'bg-blue-500'
-                            : phase.status === 'review_pending'
-                            ? 'bg-yellow-500'
-                            : 'bg-gray-200'
-                        }`} />
-                        <span className="text-xs text-muted-foreground">{phase.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Quick Actions */}
-                <div className="flex gap-2 pt-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="flex-1"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setLocation(`/design-control/project/${project.id}`);
-                    }}
-                  >
-                    <FileText className="h-3 w-3 mr-1" />
-                    View Phases
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setLocation(`/design-control/dynamic-traceability?project=${project.id}`);
-                    }}
-                  >
-                    <CheckCircle className="h-3 w-3" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        /* Empty State */
-        <Card className="text-center py-12">
-          <CardContent>
-            <FolderOpen className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-lg font-semibold mb-2">No Design Projects</h3>
-            <p className="text-muted-foreground mb-6">
-              Create your first design control project to get started with phase-gated development
-            </p>
-            <Button onClick={() => setLocation('/design-control/create')}>
-              <Plus className="h-4 w-4 mr-2" />
-              Create First Project
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Quick Access Panel */}
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            Design Control Tools
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              </div>
+            </div>
             <Button 
-              variant="outline" 
-              className="h-20 flex-col"
-              onClick={() => setLocation('/design-control/enhanced-design-control')}
+              onClick={() => setLocation('/design-control/create')} 
+              className="bg-primary hover:bg-primary/90 shadow-lg"
+              size="lg"
             >
-              <Settings className="h-6 w-6 mb-2" />
-              Enhanced Controls
-            </Button>
-            <Button 
-              variant="outline" 
-              className="h-20 flex-col"
-              onClick={() => setLocation('/design-control/dynamic-traceability')}
-            >
-              <CheckCircle className="h-6 w-6 mb-2" />
-              Traceability Matrix
-            </Button>
-            <Button 
-              variant="outline" 
-              className="h-20 flex-col"
-              onClick={() => setLocation('/design-control/history-file')}
-            >
-              <FileText className="h-6 w-6 mb-2" />
-              Design History File
-            </Button>
-            <Button 
-              variant="outline" 
-              className="h-20 flex-col"
-              onClick={() => setLocation('/design-control/phase-gate-reviews')}
-            >
-              <Users className="h-6 w-6 mb-2" />
-              Phase Gate Reviews
+              <Plus className="h-5 w-5 mr-2" />
+              New Project
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-6 py-8">
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card className="bg-white shadow-lg border-0">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-600">Active Projects</p>
+                  <p className="text-3xl font-bold text-slate-900">{activeProjects.length}</p>
+                </div>
+                <div className="p-3 bg-blue-100 rounded-full">
+                  <Activity className="h-6 w-6 text-blue-600" />
+                </div>
+              </div>
+              <div className="flex items-center mt-4 text-sm">
+                <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+                <span className="text-green-600">+12% from last month</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white shadow-lg border-0">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-600">Completed</p>
+                  <p className="text-3xl font-bold text-slate-900">{completedProjects.length}</p>
+                </div>
+                <div className="p-3 bg-green-100 rounded-full">
+                  <CheckCircle className="h-6 w-6 text-green-600" />
+                </div>
+              </div>
+              <div className="flex items-center mt-4 text-sm">
+                <CheckCircle className="h-4 w-4 text-green-500 mr-1" />
+                <span className="text-green-600">98% success rate</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white shadow-lg border-0">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-600">In Review</p>
+                  <p className="text-3xl font-bold text-slate-900">{reviewProjects.length}</p>
+                </div>
+                <div className="p-3 bg-yellow-100 rounded-full">
+                  <Clock className="h-6 w-6 text-yellow-600" />
+                </div>
+              </div>
+              <div className="flex items-center mt-4 text-sm">
+                <Clock className="h-4 w-4 text-yellow-500 mr-1" />
+                <span className="text-yellow-600">Avg 3.2 days</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white shadow-lg border-0">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-600">Total Progress</p>
+                  <p className="text-3xl font-bold text-slate-900">
+                    {Math.round(filteredProjects.reduce((acc, p) => acc + (p.overallProgress || 0), 0) / filteredProjects.length || 0)}%
+                  </p>
+                </div>
+                <div className="p-3 bg-purple-100 rounded-full">
+                  <Target className="h-6 w-6 text-purple-600" />
+                </div>
+              </div>
+              <div className="flex items-center mt-4 text-sm">
+                <ArrowRight className="h-4 w-4 text-purple-500 mr-1" />
+                <span className="text-purple-600">On track</span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Filters and Search */}
+        <Card className="bg-white shadow-lg border-0 mb-8">
+          <CardContent className="p-6">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <div className="relative flex-1 min-w-72">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                  <Input
+                    placeholder="Search projects, codes, or descriptions..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 bg-slate-50 border-slate-200"
+                  />
+                </div>
+                
+                <Tabs value={selectedStatus} onValueChange={setSelectedStatus} className="w-auto">
+                  <TabsList className="grid grid-cols-5 w-full">
+                    <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
+                    <TabsTrigger value="planning" className="text-xs">Planning</TabsTrigger>
+                    <TabsTrigger value="in_progress" className="text-xs">Active</TabsTrigger>
+                    <TabsTrigger value="review" className="text-xs">Review</TabsTrigger>
+                    <TabsTrigger value="completed" className="text-xs">Done</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant={viewMode === 'grid' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('grid')}
+                >
+                  <Grid3X3 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('list')}
+                >
+                  <Layers className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Projects Display */}
+        {filteredProjects.length > 0 ? (
+          <div className={viewMode === 'grid' ? 'grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6' : 'space-y-4'}>
+            {filteredProjects.map((project: DesignProject) => {
+              const statusConfig = getStatusConfig(project.status);
+              const riskConfig = getRiskConfig(project.riskLevel);
+              const phaseProgress = getPhaseProgress(project.phaseStatus);
+
+              return (
+                <Card 
+                  key={project.id} 
+                  className="bg-white shadow-lg border-0 hover:shadow-xl transition-all duration-300 cursor-pointer group overflow-hidden"
+                  onClick={() => setLocation(`/design-control/project/${project.id}`)}
+                >
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-primary/60"></div>
+                  
+                  <CardHeader className="pb-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <Badge variant="outline" className="text-xs font-mono">
+                            {project.projectCode}
+                          </Badge>
+                          <Badge className={`text-xs ${riskConfig.color} border`}>
+                            {project.riskLevel?.toUpperCase()}
+                          </Badge>
+                        </div>
+                        <CardTitle className="text-lg font-semibold text-slate-900 group-hover:text-primary transition-colors line-clamp-2">
+                          {project.title}
+                        </CardTitle>
+                      </div>
+                      <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent className="space-y-4">
+                    <p className="text-sm text-slate-600 line-clamp-2">
+                      {project.description}
+                    </p>
+
+                    <div className="flex items-center justify-between">
+                      <Badge className={statusConfig.color}>
+                        {statusConfig.label}
+                      </Badge>
+                      <div className="flex items-center text-xs text-slate-500">
+                        <Calendar className="h-3 w-3 mr-1" />
+                        {new Date(project.createdAt).toLocaleDateString()}
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-slate-700">Phase Progress</span>
+                        <span className="text-sm text-slate-600">{phaseProgress}%</span>
+                      </div>
+                      
+                      <div className="w-full bg-slate-100 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-primary to-primary/80 h-2 rounded-full transition-all duration-500"
+                          style={{ width: `${phaseProgress}%` }}
+                        ></div>
+                      </div>
+
+                      <div className="grid grid-cols-6 gap-1">
+                        {[
+                          { name: 'Plan', key: 'planning' },
+                          { name: 'Input', key: 'inputs' },
+                          { name: 'Output', key: 'outputs' },
+                          { name: 'V&V', key: 'verification' },
+                          { name: 'Valid', key: 'validation' },
+                          { name: 'Transfer', key: 'transfer' }
+                        ].map((phase, index) => {
+                          const status = project.phaseStatus?.[phase.key] || 'not_started';
+                          return (
+                            <div key={index} className="text-center">
+                              <div className={`w-full h-1.5 rounded-full mb-1 ${
+                                status === 'completed' || status === 'approved' 
+                                  ? 'bg-green-500' 
+                                  : status === 'in_progress'
+                                  ? 'bg-blue-500'
+                                  : status === 'review_pending'
+                                  ? 'bg-yellow-500'
+                                  : 'bg-slate-200'
+                              }`} />
+                              <span className="text-xs text-slate-500">{phase.name}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                      <div className="flex items-center text-xs text-slate-500">
+                        <User className="h-3 w-3 mr-1" />
+                        {project.responsiblePerson}
+                      </div>
+                      <div className="flex space-x-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setLocation(`/design-control/project/${project.id}`);
+                          }}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setLocation(`/design-control/dynamic-traceability?project=${project.id}`);
+                          }}
+                        >
+                          <FileText className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        ) : (
+          <Card className="bg-white shadow-lg border-0 text-center py-16">
+            <CardContent>
+              <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Building2 className="h-8 w-8 text-slate-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-slate-900 mb-2">
+                {searchTerm || selectedStatus !== 'all' ? 'No matching projects' : 'No design projects'}
+              </h3>
+              <p className="text-slate-600 mb-6 max-w-md mx-auto">
+                {searchTerm || selectedStatus !== 'all' 
+                  ? 'Try adjusting your search criteria or filters'
+                  : 'Create your first design control project to get started with phase-gated development'
+                }
+              </p>
+              {!searchTerm && selectedStatus === 'all' && (
+                <Button onClick={() => setLocation('/design-control/create')} size="lg">
+                  <Plus className="h-5 w-5 mr-2" />
+                  Create First Project
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Quick Tools */}
+        <Card className="bg-white shadow-lg border-0 mt-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-slate-900">
+              <Settings className="h-5 w-5" />
+              Design Control Tools
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                {
+                  icon: Target,
+                  title: 'Enhanced Controls',
+                  description: 'Advanced design control features',
+                  path: '/design-control/enhanced-design-control',
+                  color: 'bg-blue-500'
+                },
+                {
+                  icon: FileText,
+                  title: 'Traceability Matrix',
+                  description: 'Requirements traceability',
+                  path: '/design-control/dynamic-traceability',
+                  color: 'bg-green-500'
+                },
+                {
+                  icon: FileText,
+                  title: 'Design History File',
+                  description: 'Compile design documentation',
+                  path: '/design-control/history-file',
+                  color: 'bg-purple-500'
+                },
+                {
+                  icon: CheckCircle,
+                  title: 'Phase Gate Reviews',
+                  description: 'Review and approval workflow',
+                  path: '/design-control/phase-gate-reviews',
+                  color: 'bg-orange-500'
+                }
+              ].map((tool, index) => (
+                <Button
+                  key={index}
+                  variant="outline"
+                  className="h-24 flex-col justify-center bg-slate-50 hover:bg-slate-100 border-slate-200"
+                  onClick={() => setLocation(tool.path)}
+                >
+                  <div className={`p-2 ${tool.color} rounded-lg mb-2`}>
+                    <tool.icon className="h-5 w-5 text-white" />
+                  </div>
+                  <span className="font-medium text-sm">{tool.title}</span>
+                  <span className="text-xs text-slate-500 text-center">{tool.description}</span>
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
