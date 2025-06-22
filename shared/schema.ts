@@ -2001,9 +2001,9 @@ export const designProjectPhaseInstances = pgTable("design_project_phase_instanc
   projectId: integer("project_id").notNull().references(() => designProjects.id),
   phaseId: integer("phase_id").notNull().references(() => designPhases.id),
   status: designPhaseStatusEnum("status").default("not_started").notNull(),
-  startDate: timestamp("start_date"),
-  completionDate: timestamp("completion_date"),
-  reviewDueDate: timestamp("review_due_date"),
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  reviewId: integer("review_id").references(() => designPhaseReviews.id),
   assignedTo: integer("assigned_to").references(() => users.id),
   phaseOrder: integer("phase_order").notNull(), // 1, 2, 3, etc.
   isActive: boolean("is_active").default(false), // Only one phase active at a time
