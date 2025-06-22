@@ -53,33 +53,33 @@ router.get("/plans/project/:projectId", authMiddleware.isAuthenticated, async (r
     
     const plans = await db
       .select({
-        id: designValidationPlans.id,
-        planId: designValidationPlans.planId,
-        title: designValidationPlans.title,
-        description: designValidationPlans.description,
-        validationMethod: designValidationPlans.validationMethod,
-        userGroup: designValidationPlans.userGroup,
-        environment: designValidationPlans.environment,
-        linkedOutputs: designValidationPlans.linkedOutputs,
-        successCriteria: designValidationPlans.successCriteria,
-        validationProtocol: designValidationPlans.validationProtocol,
-        plannedDate: designValidationPlans.plannedDate,
-        actualDate: designValidationPlans.actualDate,
-        assignedTo: designValidationPlans.assignedTo,
-        priority: designValidationPlans.priority,
-        riskLevel: designValidationPlans.riskLevel,
-        status: designValidationPlans.status,
-        executionProgress: designValidationPlans.executionProgress,
-        ethicalApproval: designValidationPlans.ethicalApproval,
-        regulatoryRequirement: designValidationPlans.regulatoryRequirement,
-        createdAt: designValidationPlans.createdAt,
-        updatedAt: designValidationPlans.updatedAt,
+        id: validationRecords.id,
+        planId: validationRecords.validationId,
+        title: validationRecords.title,
+        description: validationRecords.description,
+        validationMethod: validationRecords.method,
+        userGroup: validationRecords.userGroup,
+        environment: validationRecords.environment,
+        linkedOutputs: validationRecords.linkedOutputs,
+        successCriteria: validationRecords.successCriteria,
+        validationProtocol: validationRecords.validationProtocol,
+        plannedDate: validationRecords.plannedDate,
+        actualDate: validationRecords.actualDate,
+        assignedTo: validationRecords.assignedTo,
+        priority: validationRecords.priority,
+        riskLevel: validationRecords.riskLevel,
+        status: validationRecords.status,
+        executionProgress: validationRecords.executionProgress,
+        ethicalApproval: validationRecords.ethicalApproval,
+        regulatoryRequirement: validationRecords.regulatoryRequirement,
+        createdAt: validationRecords.createdAt,
+        updatedAt: validationRecords.updatedAt,
         createdBy: users.firstName,
       })
-      .from(designValidationPlans)
-      .leftJoin(users, eq(designValidationPlans.createdBy, users.id))
-      .where(eq(designValidationPlans.projectId, projectId))
-      .orderBy(desc(designValidationPlans.createdAt));
+      .from(validationRecords)
+      .leftJoin(users, eq(validationRecords.createdBy, users.id))
+      .where(eq(validationRecords.projectId, projectId))
+      .orderBy(desc(validationRecords.createdAt));
 
     res.json(plans);
   } catch (error) {

@@ -51,30 +51,30 @@ router.get("/plans/project/:projectId", authMiddleware.isAuthenticated, async (r
     
     const plans = await db
       .select({
-        id: designVerificationPlans.id,
-        planId: designVerificationPlans.planId,
-        title: designVerificationPlans.title,
-        description: designVerificationPlans.description,
-        verificationMethod: designVerificationPlans.verificationMethod,
-        testType: designVerificationPlans.testType,
-        linkedOutputs: designVerificationPlans.linkedOutputs,
-        acceptanceCriteria: designVerificationPlans.acceptanceCriteria,
-        testProtocol: designVerificationPlans.testProtocol,
-        plannedDate: designVerificationPlans.plannedDate,
-        actualDate: designVerificationPlans.actualDate,
-        assignedTo: designVerificationPlans.assignedTo,
-        priority: designVerificationPlans.priority,
-        riskLevel: designVerificationPlans.riskLevel,
-        status: designVerificationPlans.status,
-        executionProgress: designVerificationPlans.executionProgress,
-        createdAt: designVerificationPlans.createdAt,
-        updatedAt: designVerificationPlans.updatedAt,
+        id: verificationRecords.id,
+        planId: verificationRecords.verificationId,
+        title: verificationRecords.title,
+        description: verificationRecords.description,
+        verificationMethod: verificationRecords.method,
+        testType: verificationRecords.testType,
+        linkedOutputs: verificationRecords.linkedOutputs,
+        acceptanceCriteria: verificationRecords.acceptanceCriteria,
+        testProtocol: verificationRecords.testProtocol,
+        plannedDate: verificationRecords.plannedDate,
+        actualDate: verificationRecords.actualDate,
+        assignedTo: verificationRecords.assignedTo,
+        priority: verificationRecords.priority,
+        riskLevel: verificationRecords.riskLevel,
+        status: verificationRecords.status,
+        executionProgress: verificationRecords.executionProgress,
+        createdAt: verificationRecords.createdAt,
+        updatedAt: verificationRecords.updatedAt,
         createdBy: users.firstName,
       })
-      .from(designVerificationPlans)
-      .leftJoin(users, eq(designVerificationPlans.createdBy, users.id))
-      .where(eq(designVerificationPlans.projectId, projectId))
-      .orderBy(desc(designVerificationPlans.createdAt));
+      .from(verificationRecords)
+      .leftJoin(users, eq(verificationRecords.createdBy, users.id))
+      .where(eq(verificationRecords.projectId, projectId))
+      .orderBy(desc(verificationRecords.createdAt));
 
     res.json(plans);
   } catch (error) {
@@ -189,24 +189,24 @@ router.get("/records/plan/:planId", authMiddleware.isAuthenticated, async (req, 
     
     const records = await db
       .select({
-        id: designVerificationRecords.id,
-        recordId: designVerificationRecords.recordId,
-        executionDate: designVerificationRecords.executionDate,
-        result: designVerificationRecords.result,
-        actualValues: designVerificationRecords.actualValues,
-        deviations: designVerificationRecords.deviations,
-        conclusions: designVerificationRecords.conclusions,
-        recommendations: designVerificationRecords.recommendations,
-        attachments: designVerificationRecords.attachments,
-        capaRequired: designVerificationRecords.capaRequired,
-        capaId: designVerificationRecords.capaId,
-        createdAt: designVerificationRecords.createdAt,
+        id: verificationRecords.id,
+        recordId: verificationRecords.verificationId,
+        executionDate: verificationRecords.testDate,
+        result: verificationRecords.result,
+        actualValues: verificationRecords.actualValues,
+        deviations: verificationRecords.deviations,
+        conclusions: verificationRecords.conclusions,
+        recommendations: verificationRecords.recommendations,
+        attachments: verificationRecords.attachments,
+        capaRequired: verificationRecords.capaRequired,
+        capaId: verificationRecords.capaId,
+        createdAt: verificationRecords.createdAt,
         executedBy: users.firstName,
       })
-      .from(designVerificationRecords)
-      .leftJoin(users, eq(designVerificationRecords.executedBy, users.id))
-      .where(eq(designVerificationRecords.planId, planId))
-      .orderBy(desc(designVerificationRecords.executionDate));
+      .from(verificationRecords)
+      .leftJoin(users, eq(verificationRecords.testExecutor, users.id))
+      .where(eq(verificationRecords.projectId, planId))
+      .orderBy(desc(verificationRecords.testDate));
 
     res.json(records);
   } catch (error) {
@@ -225,9 +225,9 @@ router.post("/records", authMiddleware.isAuthenticated, async (req, res) => {
     if (!recordId) {
       // Get plan details
       const plan = await db
-        .select({ planId: designVerificationPlans.planId })
-        .from(designVerificationPlans)
-        .where(eq(designVerificationPlans.id, validatedData.planId))
+        .select({ planId: verificationRecords.verificationId })
+        .from(verificationRecords)
+        .where(eq(verificationRecords.id, validatedData.planId))
         .limit(1);
 
       if (plan.length === 0) {
@@ -236,49 +236,50 @@ router.post("/records", authMiddleware.isAuthenticated, async (req, res) => {
 
       // Count existing records for this plan
       const existingRecords = await db
-        .select({ count: designVerificationRecords.id })
-        .from(designVerificationRecords)
-        .where(eq(designVerificationRecords.planId, validatedData.planId));
+        .select({ count: verificationRecords.id })
+        .from(verificationRecords)
+        .where(eq(verificationRecords.projectId, validatedData.planId));
 
       const recordNumber = String(existingRecords.length + 1).padStart(3, '0');
       recordId = `VR-${plan[0].planId}-${recordNumber}`;
     }
 
     const newRecord = await db
-      .insert(designVerificationRecords)
+      .insert(verificationRecords)
       .values({
         ...validatedData,
-        recordId,
-        executionDate: new Date(validatedData.executionDate),
+        verificationId: recordId,
+        testDate: new Date(validatedData.executionDate),
+        testExecutor: validatedData.executedBy,
       })
       .returning();
 
     // Update plan execution progress
     const totalRecords = await db
-      .select({ count: designVerificationRecords.id })
-      .from(designVerificationRecords)
-      .where(eq(designVerificationRecords.planId, validatedData.planId));
+      .select({ count: verificationRecords.id })
+      .from(verificationRecords)
+      .where(eq(verificationRecords.projectId, validatedData.planId));
 
     const passedRecords = await db
-      .select({ count: designVerificationRecords.id })
-      .from(designVerificationRecords)
+      .select({ count: verificationRecords.id })
+      .from(verificationRecords)
       .where(and(
-        eq(designVerificationRecords.planId, validatedData.planId),
-        eq(designVerificationRecords.result, "pass")
+        eq(verificationRecords.projectId, validatedData.planId),
+        eq(verificationRecords.result, "pass")
       ));
 
     const progress = Math.round((passedRecords.length / totalRecords.length) * 100);
     const status = progress === 100 ? "completed" : progress > 0 ? "in_progress" : "planned";
 
     await db
-      .update(designVerificationPlans)
+      .update(verificationRecords)
       .set({
         executionProgress: progress,
         status,
-        actualDate: validatedData.result === "pass" ? new Date() : undefined,
+        testDate: validatedData.result === "pass" ? new Date() : undefined,
         updatedAt: new Date(),
       })
-      .where(eq(designVerificationPlans.id, validatedData.planId));
+      .where(eq(verificationRecords.id, validatedData.planId));
 
     res.status(201).json(newRecord[0]);
   } catch (error) {
@@ -315,9 +316,9 @@ router.patch("/plans/:planId/status", authMiddleware.isAuthenticated, async (req
     }
 
     const updatedPlan = await db
-      .update(designVerificationPlans)
+      .update(verificationRecords)
       .set(updateData)
-      .where(eq(designVerificationPlans.planId, planId))
+      .where(eq(verificationRecords.verificationId, planId))
       .returning();
 
     if (updatedPlan.length === 0) {
