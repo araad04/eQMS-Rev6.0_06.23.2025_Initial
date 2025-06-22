@@ -2,102 +2,239 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
-import { Target, Settings, FileText, Users, BarChart3, CheckCircle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { useQuery } from '@tanstack/react-query';
+import { useLocation } from 'wouter';
+import { 
+  FolderOpen, 
+  Plus, 
+  Settings, 
+  FileText, 
+  CheckCircle, 
+  Clock,
+  Users,
+  Calendar,
+  ArrowRight
+} from 'lucide-react';
 
 export default function DesignControlIndex() {
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
 
-  const modules = [
-    {
-      title: "Enhanced Steering Module",
-      description: "URS integration, phase gate reviews with bottleneck controls, and PDF generation",
-      icon: Target,
-      path: "/design-control/enhanced-steering",
-      status: "active",
-      features: ["URS Requirements", "Phase Gate Reviews", "Traceability Chain", "PDF Generation", "Bottleneck Resolution"]
-    },
-    {
-      title: "Design Projects",
-      description: "Manage design control projects and their lifecycle",
-      icon: Settings,
-      path: "/design-control/projects",
-      status: "active",
-      features: ["Project Management", "Phase Tracking", "Resource Allocation"]
-    },
-    {
-      title: "Design Inputs & Outputs",
-      description: "Capture and manage design inputs and outputs",
-      icon: FileText,
-      path: "/design-control/inputs",
-      status: "active",
-      features: ["Input Management", "Output Tracking", "Requirements Traceability"]
-    },
-    {
-      title: "Verification & Validation",
-      description: "Plan and execute V&V activities",
-      icon: CheckCircle,
-      path: "/design-control/verification",
-      status: "active",
-      features: ["Test Protocols", "Evidence Management", "Results Tracking"]
-    },
-    {
-      title: "Design Reviews",
-      description: "Conduct formal design reviews",
-      icon: Users,
-      path: "/design-control/reviews",
-      status: "active",
-      features: ["Review Planning", "Decision Recording", "Action Item Tracking"]
-    },
-    {
-      title: "Traceability Matrix",
-      description: "Visualize and manage requirements traceability",
-      icon: BarChart3,
-      path: "/design-control/traceability",
-      status: "active",
-      features: ["Visual Matrix", "Gap Analysis", "Coverage Reports"]
-    }
-  ];
+  // Fetch all design projects
+  const { data: projects, isLoading } = useQuery({
+    queryKey: ['/api/design-projects'],
+  });
+
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      'planning': { label: 'Planning', variant: 'secondary' as const },
+      'in_progress': { label: 'In Progress', variant: 'default' as const },
+      'completed': { label: 'Completed', variant: 'default' as const },
+      'on_hold': { label: 'On Hold', variant: 'secondary' as const }
+    };
+    
+    const config = statusConfig[status] || statusConfig['planning'];
+    return <Badge variant={config.variant}>{config.label}</Badge>;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <Clock className="h-8 w-8 animate-spin mx-auto mb-4" />
+            <p>Loading design projects...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Design Control</h1>
-        <p className="text-muted-foreground">
-          Comprehensive design control management system with ISO 13485:7.3 compliance
-        </p>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Design Control Projects</h1>
+          <p className="text-muted-foreground">
+            Unified project-based design control with all phases accessible from within each project
+          </p>
+        </div>
+        <Button onClick={() => setLocation('/design-control/create')} className="flex items-center gap-2">
+          <Plus className="h-4 w-4" />
+          New Project
+        </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {modules.map((module) => {
-          const IconComponent = module.icon;
-          return (
-            <Card key={module.title} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <IconComponent className="h-6 w-6 text-primary" />
+      {/* Projects Grid */}
+      {projects && projects.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {projects.map((project: any) => (
+            <Card 
+              key={project.id} 
+              className="hover:shadow-lg transition-all cursor-pointer group"
+              onClick={() => setLocation(`/design-control/project/${project.id}`)}
+            >
+              <CardHeader className="pb-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
+                      <FolderOpen className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg group-hover:text-primary transition-colors">
+                        {project.title}
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        {project.projectCode}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <CardTitle className="text-lg">{module.title}</CardTitle>
-                    {module.status === 'active' && (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        Active
-                      </span>
-                    )}
-                  </div>
+                  <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
                 </div>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">{module.description}</p>
-                
-                <div className="mb-4">
-                  <h4 className="font-medium mb-2">Key Features:</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    {module.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center">
-                        <CheckCircle className="h-3 w-3 text-green-500 mr-2" />
-                        {feature}
+              
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground line-clamp-2">
+                  {project.description}
+                </p>
+
+                <div className="flex items-center justify-between">
+                  {getStatusBadge(project.status)}
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Calendar className="h-3 w-3" />
+                    {new Date(project.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+
+                {/* Phase Progress Indicators */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium">Design Phases</span>
+                    <span className="text-xs text-muted-foreground">
+                      {project.overallProgress || 0}% complete
+                    </span>
+                  </div>
+                  
+                  <div className="grid grid-cols-6 gap-1">
+                    {[
+                      { name: 'Plan', status: project.phaseStatus?.planning || 'not_started' },
+                      { name: 'Input', status: project.phaseStatus?.inputs || 'not_started' },
+                      { name: 'Output', status: project.phaseStatus?.outputs || 'not_started' },
+                      { name: 'V&V', status: project.phaseStatus?.verification || 'not_started' },
+                      { name: 'Valid', status: project.phaseStatus?.validation || 'not_started' },
+                      { name: 'Transfer', status: project.phaseStatus?.transfer || 'not_started' }
+                    ].map((phase, index) => (
+                      <div key={index} className="text-center">
+                        <div className={`w-full h-2 rounded-full mb-1 ${
+                          phase.status === 'completed' || phase.status === 'approved' 
+                            ? 'bg-green-500' 
+                            : phase.status === 'in_progress'
+                            ? 'bg-blue-500'
+                            : phase.status === 'review_pending'
+                            ? 'bg-yellow-500'
+                            : 'bg-gray-200'
+                        }`} />
+                        <span className="text-xs text-muted-foreground">{phase.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="flex gap-2 pt-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLocation(`/design-control/project/${project.id}`);
+                    }}
+                  >
+                    <FileText className="h-3 w-3 mr-1" />
+                    View Phases
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLocation(`/design-control/dynamic-traceability?project=${project.id}`);
+                    }}
+                  >
+                    <CheckCircle className="h-3 w-3" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        /* Empty State */
+        <Card className="text-center py-12">
+          <CardContent>
+            <FolderOpen className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+            <h3 className="text-lg font-semibold mb-2">No Design Projects</h3>
+            <p className="text-muted-foreground mb-6">
+              Create your first design control project to get started with phase-gated development
+            </p>
+            <Button onClick={() => setLocation('/design-control/create')}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create First Project
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Quick Access Panel */}
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="h-5 w-5" />
+            Design Control Tools
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Button 
+              variant="outline" 
+              className="h-20 flex-col"
+              onClick={() => setLocation('/design-control/enhanced-design-control')}
+            >
+              <Settings className="h-6 w-6 mb-2" />
+              Enhanced Controls
+            </Button>
+            <Button 
+              variant="outline" 
+              className="h-20 flex-col"
+              onClick={() => setLocation('/design-control/dynamic-traceability')}
+            >
+              <CheckCircle className="h-6 w-6 mb-2" />
+              Traceability Matrix
+            </Button>
+            <Button 
+              variant="outline" 
+              className="h-20 flex-col"
+              onClick={() => setLocation('/design-control/history-file')}
+            >
+              <FileText className="h-6 w-6 mb-2" />
+              Design History File
+            </Button>
+            <Button 
+              variant="outline" 
+              className="h-20 flex-col"
+              onClick={() => setLocation('/design-control/phase-gate-reviews')}
+            >
+              <Users className="h-6 w-6 mb-2" />
+              Phase Gate Reviews
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
                       </li>
                     ))}
                   </ul>

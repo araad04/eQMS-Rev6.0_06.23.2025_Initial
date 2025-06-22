@@ -276,7 +276,7 @@ function App() {
           <Layout>
             <Suspense fallback={<div className="flex justify-center py-8"><Loader2 className="animate-spin" /></div>}>
               <React.Suspense>
-                {React.createElement(React.lazy(() => import("./pages/design-control-project-detail")))}
+                {React.createElement(React.lazy(() => import("./pages/design-control/unified-project-dashboard")))}
               </React.Suspense>
             </Suspense>
           </Layout>

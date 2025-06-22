@@ -7,6 +7,65 @@ import { qmsDeleteOperations } from "./delete-operations";
 import { pool, db } from "./db";
 import { sql, desc, eq } from "drizzle-orm";
 import { z } from "zod";
+
+// Complaint validation fix
+const complaintSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().min(1),
+  status: z.string().default('new'),
+  customerName: z.string().optional(),
+  severity: z.string().default('medium')
+});
+
+
+// Management review validation fix
+const managementReviewSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().optional(),
+  status: z.string().default('scheduled'),
+  reviewDate: z.string().transform(str => new Date(str)).optional(),
+  reviewType: z.string().optional()
+});
+
+
+// Training validation fix
+const trainingRecordSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().optional(),
+  status: z.string().default('active'),
+  employeeName: z.string().optional(),
+  trainingType: z.string().optional()
+});
+
+
+// Supplier validation fix
+const supplierCreateSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().optional(),
+  status: z.string().default('active'),
+  name: z.string().min(1),
+  contactInfo: z.string().optional()
+});
+
+
+// CAPA validation fix
+const capaCreateSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().min(1),
+  status: z.string().default('open'),
+  severity: z.string().default('medium'),
+  dueDate: z.string().transform(str => new Date(str)).optional()
+});
+
+
+// Document validation fix
+const documentCreateSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().optional(),
+  status: z.string().default('active'),
+  type: z.string().optional()
+});
+
 import { registerIOVVRoutes } from "./routes.iovv";
 import { setupProductionRoutes } from "./routes.production";
 import { setupSupplierRoutes } from "./routes.supplier";

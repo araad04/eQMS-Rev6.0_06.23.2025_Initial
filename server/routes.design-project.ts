@@ -1,7 +1,16 @@
 import { Router } from "express";
 import { designProjectStorage } from "./storage.design-project";
 import { insertDesignProjectSchema, designProjects } from "@shared/schema";
-import { ZodError } from "zod";
+import { z, ZodError } from "zod";
+
+// Design project validation fix
+const designProjectCreateSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().optional(),
+  status: z.string().default('planning'),
+  projectCode: z.string().optional()
+});
+
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 
