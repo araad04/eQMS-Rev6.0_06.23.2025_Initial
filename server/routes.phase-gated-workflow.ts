@@ -123,6 +123,8 @@ phaseGatedWorkflowRouter.post("/api/phase-gated-workflow/project/:projectId/init
           status,
           startedAt: i === 0 ? new Date() : null,
           assignedTo: 9999, // Default to development user
+          phaseOrder: phase.sortOrder,
+          isActive: i === 0, // First phase is active
           createdBy: 9999,
         })
         .returning();
