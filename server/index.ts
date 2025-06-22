@@ -19,6 +19,10 @@ import { default as softwareLifecycleRoutes } from './routes.software-lifecycle'
 import storageSettingsRoutes from './routes.storage-settings-db';
 import { setupEnhancedDesignControlRoutes } from './routes.enhanced-design-control';
 import designPlanRoutes from './routes.design-plan';
+import designInputsRoutes from './routes.design-inputs';
+import designOutputsRoutes from './routes.design-outputs';
+import designVerificationRoutes from './routes.design-verification';
+import designValidationRoutes from './routes.design-validation';
 
 // Shared rate limit configuration
 const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
