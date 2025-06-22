@@ -30,31 +30,31 @@ router.get("/project/:projectId", authMiddleware.isAuthenticated, async (req, re
     
     const outputs = await db
       .select({
-        id: designOutputs.id,
-        outputId: designOutputs.outputId,
-        title: designOutputs.title,
-        description: designOutputs.description,
-        documentType: designOutputs.documentType,
-        documentReference: designOutputs.documentReference,
-        revision: designOutputs.revision,
-        traceabilityToInputs: designOutputs.traceabilityToInputs,
-        verificationRequired: designOutputs.verificationRequired,
-        validationRequired: designOutputs.validationRequired,
-        priority: designOutputs.priority,
-        riskLevel: designOutputs.riskLevel,
-        status: designOutputs.status,
-        verificationStatus: designOutputs.verificationStatus,
-        validationStatus: designOutputs.validationStatus,
-        createdAt: designOutputs.createdAt,
-        updatedAt: designOutputs.updatedAt,
+        id: traceabilityDesignOutputs.id,
+        outputId: traceabilityDesignOutputs.outputId,
+        title: traceabilityDesignOutputs.title,
+        description: traceabilityDesignOutputs.description,
+        documentType: traceabilityDesignOutputs.documentType,
+        documentReference: traceabilityDesignOutputs.documentReference,
+        revision: traceabilityDesignOutputs.revision,
+        traceabilityToInputs: traceabilityDesignOutputs.traceabilityToInputs,
+        verificationRequired: traceabilityDesignOutputs.verificationRequired,
+        validationRequired: traceabilityDesignOutputs.validationRequired,
+        priority: traceabilityDesignOutputs.priority,
+        riskLevel: traceabilityDesignOutputs.riskLevel,
+        status: traceabilityDesignOutputs.status,
+        verificationStatus: traceabilityDesignOutputs.verificationStatus,
+        validationStatus: traceabilityDesignOutputs.validationStatus,
+        createdAt: traceabilityDesignOutputs.createdAt,
+        updatedAt: traceabilityDesignOutputs.updatedAt,
         createdBy: users.firstName,
-        reviewedAt: designOutputs.reviewedAt,
-        approvedAt: designOutputs.approvedAt,
+        reviewedAt: traceabilityDesignOutputs.reviewedAt,
+        approvedAt: traceabilityDesignOutputs.approvedAt,
       })
-      .from(designOutputs)
-      .leftJoin(users, eq(designOutputs.createdBy, users.id))
-      .where(eq(designOutputs.projectId, projectId))
-      .orderBy(desc(designOutputs.createdAt));
+      .from(traceabilityDesignOutputs)
+      .leftJoin(users, eq(traceabilityDesignOutputs.createdBy, users.id))
+      .where(eq(traceabilityDesignOutputs.projectId, projectId))
+      .orderBy(desc(traceabilityDesignOutputs.createdAt));
 
     res.json(outputs);
   } catch (error) {

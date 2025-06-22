@@ -114,7 +114,7 @@ router.post("/", authMiddleware.isAuthenticated, async (req, res) => {
     const inputId = `DI-${project[0].projectCode.replace('-', '')}-${inputNumber}`;
 
     const newInput = await db
-      .insert(designInputs)
+      .insert(traceabilityDesignInputs)
       .values({
         ...validatedData,
         inputId,
@@ -139,12 +139,12 @@ router.put("/:inputId", authMiddleware.isAuthenticated, async (req, res) => {
     const validatedData = createDesignInputSchema.partial().parse(req.body);
 
     const updatedInput = await db
-      .update(designInputs)
+      .update(traceabilityDesignInputs)
       .set({
         ...validatedData,
         updatedAt: new Date(),
       })
-      .where(eq(designInputs.inputId, inputId))
+      .where(eq(traceabilityDesignInputs.inputId, inputId))
       .returning();
 
     if (updatedInput.length === 0) {
@@ -167,8 +167,8 @@ router.delete("/:inputId", authMiddleware.isAuthenticated, async (req, res) => {
     const inputId = req.params.inputId;
 
     const deletedInput = await db
-      .delete(designInputs)
-      .where(eq(designInputs.inputId, inputId))
+      .delete(traceabilityDesignInputs)
+      .where(eq(traceabilityDesignInputs.inputId, inputId))
       .returning();
 
     if (deletedInput.length === 0) {
@@ -207,9 +207,9 @@ router.patch("/:inputId/status", authMiddleware.isAuthenticated, async (req, res
     }
 
     const updatedInput = await db
-      .update(designInputs)
+      .update(traceabilityDesignInputs)
       .set(updateData)
-      .where(eq(designInputs.inputId, inputId))
+      .where(eq(traceabilityDesignInputs.inputId, inputId))
       .returning();
 
     if (updatedInput.length === 0) {
@@ -226,10 +226,14 @@ router.patch("/:inputId/status", authMiddleware.isAuthenticated, async (req, res
 // Get design input types
 router.get("/types/all", authMiddleware.isAuthenticated, async (req, res) => {
   try {
-    const types = await db
-      .select()
-      .from(designInputTypes)
-      .orderBy(designInputTypes.name);
+    // Return static design input types for now
+    const types = [
+      { id: 1, name: "User Need", description: "Requirements derived from user needs" },
+      { id: 2, name: "Regulatory", description: "Requirements from regulatory standards" },
+      { id: 3, name: "Safety", description: "Safety-related requirements" },
+      { id: 4, name: "Performance", description: "Performance specifications" },
+      { id: 5, name: "Interface", description: "Interface requirements" }
+    ];
 
     res.json(types);
   } catch (error) {
