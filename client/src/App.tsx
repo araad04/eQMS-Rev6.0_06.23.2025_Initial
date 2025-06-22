@@ -42,6 +42,7 @@ import OrganizationalChartPage from "./pages/organizational-chart-professional";
 import TechnicalDocumentationPage from "./pages/TechnicalDocumentation";
 import StorageSettingsPage from "./pages/storage-settings";
 import EnhancedDesignControl from "./pages/design-control/enhanced-design-control";
+import DesignPlanDashboard from "./pages/design-control/design-plan-dashboard";
 const TechnicalDocumentationInteractive = React.lazy(() => import("./pages/TechnicalDocumentationInteractive"));
 
 // Route handler component for module pages that are not yet implemented
@@ -376,6 +377,12 @@ function App() {
         <ProtectedRoute path="/design-control/enhanced" component={() => (
           <Layout>
             <EnhancedDesignControl />
+          </Layout>
+        )} />
+
+        <ProtectedRoute path="/design-control/projects/:projectId/plan" component={() => (
+          <Layout>
+            <DesignPlanDashboard />
           </Layout>
         )} />
 

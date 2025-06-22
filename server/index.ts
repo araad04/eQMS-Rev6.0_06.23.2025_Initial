@@ -18,6 +18,7 @@ import { setupAuditCapaRoutes } from './routes.audit-capa-integration';
 import { default as softwareLifecycleRoutes } from './routes.software-lifecycle';
 import storageSettingsRoutes from './routes.storage-settings-db';
 import { setupEnhancedDesignControlRoutes } from './routes.enhanced-design-control';
+import designPlanRoutes from './routes.design-plan';
 
 // Shared rate limit configuration
 const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
@@ -659,6 +660,9 @@ app.use((req, res, next) => {
 
   // Setup Enhanced Design Control routes for AS9100D + ISO 13485 + NADCAP compliance
   setupEnhancedDesignControlRoutes(app);
+
+  // Setup Design Plan Phase-Gated Control routes for ISO 13485:7.3 compliance
+  app.use('/api/design-plan', designPlanRoutes);
 
   // Enhanced Technical Documentation integration will be handled through existing routes
 
