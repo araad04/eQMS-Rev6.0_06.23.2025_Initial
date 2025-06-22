@@ -1,0 +1,152 @@
+Change Request Prompt — eQMS Design Module Refactor
+Title:
+Refactor Design Module Architecture to Enable Dynamic Design Plan-Driven Workflow with Phase-Gated Progression
+Description:
+Initiate a complete reconstruction of the Design Control Module to implement a dynamic, project-specific Design Plan Submodule that acts as the operational driver and gatekeeper for all design activities. This submodule shall steer the project lifecycle, enforce regulatory checkpoints, and ensure coherence between inputs, outputs, verifications, and validations.
+ 
+📌 Change Objectives
+•	Introduce a new Design Plan Submodule that orchestrates all phases of the design process.
+•	Ensure progression through phases is gated by phase review approvals, tracked in the Design Plan.
+•	Populate Design Inputs, Outputs, Verification, and Validation contextually and traceably as the project evolves.
+•	Enforce bi-directional traceability across all design artifacts.
+•	Comply with:
+o	FDA 21 CFR 820.30 (Design Controls)
+o	ISO 13485:2016, Clause 7.3
+o	IEC 62304 traceability and review checkpoints
+ 
+🔄 Scope of Implementation
+•	Frontend
+o	Add new UI for Design Plan Dashboard with:
+	Phase summary & progress indicators
+	Review gating controls
+	Linked components to Design Inputs, Outputs, V&V pages
+o	Update Design Project Detail Page to integrate the new plan structure
+•	Backend
+o	Extend data models:
+	design_phases, phase_reviews, gating_status, trace_links
+o	Enforce business logic:
+	Block next-phase activation until review outcome = approved
+	Link CRUD operations in Inputs/Outputs/Verifications/Validations to specific phases
+•	Database
+o	Add tables:
+	design_phase_reviews (id, phase_id, reviewer_id, outcome, comments, date_signed)
+	traceability_links (source_type, source_id, target_type, target_id, justification)
+o	Modify design_projects to include current_phase_id
+•	Audit & Compliance
+o	Implement full audit trail for:
+	Phase transitions
+	Review decisions and signatures
+	Traceability matrix auto-generation per project
+ 
+🧠 Expected Behavior
+•	Upon project creation, a Design Plan template is initialized with defined phases.
+•	Each phase defines:
+o	Entry/exit criteria
+o	Deliverables (e.g., Inputs, Outputs)
+o	Phase review approval requirement
+•	Submodules (Inputs, Outputs, V&V) become editable only within their active phase.
+•	Phase review (w/ electronic signature) is required to unlock the next phase.
+•	Traceability matrix auto-updates with every new artifact added and links established.
+ 
+📅 Timeline
+•	Sprint 1: Backend schema & APIs (Design Plan + Phase Gating)
+•	Sprint 2: Frontend integration (UI components, phase control dashboard)
+•	Sprint 3: Submodule updates (linking logic, editable state)
+•	Sprint 4: Testing, validation (unit tests, traceability demo), documentation
+ 
+✅ Acceptance Criteria
+•	✅ Design Plan can be created, edited, and updated per project
+•	✅ Design Inputs, Outputs, V&V link to plan and show traceability
+•	✅ Phase cannot be advanced until signed review is completed
+•	✅ Automated traceability matrix shows real-time linked data
+•	✅ Full audit trail of all changes, reviews, and traceability actions
+
+Epic: DCM-001 — Reconstruct Design Module with Phase-Gated Plan Architecture
+🎯 Goal: Implement a design plan-driven architecture that guides design project execution, enforces gated reviews, and ensures traceable interconnection between Inputs, Outputs, Verifications, and Validations.
+ 
+🧩 Story: DCM-001.01 — Design Plan Submodule: Backend Models & APIs
+Description: Create the schema, database migrations, and API endpoints for handling design plans, phases, and reviews.
+•	⏱ Estimation: 8 points
+•	👤 Assigned to: Backend Engineer
+Tasks:
+1.	Design DB schema: design_phases, design_phase_reviews, traceability_links
+2.	Implement CRUD APIs: /design-plan, /phases, /phase-reviews
+3.	Enforce phase locking logic via middleware
+4.	Add migration scripts with rollback support
+5.	Unit tests: create/update plans, review enforcement
+ 
+🧩 Story: DCM-001.02 — Frontend: Design Plan Dashboard UI
+Description: Build the new frontend UI for Design Plan management with editable phases, gating indicators, and review tracking.
+•	⏱ Estimation: 8 points
+•	👤 Assigned to: Frontend Developer
+Tasks:
+1.	Create new route: /design/:id/plan
+2.	Implement editable phase table
+3.	Add gating logic and visual indicators (e.g. “LOCKED” badge)
+4.	Review phase modal with signature input and comments
+5.	API integration and toast notifications
+ 
+🧩 Story: DCM-001.03 — Submodule Integration: Inputs, Outputs, V&V Linking
+Description: Make submodule forms context-aware by phase. Restrict edits outside active phase. Enforce linking logic per project.
+•	⏱ Estimation: 13 points
+•	👤 Assigned to: Full-Stack Developer
+Tasks:
+1.	Update Input/Output/Verification/Validation pages to show phase alignment
+2.	Restrict create/edit unless phase.status = active
+3.	Implement traceability link service (bi-directional references)
+4.	Auto-suggest linking based on matching criteria (e.g. Input ↔ Output)
+5.	Integration tests for locked/unlocked states
+ 
+🧩 Story: DCM-001.04 — Traceability Matrix Automation
+Description: Automatically generate a real-time, read-only traceability matrix for each design project.
+•	⏱ Estimation: 8 points
+•	👤 Assigned to: Backend + Frontend Pair
+Tasks:
+1.	Backend: Query all artifacts linked by traceability_links
+2.	Frontend: Create matrix view page (/design/:id/traceability)
+3.	Implement downloadable PDF export with project metadata
+4.	Add search/filter for input ID, type, or review status
+5.	Accessibility compliance (screen-reader + WCAG)
+ 
+🧩 Story: DCM-001.05 — Phase Review Workflow & Electronic Signature
+Description: Enable formal review workflow and enforce digital signature capture before allowing phase transitions.
+•	⏱ Estimation: 5 points
+•	👤 Assigned to: Backend Developer
+Tasks:
+1.	Add review API endpoints: approve/reject with reason
+2.	Enforce signed review as phase.complete = true prerequisite
+3.	Capture reviewer, timestamp, IP, signature hash
+4.	Audit trail record generation
+5.	Frontend review modal integration
+ 
+🧩 Story: DCM-001.06 — Audit Trail and Review History Logging
+Description: Implement system-wide logging for traceability links, phase transitions, and reviews.
+•	⏱ Estimation: 5 points
+•	👤 Assigned to: Backend Engineer
+Tasks:
+1.	Extend existing audit trail middleware
+2.	Add traceability link events (create/delete)
+3.	Log phase transitions with user IDs
+4.	Add audit log filtering by project/phase
+5.	Export to CSV option
+ 
+🧩 Story: DCM-001.07 — Validation Protocol & QA Review
+Description: Define test protocols, validate functional behavior, and ensure traceability and security conformance.
+•	⏱ Estimation: 8 points
+•	👤 Assigned to: QA + Validation Engineer
+Tasks:
+1.	Draft validation protocol and traceability matrix
+2.	Define test cases: locking, transition, artifact linking, traceability
+3.	Validate electronic signature behavior per 21 CFR Part 11
+4.	Conduct regression testing across impacted modules
+5.	Generate validation summary report
+ 
+📌 Total Estimate: ~55 points
+Sprints Required: 3–4
+Cross-Team Dependencies:
+•	🟢 Backend
+•	🔵 Frontend
+•	🟡 QA/Validation
+•	🔴 Security Officer (for signature compliance)
+
+
