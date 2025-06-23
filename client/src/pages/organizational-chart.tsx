@@ -653,6 +653,7 @@ export default function OrganizationalChart() {
           <TabsTrigger value="chart">Org Chart</TabsTrigger>
           <TabsTrigger value="positions">Positions</TabsTrigger>
           <TabsTrigger value="structure">Structure</TabsTrigger>
+          <TabsTrigger value="training">Team Training</TabsTrigger>
           <TabsTrigger value="approvals">Approval Matrix</TabsTrigger>
           <TabsTrigger value="delegations">Delegations</TabsTrigger>
         </TabsList>
@@ -875,6 +876,225 @@ export default function OrganizationalChart() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="training" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Team Training Management</CardTitle>
+              <CardDescription>
+                Assign and track training programs for teams and departments.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {/* Training Assignment Section */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center">
+                        <FileText className="h-5 w-5 mr-2" />
+                        Assign Training to Teams
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <Label htmlFor="training-department">Select Department</Label>
+                        <Select>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choose department" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="quality">Quality Assurance</SelectItem>
+                            <SelectItem value="regulatory">Regulatory Affairs</SelectItem>
+                            <SelectItem value="engineering">Engineering</SelectItem>
+                            <SelectItem value="manufacturing">Manufacturing</SelectItem>
+                            <SelectItem value="clinical">Clinical Affairs</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="training-program">Training Program</Label>
+                        <Select>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select training program" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="iso13485">ISO 13485:2016 QMS Training</SelectItem>
+                            <SelectItem value="21cfr">21 CFR Part 11 Compliance</SelectItem>
+                            <SelectItem value="design-control">Design Control Training</SelectItem>
+                            <SelectItem value="risk-management">Risk Management ISO 14971</SelectItem>
+                            <SelectItem value="capa">CAPA System Training</SelectItem>
+                            <SelectItem value="audit">Internal Audit Training</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="due-date">Due Date</Label>
+                        <Input type="date" id="due-date" />
+                      </div>
+                      <Button className="w-full">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Assign Training
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center">
+                        <Clock className="h-5 w-5 mr-2" />
+                        Training Status Overview
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                          <div>
+                            <p className="font-medium text-green-800">ISO 13485 Training</p>
+                            <p className="text-sm text-green-600">Quality Assurance Team</p>
+                          </div>
+                          <Badge className="bg-green-100 text-green-800">Completed</Badge>
+                        </div>
+                        <div className="flex justify-between items-center p-3 bg-yellow-50 rounded-lg">
+                          <div>
+                            <p className="font-medium text-yellow-800">CAPA System Training</p>
+                            <p className="text-sm text-yellow-600">Engineering Team</p>
+                          </div>
+                          <Badge className="bg-yellow-100 text-yellow-800">In Progress</Badge>
+                        </div>
+                        <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                          <div>
+                            <p className="font-medium text-red-800">Design Control Training</p>
+                            <p className="text-sm text-red-600">Regulatory Affairs Team</p>
+                          </div>
+                          <Badge className="bg-red-100 text-red-800">Overdue</Badge>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Team Training Matrix */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Team Training Matrix</CardTitle>
+                    <CardDescription>
+                      Track training completion across teams and departments
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <table className="w-full border-collapse">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left p-3 font-medium">Team/Department</th>
+                            <th className="text-center p-3 font-medium">ISO 13485</th>
+                            <th className="text-center p-3 font-medium">21 CFR Part 11</th>
+                            <th className="text-center p-3 font-medium">Design Control</th>
+                            <th className="text-center p-3 font-medium">Risk Management</th>
+                            <th className="text-center p-3 font-medium">CAPA</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr className="border-b hover:bg-gray-50">
+                            <td className="p-3 font-medium">Quality Assurance</td>
+                            <td className="text-center p-3">
+                              <Badge className="bg-green-100 text-green-800">✓</Badge>
+                            </td>
+                            <td className="text-center p-3">
+                              <Badge className="bg-green-100 text-green-800">✓</Badge>
+                            </td>
+                            <td className="text-center p-3">
+                              <Badge className="bg-yellow-100 text-yellow-800">⧗</Badge>
+                            </td>
+                            <td className="text-center p-3">
+                              <Badge className="bg-green-100 text-green-800">✓</Badge>
+                            </td>
+                            <td className="text-center p-3">
+                              <Badge className="bg-green-100 text-green-800">✓</Badge>
+                            </td>
+                          </tr>
+                          <tr className="border-b hover:bg-gray-50">
+                            <td className="p-3 font-medium">Regulatory Affairs</td>
+                            <td className="text-center p-3">
+                              <Badge className="bg-green-100 text-green-800">✓</Badge>
+                            </td>
+                            <td className="text-center p-3">
+                              <Badge className="bg-green-100 text-green-800">✓</Badge>
+                            </td>
+                            <td className="text-center p-3">
+                              <Badge className="bg-red-100 text-red-800">✗</Badge>
+                            </td>
+                            <td className="text-center p-3">
+                              <Badge className="bg-yellow-100 text-yellow-800">⧗</Badge>
+                            </td>
+                            <td className="text-center p-3">
+                              <Badge className="bg-green-100 text-green-800">✓</Badge>
+                            </td>
+                          </tr>
+                          <tr className="border-b hover:bg-gray-50">
+                            <td className="p-3 font-medium">Engineering</td>
+                            <td className="text-center p-3">
+                              <Badge className="bg-yellow-100 text-yellow-800">⧗</Badge>
+                            </td>
+                            <td className="text-center p-3">
+                              <Badge className="bg-gray-100 text-gray-800">-</Badge>
+                            </td>
+                            <td className="text-center p-3">
+                              <Badge className="bg-green-100 text-green-800">✓</Badge>
+                            </td>
+                            <td className="text-center p-3">
+                              <Badge className="bg-green-100 text-green-800">✓</Badge>
+                            </td>
+                            <td className="text-center p-3">
+                              <Badge className="bg-yellow-100 text-yellow-800">⧗</Badge>
+                            </td>
+                          </tr>
+                          <tr className="border-b hover:bg-gray-50">
+                            <td className="p-3 font-medium">Manufacturing</td>
+                            <td className="text-center p-3">
+                              <Badge className="bg-green-100 text-green-800">✓</Badge>
+                            </td>
+                            <td className="text-center p-3">
+                              <Badge className="bg-gray-100 text-gray-800">-</Badge>
+                            </td>
+                            <td className="text-center p-3">
+                              <Badge className="bg-gray-100 text-gray-800">-</Badge>
+                            </td>
+                            <td className="text-center p-3">
+                              <Badge className="bg-yellow-100 text-yellow-800">⧗</Badge>
+                            </td>
+                            <td className="text-center p-3">
+                              <Badge className="bg-green-100 text-green-800">✓</Badge>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className="mt-4 flex gap-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-green-100 text-green-800">✓</Badge>
+                        <span>Completed</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-yellow-100 text-yellow-800">⧗</Badge>
+                        <span>In Progress</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-red-100 text-red-800">✗</Badge>
+                        <span>Overdue</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-gray-100 text-gray-800">-</Badge>
+                        <span>Not Required</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </CardContent>
           </Card>
