@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { db } from './db';
 import { audits, auditResponses, capas, auditFindings } from '@shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
-import authMiddleware from './auth';
+// Auth middleware is applied globally in the main server, no need to import
 
 /**
  * Create CAPA from audit finding with automatic pre-population
@@ -336,11 +336,12 @@ function generateCapaSuggestions(finding: any) {
 
 /**
  * Register all audit-CAPA integration routes
+ * Note: Authentication middleware is applied globally in the main server
  */
 export function registerAuditCapaRoutes(app: any) {
-  app.post('/api/audit-findings/:findingId/create-capa', authMiddleware.isAuthenticated, createCapaFromFinding);
-  app.get('/api/audits/:auditId/linked-capas', authMiddleware.isAuthenticated, getLinkedCapasForAudit);
-  app.post('/api/audit-findings/:findingId/suggest-capa', authMiddleware.isAuthenticated, suggestCapaFromFinding);
-  app.get('/api/audits/:auditId/findings-requiring-capa', authMiddleware.isAuthenticated, getFindingsRequiringCapa);
-  app.post('/api/audits/:auditId/bulk-create-capas', authMiddleware.isAuthenticated, bulkCreateCapasFromFindings);
+  app.post('/api/audit-findings/:findingId/create-capa', createCapaFromFinding);
+  app.get('/api/audits/:auditId/linked-capas', getLinkedCapasForAudit);
+  app.post('/api/audit-findings/:findingId/suggest-capa', suggestCapaFromFinding);
+  app.get('/api/audits/:auditId/findings-requiring-capa', getFindingsRequiringCapa);
+  app.post('/api/audits/:auditId/bulk-create-capas', bulkCreateCapasFromFindings);
 }
