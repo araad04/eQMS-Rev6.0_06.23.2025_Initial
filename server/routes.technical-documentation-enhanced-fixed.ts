@@ -7,7 +7,7 @@ import { authMiddleware } from './middleware/auth';
 const router = Router();
 
 // Apply authentication middleware to all routes
-router.use(authMiddleware);
+router.use(authMiddleware.isAuthenticated);
 
 /**
  * PROFESSIONAL TECHNICAL DOCUMENTATION ENHANCED ROUTES
