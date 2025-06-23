@@ -2839,6 +2839,32 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Training Records API routes (Hot Fix for QA validation)
+  app.get("/api/training-records", isAuthenticated, async (req, res) => {
+    try {
+      console.log("Fetching training records from storage...");
+      const trainingRecords = await storage.getTrainingRecords();
+      console.log(`Found ${trainingRecords?.length || 0} training records`);
+      res.status(200).json(trainingRecords || []);
+    } catch (error) {
+      console.error("Error fetching training records:", error);
+      res.status(500).json({ error: "Failed to fetch training records", details: error.message });
+    }
+  });
+
+  // Calibrations API routes (Hot Fix for QA validation)
+  app.get("/api/calibrations", isAuthenticated, async (req, res) => {
+    try {
+      console.log("Fetching calibrations from storage...");
+      const calibrations = await storage.getCalibrationRecords();
+      console.log(`Found ${calibrations?.length || 0} calibration records`);
+      res.status(200).json(calibrations || []);
+    } catch (error) {
+      console.error("Error fetching calibrations:", error);
+      res.status(500).json({ error: "Failed to fetch calibrations", details: error.message });
+    }
+  });
+
   // Required for server-side rendering
   const httpServer = createServer(app);
 
