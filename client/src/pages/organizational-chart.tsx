@@ -1060,19 +1060,33 @@ export default function OrganizationalChart() {
                             assignTrainingMutation.mutate(data);
                           }} className="space-y-4">
                             <div>
-                              <Label htmlFor="userId">Employee</Label>
+                              <Label htmlFor="userId">Organizational Chart Employee</Label>
                               <Select name="userId" required>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select employee" />
+                                  <SelectValue placeholder="Select org chart employee" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {structure.filter(item => item.user).map((item: any) => (
-                                    <SelectItem key={item.user.id} value={item.user.id.toString()}>
-                                      {item.user.firstName} {item.user.lastName} - {item.position?.title}
-                                    </SelectItem>
-                                  ))}
+                                  {structure.filter(item => item.user).length > 0 ? (
+                                    structure.filter(item => item.user).map((item: any) => (
+                                      <SelectItem key={item.user.id} value={item.user.id.toString()}>
+                                        {item.user.firstName} {item.user.lastName} - {item.position?.title}
+                                      </SelectItem>
+                                    ))
+                                  ) : (
+                                    users.map((user: any) => (
+                                      <SelectItem key={user.id} value={user.id.toString()}>
+                                        {user.firstName} {user.lastName} ({user.department})
+                                      </SelectItem>
+                                    ))
+                                  )}
                                 </SelectContent>
                               </Select>
+                              <p className="text-xs text-gray-500 mt-1">
+                                {structure.filter(item => item.user).length > 0 
+                                  ? "Select from employees assigned to organizational positions"
+                                  : "No employees assigned to org chart positions yet - showing all users"
+                                }
+                              </p>
                             </div>
                             <div>
                               <Label htmlFor="trainingModuleId">Training Module</Label>
