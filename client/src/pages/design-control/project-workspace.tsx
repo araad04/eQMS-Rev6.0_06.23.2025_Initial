@@ -34,6 +34,19 @@ const ProjectWorkspace: React.FC<ProjectWorkspaceProps> = () => {
     enabled: !!projectId
   });
 
+  const { data: projectDetails } = useQuery({
+    queryKey: ['/api/design-projects'],
+    queryFn: async () => {
+      const response = await fetch('/api/design-projects', {
+        headers: { 'X-Auth-Local': 'true' }
+      });
+      if (!response.ok) throw new Error('Failed to fetch projects');
+      const projects = await response.json();
+      return projects.find((p: any) => p.id === parseInt(projectId || '0'));
+    },
+    enabled: !!projectId
+  });
+
   const { data: projectPhases } = useQuery({
     queryKey: ['/api/design-control-enhanced/project', projectId, 'phases'],
     queryFn: async () => {
@@ -80,10 +93,10 @@ const ProjectWorkspace: React.FC<ProjectWorkspaceProps> = () => {
     <div className="container mx-auto px-4 py-6">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">
-          Project {projectId} Workspace
+          {projectDetails ? `${projectDetails.projectCode} - ${projectDetails.title}` : `Project ${projectId} Workspace`}
         </h1>
         <p className="text-gray-600 mt-2">
-          Comprehensive view of all design control artifacts for this project
+          {projectDetails ? projectDetails.description : 'Comprehensive view of all design control artifacts for this project'}
         </p>
       </div>
 
