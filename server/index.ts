@@ -15,6 +15,7 @@ import { auditLog } from './middleware/audit-logger';
 import { sanitizeInput } from './middleware/sanitize';
 import { initializeSupplierAssessmentScheduler } from './utils/supplier-assessment-scheduler';
 import { setupAuditCapaRoutes } from './routes.audit-capa-integration';
+import { registerAuditCapaRoutes } from './routes.audit-capa-integration-enhanced';
 import { default as softwareLifecycleRoutes } from './routes.software-lifecycle';
 import storageSettingsRoutes from './routes.storage-settings-db';
 import { setupEnhancedDesignControlRoutes } from './routes.enhanced-design-control';

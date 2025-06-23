@@ -23,6 +23,7 @@ import {
   Activity,
   Shield
 } from "lucide-react";
+import { UnifiedRibbon, STANDARD_RIBBONS } from "@/components/layout/unified-ribbon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -180,22 +181,102 @@ export default function AuditCenter() {
     createAuditMutation.mutate(auditData);
   };
 
+  // Unified Ribbon Configuration
+  const [activeRibbonTab, setActiveRibbonTab] = useState("home");
+  
+  const ribbonActions = {
+    newAudit: () => setIsCreateDialogOpen(true),
+    searchAudits: () => document.getElementById('search-input')?.focus(),
+    refreshData: () => queryClient.invalidateQueries({ queryKey: ['/api/audits'] }),
+    exportData: () => console.log('Export functionality'),
+    filterAudits: () => console.log('Filter functionality'),
+    viewSettings: () => console.log('Settings functionality')
+  };
+
+  const auditRibbonTabs = [
+    {
+      id: "home",
+      label: "Home",
+      sections: [
+        {
+          id: "audit",
+          title: "Audit",
+          actions: [
+            { id: "new", label: "New Audit", icon: Plus, onClick: ribbonActions.newAudit },
+            { id: "schedule", label: "Schedule", icon: Calendar },
+            { id: "checklist", label: "Checklist", icon: FileText }
+          ]
+        },
+        {
+          id: "view",
+          title: "View",
+          actions: [
+            { id: "search", label: "Search", icon: Search, onClick: ribbonActions.searchAudits },
+            { id: "filter", label: "Filter", icon: Filter, onClick: ribbonActions.filterAudits },
+            { id: "refresh", label: "Refresh", icon: Target, onClick: ribbonActions.refreshData }
+          ]
+        },
+        {
+          id: "actions",
+          title: "Actions",
+          actions: [
+            { id: "export", label: "Export", icon: Download, onClick: ribbonActions.exportData },
+            { id: "settings", label: "Settings", icon: Settings, onClick: ribbonActions.viewSettings },
+            { id: "analytics", label: "Analytics", icon: BarChart3 }
+          ]
+        }
+      ]
+    },
+    {
+      id: "execution",
+      label: "Execution", 
+      sections: [
+        {
+          id: "workflow",
+          title: "Workflow",
+          actions: [
+            { id: "planning", label: "Planning", icon: Target },
+            { id: "fieldwork", label: "Fieldwork", icon: Search },
+            { id: "reporting", label: "Reporting", icon: FileText }
+          ]
+        },
+        {
+          id: "findings",
+          title: "Findings",
+          actions: [
+            { id: "addFinding", label: "Add Finding", icon: AlertCircle },
+            { id: "createCapa", label: "Create CAPA", icon: Shield },
+            { id: "linkCapa", label: "Link CAPA", icon: Target }
+          ]
+        }
+      ]
+    }
+  ];
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-0">
       <Helmet>
         <title>Audit Center - eQMS</title>
         <meta name="description" content="Comprehensive audit management and workflow orchestration for ISO 13485 compliance." />
       </Helmet>
 
+      {/* Unified Ribbon Navigation */}
+      <UnifiedRibbon
+        moduleName="Audit Management"
+        tabs={auditRibbonTabs}
+        activeTab={activeRibbonTab}
+        onTabChange={setActiveRibbonTab}
+      />
+
       {/* Header with Gradient Background */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 opacity-95"></div>
-        <div className="relative px-6 py-12">
+        <div className="relative px-6 py-8">
           <div className="mx-auto max-w-7xl">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-4xl font-bold text-white mb-2">Audit Center</h1>
-                <p className="text-slate-300 text-lg">Comprehensive audit management and workflow orchestration</p>
+                <h1 className="text-3xl font-bold text-white mb-2">Audit Center</h1>
+                <p className="text-slate-300">Comprehensive audit management and workflow orchestration</p>
               </div>
               <div className="flex items-center gap-4">
                 <Button
