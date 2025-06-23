@@ -531,9 +531,10 @@ export function registerRoutes(app: Express): Server {
 
       try {
         const suppliers = await storage.getSuppliers();
-        dashboardData.summary.totalSuppliers = suppliers.length;
+        dashboardData.summary.totalSuppliers = suppliers ? suppliers.length : 0;
       } catch (error) {
         console.warn("Error fetching suppliers for dashboard:", error);
+        dashboardData.summary.totalSuppliers = 0;
       }
 
       res.json(dashboardData);
