@@ -20,7 +20,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-5xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent animate-pulse">
-                Quality Command Center
+                Quality Dashboard
               </h1>
               <p className="text-xl text-cyan-200 mt-3 font-light">Real-time medical device quality intelligence</p>
             </div>
