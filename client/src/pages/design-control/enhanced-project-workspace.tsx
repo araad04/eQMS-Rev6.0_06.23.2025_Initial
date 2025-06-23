@@ -295,54 +295,102 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
       name: 'Planning & URS', 
       status: 'in_progress',
       progress: 85,
-      gateReview: { decision: 'pending', completedDate: null },
+      gateReview: { 
+        decision: 'pending', 
+        completedDate: null,
+        initiatedDate: '2025-06-20T10:30:00Z',
+        reviewerId: 'DR-001',
+        reviewerName: 'Dr. Sarah Chen'
+      },
       artifacts: ['Project Plan', 'URS Document', 'Risk Assessment'],
-      designElements: ['URS-001: Temperature Control', 'URS-002: Humidity Control', 'URS-003: Recovery Time']
+      designElements: ['URS-001: Temperature Control', 'URS-002: Humidity Control', 'URS-003: Recovery Time'],
+      lastUpdated: '2025-06-23T09:15:00Z',
+      createdDate: '2025-06-18T14:00:00Z'
     },
     { 
       id: 2,
       name: 'Design Inputs', 
       status: 'blocked',
       progress: 0,
-      gateReview: { decision: 'not_started', completedDate: null },
+      gateReview: { 
+        decision: 'not_started', 
+        completedDate: null,
+        initiatedDate: null,
+        reviewerId: null,
+        reviewerName: null
+      },
       artifacts: ['Functional Requirements', 'Performance Specifications', 'Interface Requirements'],
-      designElements: ['DI-001: System Requirements', 'DI-002: Safety Requirements', 'DI-003: Performance Criteria']
+      designElements: ['DI-001: System Requirements', 'DI-002: Safety Requirements', 'DI-003: Performance Criteria'],
+      lastUpdated: '2025-06-18T14:00:00Z',
+      createdDate: '2025-06-18T14:00:00Z'
     },
     { 
       id: 3,
       name: 'Design Outputs', 
       status: 'blocked',
       progress: 0,
-      gateReview: { decision: 'not_started', completedDate: null },
+      gateReview: { 
+        decision: 'not_started', 
+        completedDate: null,
+        initiatedDate: null,
+        reviewerId: null,
+        reviewerName: null
+      },
       artifacts: ['Design Drawings', 'Component Specifications', 'Software Requirements'],
-      designElements: ['DO-001: System Architecture', 'DO-002: Control Algorithms', 'DO-003: User Interface']
+      designElements: ['DO-001: System Architecture', 'DO-002: Control Algorithms', 'DO-003: User Interface'],
+      lastUpdated: '2025-06-18T14:00:00Z',
+      createdDate: '2025-06-18T14:00:00Z'
     },
     { 
       id: 4,
       name: 'Verification', 
       status: 'blocked',
       progress: 0,
-      gateReview: { decision: 'not_started', completedDate: null },
+      gateReview: { 
+        decision: 'not_started', 
+        completedDate: null,
+        initiatedDate: null,
+        reviewerId: null,
+        reviewerName: null
+      },
       artifacts: ['Verification Protocols', 'Test Plans', 'Inspection Procedures'],
-      designElements: ['VER-001: Performance Testing', 'VER-002: Safety Verification', 'VER-003: Standards Compliance']
+      designElements: ['VER-001: Performance Testing', 'VER-002: Safety Verification', 'VER-003: Standards Compliance'],
+      lastUpdated: '2025-06-18T14:00:00Z',
+      createdDate: '2025-06-18T14:00:00Z'
     },
     { 
       id: 5,
       name: 'Validation', 
       status: 'blocked',
       progress: 0,
-      gateReview: { decision: 'not_started', completedDate: null },
+      gateReview: { 
+        decision: 'not_started', 
+        completedDate: null,
+        initiatedDate: null,
+        reviewerId: null,
+        reviewerName: null
+      },
       artifacts: ['Validation Protocols', 'User Acceptance Testing', 'Clinical Evidence'],
-      designElements: ['VAL-001: User Validation', 'VAL-002: Performance Validation', 'VAL-003: Safety Validation']
+      designElements: ['VAL-001: User Validation', 'VAL-002: Performance Validation', 'VAL-003: Safety Validation'],
+      lastUpdated: '2025-06-18T14:00:00Z',
+      createdDate: '2025-06-18T14:00:00Z'
     },
     { 
       id: 6,
       name: 'Transfer', 
       status: 'blocked',
       progress: 0,
-      gateReview: { decision: 'not_started', completedDate: null },
+      gateReview: { 
+        decision: 'not_started', 
+        completedDate: null,
+        initiatedDate: null,
+        reviewerId: null,
+        reviewerName: null
+      },
       artifacts: ['Transfer Documents', 'Manufacturing Procedures', 'Quality Plans'],
-      designElements: ['TR-001: Manufacturing Transfer', 'TR-002: Quality Systems', 'TR-003: Post-Market Surveillance']
+      designElements: ['TR-001: Manufacturing Transfer', 'TR-002: Quality Systems', 'TR-003: Post-Market Surveillance'],
+      lastUpdated: '2025-06-18T14:00:00Z',
+      createdDate: '2025-06-18T14:00:00Z'
     }
   ];
 
@@ -719,6 +767,73 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
                           <li key={idx} className="truncate">{element}</li>
                         ))}
                       </ul>
+                    </div>
+
+                    {/* Professional Date Stamps Section */}
+                    <div className="space-y-2 p-3 bg-slate-50 border border-slate-200 rounded">
+                      <h4 className="font-medium text-sm text-slate-700">Review Information</h4>
+                      <div className="space-y-1 text-xs">
+                        <div className="flex justify-between">
+                          <span className="text-slate-600">Created:</span>
+                          <span className="font-mono text-slate-700">
+                            {phase.createdDate ? new Date(phase.createdDate).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: '2-digit',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            }) : 'N/A'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-600">Last Updated:</span>
+                          <span className="font-mono text-slate-700">
+                            {phase.lastUpdated ? new Date(phase.lastUpdated).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: '2-digit',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            }) : 'N/A'}
+                          </span>
+                        </div>
+                        {phase.gateReview?.initiatedDate && (
+                          <div className="flex justify-between">
+                            <span className="text-slate-600">Review Initiated:</span>
+                            <span className="font-mono text-green-700">
+                              {new Date(phase.gateReview.initiatedDate).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </span>
+                          </div>
+                        )}
+                        {phase.gateReview?.reviewerName && (
+                          <div className="flex justify-between">
+                            <span className="text-slate-600">Reviewer:</span>
+                            <span className="text-slate-700">
+                              {phase.gateReview.reviewerName} ({phase.gateReview.reviewerId})
+                            </span>
+                          </div>
+                        )}
+                        {phase.gateReview?.completedDate && (
+                          <div className="flex justify-between">
+                            <span className="text-slate-600">Review Completed:</span>
+                            <span className="font-mono text-blue-700">
+                              {new Date(phase.gateReview.completedDate).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     <div className="flex gap-2 pt-2">
