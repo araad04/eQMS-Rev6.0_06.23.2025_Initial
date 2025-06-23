@@ -14,7 +14,16 @@ import {
   Users, 
   Target,
   TrendingUp,
-  Download
+  Download,
+  Plus,
+  Edit,
+  Play,
+  Settings,
+  CheckSquare,
+  GitBranch,
+  Shield,
+  BarChart3,
+  Workflow
 } from 'lucide-react';
 
 interface ProjectWorkspaceProps {}
@@ -62,6 +71,13 @@ const ProjectWorkspace: React.FC<ProjectWorkspaceProps> = () => {
     },
     enabled: !!projectId
   });
+
+  const [activeTab, setActiveTab] = useState<string>('phases-overview');
+  const [selectedPhaseId, setSelectedPhaseId] = useState<number | null>(null);
+  const [showURSDialog, setShowURSDialog] = useState(false);
+  const [showPhaseReviewDialog, setShowPhaseReviewDialog] = useState(false);
+  const [showAddItemDialog, setShowAddItemDialog] = useState(false);
+  const [addItemType, setAddItemType] = useState<string>('');
 
   // Phase Review Bottleneck Enforcement System - ISO 13485:7.3 Compliant
   interface PhaseGatingRule {
