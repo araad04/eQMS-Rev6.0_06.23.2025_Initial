@@ -41,7 +41,6 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
   
   const [activeTab, setActiveTab] = useState<string>('phases-overview');
   const [showURSDialog, setShowURSDialog] = useState(false);
-  const [showPhaseReviewDialog, setShowPhaseReviewDialog] = useState(false);
   const [showAddItemDialog, setShowAddItemDialog] = useState(false);
   const [showEditPhaseDialog, setShowEditPhaseDialog] = useState(false);
   const [addItemType, setAddItemType] = useState<string>('');
@@ -56,12 +55,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
     riskLevel: 'medium'
   });
 
-  const [phaseReviewForm, setPhaseReviewForm] = useState({
-    phaseId: '',
-    reviewDecision: 'pending',
-    reviewComments: '',
-    reviewerName: ''
-  });
+
 
   const [addItemForm, setAddItemForm] = useState({
     title: '',
@@ -196,30 +190,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
     }
   };
 
-  const handlePhaseReview = async () => {
-    try {
-      const response = await fetch('/api/design-control/phase-reviews', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Auth-Local': 'true'
-        },
-        body: JSON.stringify({
-          ...phaseReviewForm,
-          projectId: parseInt(projectId || '0'),
-          reviewDate: new Date().toISOString()
-        })
-      });
-      
-      if (response.ok) {
-        setShowPhaseReviewDialog(false);
-        setPhaseReviewForm({ phaseId: '', reviewDecision: 'pending', reviewComments: '', reviewerName: '' });
-        refetchPhases();
-      }
-    } catch (error) {
-      console.error('Failed to submit phase review:', error);
-    }
-  };
+
 
   const handleAddItem = async () => {
     try {
@@ -491,48 +462,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
                     </DialogContent>
                   </Dialog>
 
-                  <Dialog open={showPhaseReviewDialog} onOpenChange={setShowPhaseReviewDialog}>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" className="flex items-center gap-2">
-                        <CheckSquare className="h-4 w-4" />
-                        Phase Review
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Submit Phase Review</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        
-                        <div>
-                          <Label htmlFor="review-decision">Decision</Label>
-                          <select
-                            id="review-decision"
-                            className="w-full p-2 border rounded"
-                            value={phaseReviewForm.reviewDecision}
-                            onChange={(e) => setPhaseReviewForm({ ...phaseReviewForm, reviewDecision: e.target.value })}
-                          >
-                            <option value="pending">Pending</option>
-                            <option value="approved">Approved</option>
-                            <option value="rejected">Rejected</option>
-                          </select>
-                        </div>
-                        <div>
-                          <Label htmlFor="review-comments">Comments</Label>
-                          <Textarea
-                            id="review-comments"
-                            value={phaseReviewForm.reviewComments}
-                            onChange={(e) => setPhaseReviewForm({ ...phaseReviewForm, reviewComments: e.target.value })}
-                            placeholder="Review comments and feedback"
-                          />
-                        </div>
-                        <div className="flex gap-4">
-                          <Button onClick={handlePhaseReview}>Submit Review</Button>
-                          <Button variant="outline" onClick={() => setShowPhaseReviewDialog(false)}>Cancel</Button>
-                        </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+
 
                   <Dialog open={showAddItemDialog} onOpenChange={setShowAddItemDialog}>
                     <DialogTrigger asChild>
@@ -840,22 +770,12 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
                       <Button 
                         size="sm" 
                         variant="outline" 
-                        className="flex-1"
+                        className="w-full"
                         disabled={gateStatus.status === 'blocked'}
                         onClick={() => openEditDialog(phase)}
                       >
                         <Edit className="h-3 w-3 mr-1" />
                         Edit
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="flex-1"
-                        disabled={gateStatus.status === 'blocked'}
-                        onClick={() => setShowPhaseReviewDialog(true)}
-                      >
-                        <Play className="h-3 w-3 mr-1" />
-                        Review
                       </Button>
                     </div>
 
