@@ -238,16 +238,16 @@ export default function EnhancedSteeringModule() {
       </div>
 
       {/* Steering Dashboard Overview */}
-      {steeringDashboard && (
+      {steeringDashboard && typeof steeringDashboard === 'object' && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">Current Phase</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{steeringDashboard.currentPhase}</div>
-              <Progress value={steeringDashboard.phaseProgress} className="mt-2" />
-              <p className="text-xs text-muted-foreground mt-1">{steeringDashboard.phaseProgress}% Complete</p>
+              <div className="text-2xl font-bold">{(steeringDashboard as any)?.currentPhase || 'Not Set'}</div>
+              <Progress value={(steeringDashboard as any)?.phaseProgress || 0} className="mt-2" />
+              <p className="text-xs text-muted-foreground mt-1">{(steeringDashboard as any)?.phaseProgress || 0}% Complete</p>
             </CardContent>
           </Card>
 
