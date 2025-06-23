@@ -390,8 +390,7 @@ async function main() {
   await validator.executeComprehensiveFinalValidation();
 }
 
-if (require.main === module) {
-  main().catch(console.error);
-}
+// Execute if run directly
+main().catch(console.error);
 
 export { FinalProfessionalSystemValidator, main };

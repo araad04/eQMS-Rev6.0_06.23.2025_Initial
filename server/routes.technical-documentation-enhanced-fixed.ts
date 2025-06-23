@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { eq, desc, and, sql } from 'drizzle-orm';
-import { technicalDocuments, users, designProjects } from '../../shared/schema';
+import { technicalDocuments, users, designProjects } from '../shared/schema';
 import { db } from '../db';
 import { authMiddleware } from '../middleware/auth';
 
