@@ -179,6 +179,11 @@ export default function OrganizationalChart() {
     queryKey: ["/api/users"],
   });
 
+  // Fetch training records for team training matrix
+  const { data: trainingRecords = [] } = useQuery({
+    queryKey: ["/api/training/records"],
+  });
+
   // Fetch document types
   const { data: documentTypes = [] } = useQuery({
     queryKey: ["/api/organizational/document-types"],
