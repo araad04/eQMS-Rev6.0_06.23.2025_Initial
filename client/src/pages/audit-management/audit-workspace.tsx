@@ -8,6 +8,7 @@ import {
   Users,
   CheckCircle2,
   AlertCircle,
+  AlertTriangle,
   FileText,
   ClipboardList,
   Target,

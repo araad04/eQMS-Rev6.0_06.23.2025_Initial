@@ -661,6 +661,12 @@ app.use((req, res, next) => {
 
   const server = await registerRoutes(app);
 
+  // Setup Audit-CAPA Integration routes for proactive linking
+  setupAuditCapaRoutes(app);
+  
+  // Setup Enhanced Audit-CAPA Integration routes with unified ribbon support
+  registerAuditCapaRoutes(app);
+
   // Initialize supplier assessment scheduler for automatic risk-based assessments
   initializeSupplierAssessmentScheduler();
 
