@@ -1,363 +1,544 @@
-import express from 'express';
-import { db } from './storage';
-import { authMiddleware } from './middleware/auth';
+import express from "express";
+import { authMiddleware } from "./middleware/auth";
+import { db } from "./db";
+import { 
+  technicalDocuments, 
+  technicalDocumentSections,
+  mdrSections,
+  users,
+  designProjects
+} from "@shared/schema";
+import { eq, desc, and, sql } from "drizzle-orm";
 
-export function setupEnhancedTechnicalDocumentationRoutes(app: express.Application) {
-  
-  /**
-   * GET /api/technical-documentation/dashboard-metrics
-   * Enhanced dashboard metrics with design control integration
-   */
-  app.get('/api/technical-documentation/dashboard-metrics', authMiddleware.isAuthenticated, async (req, res) => {
-    try {
-      // Get technical documents stats
-      const documentsQuery = `
-        SELECT 
-          td.status,
-          td.completion_percentage,
-          td.design_project_id,
-          td.mdr_section_id,
-          COUNT(*) as count,
-          AVG(td.completion_percentage) as avg_completion
-        FROM technical_documents td
-        GROUP BY td.status, td.design_project_id, td.mdr_section_id
-      `;
-      
-      const documentsResult = await db.query(documentsQuery);
-      
-      // Get design projects integration stats
-      const projectsQuery = `
-        SELECT 
-          dp.id,
-          dp.project_code,
-          dp.name,
-          dp.overall_progress,
-          dp.status_id,
-          COUNT(td.id) as linked_documents
-        FROM design_projects dp
-        LEFT JOIN technical_documents td ON dp.id = td.design_project_id
-        GROUP BY dp.id, dp.project_code, dp.name, dp.overall_progress, dp.status_id
-      `;
-      
-      const projectsResult = await db.query(projectsQuery);
-      
-      // Get MDR sections compliance
-      const mdrComplianceQuery = `
-        SELECT 
-          ms.id,
-          ms.section_number,
-          ms.title,
-          ms.is_required,
-          COUNT(td.id) as total_documents,
-          SUM(CASE WHEN td.status = 'approved' THEN 1 ELSE 0 END) as approved_documents
-        FROM mdr_sections ms
-        LEFT JOIN technical_documents td ON ms.id = td.mdr_section_id
-        GROUP BY ms.id, ms.section_number, ms.title, ms.is_required
-        ORDER BY ms.sort_order
-      `;
-      
-      const mdrComplianceResult = await db.query(mdrComplianceQuery);
-      
-      // Calculate dashboard metrics
-      const totalDocuments = documentsResult.rows.reduce((sum, row) => sum + parseInt(row.count), 0);
-      const completedDocuments = documentsResult.rows
-        .filter(row => row.status === 'approved')
-        .reduce((sum, row) => sum + parseInt(row.count), 0);
-      
-      const avgCompletion = documentsResult.rows.length > 0 
-        ? documentsResult.rows.reduce((sum, row) => sum + (parseFloat(row.avg_completion) || 0), 0) / documentsResult.rows.length
-        : 0;
-      
-      const linkedToProjects = documentsResult.rows
-        .filter(row => row.design_project_id !== null)
-        .reduce((sum, row) => sum + parseInt(row.count), 0);
-      
-      const projectLinkageRate = totalDocuments > 0 ? (linkedToProjects / totalDocuments) * 100 : 0;
-      const complianceScore = totalDocuments > 0 ? (completedDocuments / totalDocuments) * 100 : 0;
-      
-      res.json({
-        summary: {
-          totalDocuments,
-          completedDocuments,
-          avgCompletion: Math.round(avgCompletion),
-          projectLinkageRate: Math.round(projectLinkageRate),
-          complianceScore: Math.round(complianceScore)
-        },
-        documentsByStatus: documentsResult.rows,
-        projectsIntegration: projectsResult.rows,
-        mdrCompliance: mdrComplianceResult.rows,
-        trends: {
-          weeklyProgress: [
-            { week: 'Week 1', documents: 12, completion: 68 },
-            { week: 'Week 2', documents: 15, completion: 72 },
-            { week: 'Week 3', documents: 18, completion: 75 },
-            { week: 'Week 4', documents: 22, completion: 78 }
-          ]
-        }
-      });
-      
-    } catch (error) {
-      console.error('Error fetching dashboard metrics:', error);
-      res.status(500).json({ error: 'Failed to fetch dashboard metrics' });
-    }
-  });
+const router = express.Router();
 
-  /**
-   * GET /api/technical-documentation/design-integration/:projectId
-   * Get technical documentation linked to specific design project
-   */
-  app.get('/api/technical-documentation/design-integration/:projectId', authMiddleware.isAuthenticated, async (req, res) => {
-    try {
-      const { projectId } = req.params;
-      
-      const query = `
-        SELECT 
-          td.*,
-          ms.section_number,
-          ms.title as section_title,
-          u1.first_name || ' ' || u1.last_name as author_name,
-          u2.first_name || ' ' || u2.last_name as reviewer_name
-        FROM technical_documents td
-        LEFT JOIN mdr_sections ms ON td.mdr_section_id = ms.id
-        LEFT JOIN users u1 ON td.author_id = u1.id
-        LEFT JOIN users u2 ON td.reviewer_id = u2.id
-        WHERE td.design_project_id = $1
-        ORDER BY td.created_at DESC
-      `;
-      
-      const result = await db.query(query, [projectId]);
-      
-      // Get design project details
-      const projectQuery = `
-        SELECT 
-          dp.*,
-          dps.name as status_name,
-          dpt.name as type_name,
-          u.first_name || ' ' || u.last_name as manager_name
-        FROM design_projects dp
-        LEFT JOIN design_project_statuses dps ON dp.status_id = dps.id
-        LEFT JOIN design_project_types dpt ON dp.project_type_id = dpt.id
-        LEFT JOIN users u ON dp.project_manager = u.id
-        WHERE dp.id = $1
-      `;
-      
-      const projectResult = await db.query(projectQuery, [projectId]);
-      
-      res.json({
-        project: projectResult.rows[0],
-        documents: result.rows,
-        metrics: {
-          totalDocuments: result.rows.length,
-          completedDocuments: result.rows.filter(doc => doc.status === 'approved').length,
-          avgCompletion: result.rows.length > 0 
-            ? result.rows.reduce((sum, doc) => sum + doc.completion_percentage, 0) / result.rows.length 
-            : 0
-        }
-      });
-      
-    } catch (error) {
-      console.error('Error fetching design integration:', error);
-      res.status(500).json({ error: 'Failed to fetch design integration data' });
-    }
-  });
+/**
+ * Enhanced Technical Documentation API Routes
+ * Professional JIRA-level functionality mirroring Design Control module
+ */
 
-  /**
-   * POST /api/technical-documentation/link-design-project
-   * Link technical document to design project
-   */
-  app.post('/api/technical-documentation/link-design-project', authMiddleware.isAuthenticated, async (req, res) => {
-    try {
-      const { documentId, projectId, linkageType, notes } = req.body;
-      
-      // Update the technical document with design project link
-      const updateQuery = `
-        UPDATE technical_documents 
-        SET 
-          design_project_id = $1,
-          updated_at = NOW()
-        WHERE id = $2
-        RETURNING *
-      `;
-      
-      const result = await db.query(updateQuery, [projectId, documentId]);
-      
-      // Log the linkage action
-      const auditQuery = `
-        INSERT INTO technical_document_audit_trail (
-          document_id,
-          action,
-          details,
-          user_id,
-          timestamp
-        ) VALUES ($1, $2, $3, $4, NOW())
-      `;
-      
-      await db.query(auditQuery, [
-        documentId,
-        'design_project_linked',
-        JSON.stringify({ projectId, linkageType, notes }),
-        req.user.id
-      ]);
-      
-      res.json({ 
-        success: true, 
-        document: result.rows[0],
-        message: 'Document successfully linked to design project'
-      });
-      
-    } catch (error) {
-      console.error('Error linking document to design project:', error);
-      res.status(500).json({ error: 'Failed to link document to design project' });
-    }
-  });
+// GET /api/technical-documentation - Enhanced document listing
+router.get("/", authMiddleware.isAuthenticated, async (req, res) => {
+  try {
+    const documents = await db
+      .select({
+        id: technicalDocuments.id,
+        documentNumber: technicalDocuments.documentNumber,
+        title: technicalDocuments.title,
+        description: technicalDocuments.description,
+        deviceModel: technicalDocuments.deviceModel,
+        status: technicalDocuments.status,
+        version: technicalDocuments.version,
+        revisionLevel: technicalDocuments.revisionLevel,
+        categoryId: technicalDocuments.categoryId,
+        mdrSectionId: technicalDocuments.mdrSectionId,
+        designProjectId: technicalDocuments.designProjectId,
+        authorId: technicalDocuments.authorId,
+        reviewerId: technicalDocuments.reviewerId,
+        approvedBy: technicalDocuments.approvedBy,
+        approvedAt: technicalDocuments.approvedAt,
+        completionPercentage: sql`COALESCE(${technicalDocuments.completionPercentage}, 0)`.as('completionPercentage'),
+        complianceStatus: sql`COALESCE(${technicalDocuments.complianceStatus}, 'not_started')`.as('complianceStatus'),
+        lastReviewDate: technicalDocuments.lastReviewDate,
+        nextReviewDate: technicalDocuments.nextReviewDate,
+        riskClassification: sql`COALESCE(${technicalDocuments.riskClassification}, 'low')`.as('riskClassification'),
+        regulatoryImpact: sql`COALESCE(${technicalDocuments.regulatoryImpact}, false)`.as('regulatoryImpact'),
+        createdAt: technicalDocuments.createdAt,
+        updatedAt: technicalDocuments.updatedAt,
+        authorName: sql`${users.firstName} || ' ' || ${users.lastName}`.as('authorName'),
+        projectCode: designProjects.projectCode,
+        projectTitle: designProjects.title
+      })
+      .from(technicalDocuments)
+      .leftJoin(users, eq(technicalDocuments.authorId, users.id))
+      .leftJoin(designProjects, eq(technicalDocuments.designProjectId, designProjects.id))
+      .orderBy(desc(technicalDocuments.updatedAt));
 
-  /**
-   * GET /api/technical-documentation/workflow/:documentId
-   * Get workflow status for technical document
-   */
-  app.get('/api/technical-documentation/workflow/:documentId', authMiddleware.isAuthenticated, async (req, res) => {
-    try {
-      const { documentId } = req.params;
-      
-      const workflowQuery = `
-        SELECT 
-          tdw.*,
-          u.first_name || ' ' || u.last_name as assigned_to_name
-        FROM technical_documentation_workflow tdw
-        LEFT JOIN users u ON tdw.assigned_to = u.id
-        WHERE tdw.document_id = $1
-        ORDER BY tdw.created_at ASC
-      `;
-      
-      const result = await db.query(workflowQuery, [documentId]);
-      
-      res.json(result.rows);
-      
-    } catch (error) {
-      console.error('Error fetching workflow:', error);
-      res.status(500).json({ error: 'Failed to fetch workflow data' });
-    }
-  });
+    res.json(documents);
+  } catch (error) {
+    console.error("Error fetching technical documents:", error);
+    res.status(500).json({ error: "Failed to fetch technical documents" });
+  }
+});
 
-  /**
-   * POST /api/technical-documentation/advance-workflow
-   * Advance document through workflow stages
-   */
-  app.post('/api/technical-documentation/advance-workflow', authMiddleware.isAuthenticated, async (req, res) => {
-    try {
-      const { documentId, currentStageId, nextStageId, comments } = req.body;
-      
-      // Mark current stage as completed
-      const completeCurrentQuery = `
-        UPDATE technical_documentation_workflow 
-        SET 
-          is_completed = true,
-          completed_date = NOW(),
-          comments = $1,
-          current_stage = false
-        WHERE id = $2
-      `;
-      
-      await db.query(completeCurrentQuery, [comments, currentStageId]);
-      
-      // Activate next stage if provided
-      if (nextStageId) {
-        const activateNextQuery = `
-          UPDATE technical_documentation_workflow 
-          SET 
-            current_stage = true,
-            start_date = NOW()
-          WHERE id = $1
-        `;
-        
-        await db.query(activateNextQuery, [nextStageId]);
-      }
-      
-      // Update document status based on workflow stage
-      const updateDocumentQuery = `
-        UPDATE technical_documents 
-        SET 
-          status = CASE 
-            WHEN $2 IS NULL THEN 'approved'
-            ELSE 'under_review'
-          END,
-          updated_at = NOW()
-        WHERE id = $1
-      `;
-      
-      await db.query(updateDocumentQuery, [documentId, nextStageId]);
-      
-      res.json({ 
-        success: true, 
-        message: 'Workflow advanced successfully' 
-      });
-      
-    } catch (error) {
-      console.error('Error advancing workflow:', error);
-      res.status(500).json({ error: 'Failed to advance workflow' });
-    }
-  });
+// POST /api/technical-documentation - Create new document
+router.post("/", authMiddleware.isAuthenticated, async (req, res) => {
+  try {
+    const {
+      title,
+      description,
+      deviceModel,
+      categoryId,
+      mdrSectionId,
+      designProjectId,
+      riskClassification,
+      regulatoryImpact
+    } = req.body;
 
-  /**
-   * GET /api/technical-documentation/compliance-report
-   * Generate comprehensive compliance report
-   */
-  app.get('/api/technical-documentation/compliance-report', authMiddleware.isAuthenticated, async (req, res) => {
-    try {
-      const complianceQuery = `
-        WITH section_compliance AS (
-          SELECT 
-            ms.id,
-            ms.section_number,
-            ms.title,
-            ms.is_required,
-            ms.annex_reference,
-            COUNT(td.id) as total_documents,
-            SUM(CASE WHEN td.status = 'approved' THEN 1 ELSE 0 END) as approved_documents,
-            AVG(td.completion_percentage) as avg_completion,
-            MIN(td.created_at) as first_document_date,
-            MAX(td.updated_at) as last_update_date
-          FROM mdr_sections ms
-          LEFT JOIN technical_documents td ON ms.id = td.mdr_section_id
-          GROUP BY ms.id, ms.section_number, ms.title, ms.is_required, ms.annex_reference
-        )
-        SELECT 
-          *,
+    // Generate document number
+    const count = await db
+      .select({ count: sql`count(*)` })
+      .from(technicalDocuments);
+    
+    const documentNumber = `TD-${new Date().getFullYear()}-${String(count[0].count + 1).padStart(3, '0')}`;
+
+    const [newDocument] = await db
+      .insert(technicalDocuments)
+      .values({
+        documentNumber,
+        title,
+        description,
+        deviceModel: deviceModel || '',
+        status: 'draft',
+        version: '1.0',
+        revisionLevel: 'A',
+        categoryId: parseInt(categoryId),
+        mdrSectionId: mdrSectionId ? parseInt(mdrSectionId) : null,
+        designProjectId: designProjectId ? parseInt(designProjectId) : null,
+        authorId: req.user?.id || 9999,
+        completionPercentage: 0,
+        complianceStatus: 'not_started',
+        riskClassification: riskClassification || 'low',
+        regulatoryImpact: regulatoryImpact || false,
+        createdBy: req.user?.id || 9999
+      })
+      .returning();
+
+    res.json(newDocument);
+  } catch (error) {
+    console.error("Error creating technical document:", error);
+    res.status(500).json({ error: "Failed to create technical document" });
+  }
+});
+
+// GET /api/technical-documentation/categories - Document categories
+router.get("/categories", authMiddleware.isAuthenticated, async (req, res) => {
+  try {
+    const categories = [
+      { id: 1, name: 'Design Controls', description: 'Design control documentation', required: true, mdrReference: 'Annex II' },
+      { id: 2, name: 'Risk Management', description: 'Risk management files', required: true, mdrReference: 'Annex I' },
+      { id: 3, name: 'Clinical Evaluation', description: 'Clinical evaluation reports', required: true, mdrReference: 'Annex XIV' },
+      { id: 4, name: 'Technical Documentation', description: 'Technical documentation files', required: true, mdrReference: 'Annex II' },
+      { id: 5, name: 'Quality System', description: 'Quality management system docs', required: true, mdrReference: 'Annex IX' },
+      { id: 6, name: 'Post-Market Surveillance', description: 'Post-market surveillance documentation', required: true, mdrReference: 'Article 83' },
+      { id: 7, name: 'Software Documentation', description: 'Software lifecycle documentation', required: false, mdrReference: 'IEC 62304' }
+    ];
+
+    res.json(categories);
+  } catch (error) {
+    console.error("Error fetching document categories:", error);
+    res.status(500).json({ error: "Failed to fetch document categories" });
+  }
+});
+
+// GET /api/technical-documentation/mdr-sections/structure - MDR sections with compliance data
+router.get("/mdr-sections/structure", authMiddleware.isAuthenticated, async (req, res) => {
+  try {
+    const sectionsWithStats = await db
+      .select({
+        id: mdrSections.id,
+        sectionNumber: mdrSections.sectionNumber,
+        title: mdrSections.title,
+        description: mdrSections.description,
+        requirementLevel: mdrSections.requirementLevel,
+        complianceStatus: mdrSections.complianceStatus,
+        documentCount: sql`COUNT(${technicalDocuments.id})`.as('documentCount'),
+        completionRate: sql`
           CASE 
-            WHEN is_required AND approved_documents = 0 THEN 'non_compliant'
-            WHEN is_required AND approved_documents > 0 AND approved_documents = total_documents THEN 'compliant'
-            WHEN is_required AND approved_documents > 0 AND approved_documents < total_documents THEN 'partial_compliance'
-            WHEN NOT is_required THEN 'not_applicable'
-            ELSE 'unknown'
-          END as compliance_status
-        FROM section_compliance
-        ORDER BY section_number
-      `;
-      
-      const result = await db.query(complianceQuery);
-      
-      // Calculate overall compliance score
-      const requiredSections = result.rows.filter(row => row.is_required);
-      const compliantSections = requiredSections.filter(row => row.compliance_status === 'compliant');
-      const overallComplianceScore = requiredSections.length > 0 
-        ? (compliantSections.length / requiredSections.length) * 100 
-        : 0;
-      
-      res.json({
-        overallComplianceScore: Math.round(overallComplianceScore),
-        sectionCompliance: result.rows,
-        summary: {
-          totalRequiredSections: requiredSections.length,
-          compliantSections: compliantSections.length,
-          partialComplianceSections: requiredSections.filter(row => row.compliance_status === 'partial_compliance').length,
-          nonCompliantSections: requiredSections.filter(row => row.compliance_status === 'non_compliant').length
-        },
-        reportGeneratedAt: new Date().toISOString()
-      });
-      
-    } catch (error) {
-      console.error('Error generating compliance report:', error);
-      res.status(500).json({ error: 'Failed to generate compliance report' });
+            WHEN COUNT(${technicalDocuments.id}) = 0 THEN 0
+            ELSE ROUND(AVG(COALESCE(${technicalDocuments.completionPercentage}, 0)))
+          END
+        `.as('completionRate')
+      })
+      .from(mdrSections)
+      .leftJoin(technicalDocuments, eq(mdrSections.id, technicalDocuments.mdrSectionId))
+      .groupBy(mdrSections.id, mdrSections.sectionNumber, mdrSections.title, mdrSections.description, mdrSections.requirementLevel, mdrSections.complianceStatus)
+      .orderBy(mdrSections.sectionNumber);
+
+    res.json(sectionsWithStats);
+  } catch (error) {
+    console.error("Error fetching MDR sections structure:", error);
+    res.status(500).json({ error: "Failed to fetch MDR sections structure" });
+  }
+});
+
+// POST /api/technical-documentation/reviews - Submit document review
+router.post("/reviews", authMiddleware.isAuthenticated, async (req, res) => {
+  try {
+    const {
+      documentId,
+      reviewComments,
+      reviewDecision,
+      nextReviewDate
+    } = req.body;
+
+    // Update document with review information
+    const [updatedDocument] = await db
+      .update(technicalDocuments)
+      .set({
+        status: reviewDecision === 'approved' ? 'approved' : 
+               reviewDecision === 'rejected' ? 'rejected' : 'under review',
+        reviewerId: req.user?.id || 9999,
+        lastReviewDate: new Date(),
+        nextReviewDate: nextReviewDate ? new Date(nextReviewDate) : null,
+        updatedAt: new Date()
+      })
+      .where(eq(technicalDocuments.id, parseInt(documentId)))
+      .returning();
+
+    // Here you could also create a review record in a separate table
+    // For now, we'll just update the document
+
+    res.json({
+      success: true,
+      document: updatedDocument,
+      message: `Document review submitted with decision: ${reviewDecision}`
+    });
+  } catch (error) {
+    console.error("Error submitting document review:", error);
+    res.status(500).json({ error: "Failed to submit document review" });
+  }
+});
+
+// GET /api/technical-documentation/workflows - Document workflows
+router.get("/workflows", authMiddleware.isAuthenticated, async (req, res) => {
+  try {
+    // Mock workflow data - in production this would come from a workflows table
+    const workflows = [
+      {
+        id: 1,
+        documentId: 1,
+        workflowStage: 'review',
+        assignedTo: 9999,
+        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        status: 'pending',
+        comments: 'Initial technical review required'
+      },
+      {
+        id: 2,
+        documentId: 2,
+        workflowStage: 'approval',
+        assignedTo: 9999,
+        dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+        status: 'in_progress',
+        comments: 'Awaiting final approval signature'
+      }
+    ];
+
+    res.json(workflows);
+  } catch (error) {
+    console.error("Error fetching document workflows:", error);
+    res.status(500).json({ error: "Failed to fetch document workflows" });
+  }
+});
+
+// GET /api/technical-documentation/analytics - Documentation analytics
+router.get("/analytics", authMiddleware.isAuthenticated, async (req, res) => {
+  try {
+    // Get document statistics
+    const totalDocs = await db
+      .select({ count: sql`count(*)` })
+      .from(technicalDocuments);
+
+    const statusStats = await db
+      .select({
+        status: technicalDocuments.status,
+        count: sql`count(*)`
+      })
+      .from(technicalDocuments)
+      .groupBy(technicalDocuments.status);
+
+    const categoryStats = await db
+      .select({
+        categoryId: technicalDocuments.categoryId,
+        count: sql`count(*)`
+      })
+      .from(technicalDocuments)
+      .groupBy(technicalDocuments.categoryId);
+
+    const complianceOverview = await db
+      .select({
+        avgCompletion: sql`AVG(COALESCE(${technicalDocuments.completionPercentage}, 0))`,
+        approvedCount: sql`SUM(CASE WHEN ${technicalDocuments.status} = 'approved' THEN 1 ELSE 0 END)`,
+        overdueCount: sql`SUM(CASE WHEN ${technicalDocuments.nextReviewDate} < NOW() THEN 1 ELSE 0 END)`
+      })
+      .from(technicalDocuments);
+
+    res.json({
+      totalDocuments: totalDocs[0].count,
+      statusBreakdown: statusStats,
+      categoryBreakdown: categoryStats,
+      compliance: {
+        averageCompletion: Math.round(complianceOverview[0].avgCompletion || 0),
+        approvedDocuments: complianceOverview[0].approvedCount || 0,
+        overdueReviews: complianceOverview[0].overdueCount || 0
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching analytics:", error);
+    res.status(500).json({ error: "Failed to fetch analytics" });
+  }
+});
+
+// GET /api/technical-documentation/templates - Document templates
+router.get("/templates", authMiddleware.isAuthenticated, async (req, res) => {
+  try {
+    const templates = [
+      {
+        id: 1,
+        name: 'Risk Management File Template',
+        description: 'ISO 14971 compliant risk management documentation template',
+        category: 'Risk Management',
+        mdrReference: 'Annex I, Section 3',
+        templateType: 'structured',
+        sections: [
+          'Risk Management Plan',
+          'Risk Analysis',
+          'Risk Evaluation',
+          'Risk Control',
+          'Risk Management Report'
+        ]
+      },
+      {
+        id: 2,
+        name: 'Design Control Plan Template',
+        description: 'ISO 13485:7.3 design control planning template',
+        category: 'Design Controls',
+        mdrReference: 'Annex II, Section 2',
+        templateType: 'structured',
+        sections: [
+          'Design Planning',
+          'Design Inputs',
+          'Design Outputs',
+          'Design Review',
+          'Design Verification',
+          'Design Validation',
+          'Design Transfer'
+        ]
+      },
+      {
+        id: 3,
+        name: 'Clinical Evaluation Report Template',
+        description: 'MEDDEV 2.7/1 rev 4 clinical evaluation template',
+        category: 'Clinical Evaluation',
+        mdrReference: 'Annex XIV',
+        templateType: 'document',
+        sections: [
+          'Executive Summary',
+          'Device Description',
+          'Clinical Background',
+          'Clinical Data',
+          'Clinical Evaluation Conclusions'
+        ]
+      },
+      {
+        id: 4,
+        name: 'Technical Documentation File Template',
+        description: 'Complete technical file structure for MDR compliance',
+        category: 'Technical Documentation',
+        mdrReference: 'Annex II',
+        templateType: 'structure',
+        sections: [
+          'Device Description and Specification',
+          'Information to be Supplied by Manufacturer',
+          'Design and Manufacturing Information',
+          'General Safety and Performance Requirements',
+          'Benefit-Risk Analysis and Risk Management',
+          'Product Verification and Validation'
+        ]
+      },
+      {
+        id: 5,
+        name: 'Software Lifecycle Plan Template',
+        description: 'IEC 62304 software lifecycle documentation template',
+        category: 'Software Documentation',
+        mdrReference: 'IEC 62304',
+        templateType: 'structured',
+        sections: [
+          'Software Development Planning',
+          'Software Requirements Analysis',
+          'Software Architectural Design',
+          'Software Detailed Design',
+          'Software Implementation',
+          'Software Integration and Testing',
+          'Software System Testing',
+          'Software Release'
+        ]
+      }
+    ];
+
+    res.json(templates);
+  } catch (error) {
+    console.error("Error fetching templates:", error);
+    res.status(500).json({ error: "Failed to fetch templates" });
+  }
+});
+
+// GET /api/technical-documentation/:id - Get specific document
+router.get("/:id", authMiddleware.isAuthenticated, async (req, res) => {
+  try {
+    const documentId = parseInt(req.params.id);
+
+    const document = await db
+      .select({
+        id: technicalDocuments.id,
+        documentNumber: technicalDocuments.documentNumber,
+        title: technicalDocuments.title,
+        description: technicalDocuments.description,
+        deviceModel: technicalDocuments.deviceModel,
+        status: technicalDocuments.status,
+        version: technicalDocuments.version,
+        revisionLevel: technicalDocuments.revisionLevel,
+        categoryId: technicalDocuments.categoryId,
+        mdrSectionId: technicalDocuments.mdrSectionId,
+        designProjectId: technicalDocuments.designProjectId,
+        authorId: technicalDocuments.authorId,
+        reviewerId: technicalDocuments.reviewerId,
+        approvedBy: technicalDocuments.approvedBy,
+        approvedAt: technicalDocuments.approvedAt,
+        completionPercentage: technicalDocuments.completionPercentage,
+        complianceStatus: technicalDocuments.complianceStatus,
+        lastReviewDate: technicalDocuments.lastReviewDate,
+        nextReviewDate: technicalDocuments.nextReviewDate,
+        riskClassification: technicalDocuments.riskClassification,
+        regulatoryImpact: technicalDocuments.regulatoryImpact,
+        createdAt: technicalDocuments.createdAt,
+        updatedAt: technicalDocuments.updatedAt,
+        authorName: sql`${users.firstName} || ' ' || ${users.lastName}`.as('authorName'),
+        projectCode: designProjects.projectCode,
+        projectTitle: designProjects.title,
+        mdrSectionNumber: mdrSections.sectionNumber,
+        mdrSectionTitle: mdrSections.title
+      })
+      .from(technicalDocuments)
+      .leftJoin(users, eq(technicalDocuments.authorId, users.id))
+      .leftJoin(designProjects, eq(technicalDocuments.designProjectId, designProjects.id))
+      .leftJoin(mdrSections, eq(technicalDocuments.mdrSectionId, mdrSections.id))
+      .where(eq(technicalDocuments.id, documentId))
+      .limit(1);
+
+    if (!document.length) {
+      return res.status(404).json({ error: "Document not found" });
     }
-  });
-}
+
+    // Get document sections
+    const sections = await db
+      .select()
+      .from(technicalDocumentSections)
+      .where(eq(technicalDocumentSections.techDocId, documentId))
+      .orderBy(technicalDocumentSections.sectionNumber);
+
+    res.json({
+      ...document[0],
+      sections
+    });
+  } catch (error) {
+    console.error("Error fetching document:", error);
+    res.status(500).json({ error: "Failed to fetch document" });
+  }
+});
+
+// PUT /api/technical-documentation/:id - Update document
+router.put("/:id", authMiddleware.isAuthenticated, async (req, res) => {
+  try {
+    const documentId = parseInt(req.params.id);
+    const updateData = req.body;
+
+    const [updatedDocument] = await db
+      .update(technicalDocuments)
+      .set({
+        ...updateData,
+        updatedAt: new Date()
+      })
+      .where(eq(technicalDocuments.id, documentId))
+      .returning();
+
+    if (!updatedDocument) {
+      return res.status(404).json({ error: "Document not found" });
+    }
+
+    res.json(updatedDocument);
+  } catch (error) {
+    console.error("Error updating document:", error);
+    res.status(500).json({ error: "Failed to update document" });
+  }
+});
+
+// DELETE /api/technical-documentation/:id - Delete document
+router.delete("/:id", authMiddleware.isAuthenticated, async (req, res) => {
+  try {
+    const documentId = parseInt(req.params.id);
+
+    // Delete document sections first
+    await db
+      .delete(technicalDocumentSections)
+      .where(eq(technicalDocumentSections.techDocId, documentId));
+
+    // Delete the document
+    const [deletedDocument] = await db
+      .delete(technicalDocuments)
+      .where(eq(technicalDocuments.id, documentId))
+      .returning();
+
+    if (!deletedDocument) {
+      return res.status(404).json({ error: "Document not found" });
+    }
+
+    res.json({ success: true, message: "Document deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting document:", error);
+    res.status(500).json({ error: "Failed to delete document" });
+  }
+});
+
+// GET /api/technical-documentation/design-integration/:projectId - Integration with design projects
+router.get("/design-integration/:projectId", authMiddleware.isAuthenticated, async (req, res) => {
+  try {
+    const projectId = parseInt(req.params.projectId);
+
+    const documentsForProject = await db
+      .select({
+        id: technicalDocuments.id,
+        documentNumber: technicalDocuments.documentNumber,
+        title: technicalDocuments.title,
+        description: technicalDocuments.description,
+        status: technicalDocuments.status,
+        version: technicalDocuments.version,
+        completionPercentage: technicalDocuments.completionPercentage,
+        lastReviewDate: technicalDocuments.lastReviewDate,
+        nextReviewDate: technicalDocuments.nextReviewDate,
+        authorName: sql`${users.firstName} || ' ' || ${users.lastName}`.as('authorName'),
+        mdrSectionNumber: mdrSections.sectionNumber,
+        mdrSectionTitle: mdrSections.title
+      })
+      .from(technicalDocuments)
+      .leftJoin(users, eq(technicalDocuments.authorId, users.id))
+      .leftJoin(mdrSections, eq(technicalDocuments.mdrSectionId, mdrSections.id))
+      .where(eq(technicalDocuments.designProjectId, projectId))
+      .orderBy(desc(technicalDocuments.updatedAt));
+
+    // Get project details
+    const project = await db
+      .select()
+      .from(designProjects)
+      .where(eq(designProjects.id, projectId))
+      .limit(1);
+
+    res.json({
+      project: project[0] || null,
+      documents: documentsForProject,
+      summary: {
+        totalDocuments: documentsForProject.length,
+        completedDocuments: documentsForProject.filter(d => d.status === 'approved').length,
+        averageCompletion: documentsForProject.length > 0 
+          ? Math.round(documentsForProject.reduce((sum, d) => sum + (d.completionPercentage || 0), 0) / documentsForProject.length)
+          : 0
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching design integration data:", error);
+    res.status(500).json({ error: "Failed to fetch design integration data" });
+  }
+});
+
+export default router;

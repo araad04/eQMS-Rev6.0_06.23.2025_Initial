@@ -23,6 +23,7 @@ import designInputsRoutes from './routes.design-inputs';
 import designOutputsRoutes from './routes.design-outputs';
 import designVerificationRoutes from './routes.design-verification';
 import designValidationRoutes from './routes.design-validation';
+import technicalDocumentationEnhancedRoutes from './routes.technical-documentation-enhanced';
 
 // Shared rate limit configuration
 const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes

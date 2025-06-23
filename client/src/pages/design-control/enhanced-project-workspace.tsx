@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Progress } from '@/components/ui/progress';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   CheckCircle, 
   Clock, 
@@ -27,7 +29,9 @@ import {
   Shield,
   BarChart3,
   Workflow,
-  X
+  X,
+  Briefcase,
+  Eye
 } from 'lucide-react';
 
 interface EnhancedProjectWorkspaceProps {}
@@ -677,71 +681,585 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
           </div>
         </TabsContent>
 
-        {/* Other tabs would follow similar pattern... */}
+        {/* Project Overview Tab */}
         <TabsContent value="overview" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Project Overview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Comprehensive project overview content would go here...</p>
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            {/* Project Details Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Briefcase className="h-5 w-5" />
+                  Project Overview - {projectDetails?.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Project Code</Label>
+                      <p className="text-lg font-bold text-blue-600">{projectDetails?.projectCode}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Description</Label>
+                      <p className="text-sm text-gray-600">{projectDetails?.description}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Objective</Label>
+                      <p className="text-sm text-gray-600">{projectDetails?.objective}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Risk Level</Label>
+                      <Badge className={projectDetails?.riskLevel === 'High' ? 'bg-red-100 text-red-800' : 
+                                       projectDetails?.riskLevel === 'Medium' ? 'bg-yellow-100 text-yellow-800' : 
+                                       'bg-green-100 text-green-800'}>
+                        {projectDetails?.riskLevel}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Start Date</Label>
+                      <p className="text-sm text-gray-600">{projectDetails?.startDate ? new Date(projectDetails.startDate).toLocaleDateString() : 'Not set'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Target Completion</Label>
+                      <p className="text-sm text-gray-600">{projectDetails?.targetCompletionDate ? new Date(projectDetails.targetCompletionDate).toLocaleDateString() : 'Not set'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Overall Progress</Label>
+                      <div className="flex items-center gap-2">
+                        <Progress value={projectDetails?.overallProgress || 0} className="flex-1" />
+                        <span className="text-sm font-medium">{projectDetails?.overallProgress || 0}%</span>
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Regulatory Impact</Label>
+                      <Badge variant={projectDetails?.regulatoryImpact ? 'default' : 'outline'}>
+                        {projectDetails?.regulatoryImpact ? 'Yes' : 'No'}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Phase Status Overview */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Phase Status Overview
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {phases.map((phase: any, index: number) => (
+                    <Card key={index} className="border-l-4 border-l-blue-500">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-medium">{phase.name}</h4>
+                          {getStatusIcon(phase.status)}
+                        </div>
+                        <Progress value={phase.progress || 0} className="mb-2" />
+                        <p className="text-xs text-gray-500">{phase.progress || 0}% Complete</p>
+                        <Badge className={getStatusBadge(phase.status)} variant="secondary">
+                          {(phase.status || 'pending').replace('_', ' ')}
+                        </Badge>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
+        {/* Design Inputs Tab */}
         <TabsContent value="inputs" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Design Inputs</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Design inputs management interface would go here...</p>
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Design Inputs Management
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-between items-center mb-4">
+                  <p className="text-sm text-gray-600">Manage design inputs for DP-2025-001 Cleanroom Environmental Control System</p>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="flex items-center gap-2">
+                        <Plus className="h-4 w-4" />
+                        Add Design Input
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Add Design Input</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="input-title">Input Title</Label>
+                          <Input id="input-title" placeholder="Enter design input title" />
+                        </div>
+                        <div>
+                          <Label htmlFor="input-description">Description</Label>
+                          <Textarea id="input-description" placeholder="Detailed description of the design input" rows={3} />
+                        </div>
+                        <div>
+                          <Label htmlFor="input-source">Source</Label>
+                          <Select>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select input source" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="user_needs">User Needs</SelectItem>
+                              <SelectItem value="regulatory">Regulatory Requirements</SelectItem>
+                              <SelectItem value="standards">Standards</SelectItem>
+                              <SelectItem value="clinical">Clinical Requirements</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex gap-4">
+                          <Button>Add Input</Button>
+                          <Button variant="outline">Cancel</Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+
+                <div className="space-y-3">
+                  {designArtifacts?.designInputs?.map((input: any, index: number) => (
+                    <Card key={index} className="border-l-4 border-l-green-500">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-medium">{input.title}</h4>
+                            <p className="text-sm text-gray-600 mt-1">{input.description}</p>
+                            <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                              <span>ID: {input.id}</span>
+                              <span>Source: {input.source}</span>
+                              <span>Priority: {input.priority}</span>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="outline">
+                              <Edit className="h-3 w-3 mr-1" />
+                              Edit
+                            </Button>
+                            <Button size="sm" variant="outline">
+                              <Eye className="h-3 w-3 mr-1" />
+                              View
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )) || (
+                    <div className="text-center py-8 text-gray-500">
+                      <FileText className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                      <p>No design inputs found for this project</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
+        {/* Design Outputs Tab */}
         <TabsContent value="outputs" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Design Outputs</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Design outputs management interface would go here...</p>
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5" />
+                  Design Outputs Management
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-between items-center mb-4">
+                  <p className="text-sm text-gray-600">Manage design outputs for DP-2025-001 Cleanroom Environmental Control System</p>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="flex items-center gap-2">
+                        <Plus className="h-4 w-4" />
+                        Add Design Output
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Add Design Output</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="output-title">Output Title</Label>
+                          <Input id="output-title" placeholder="Enter design output title" />
+                        </div>
+                        <div>
+                          <Label htmlFor="output-description">Description</Label>
+                          <Textarea id="output-description" placeholder="Detailed description of the design output" rows={3} />
+                        </div>
+                        <div>
+                          <Label htmlFor="output-type">Output Type</Label>
+                          <Select>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select output type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="specification">Specification</SelectItem>
+                              <SelectItem value="drawing">Drawing</SelectItem>
+                              <SelectItem value="software">Software</SelectItem>
+                              <SelectItem value="procedure">Procedure</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex gap-4">
+                          <Button>Add Output</Button>
+                          <Button variant="outline">Cancel</Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+
+                <div className="space-y-3">
+                  {designArtifacts?.designOutputs?.map((output: any, index: number) => (
+                    <Card key={index} className="border-l-4 border-l-blue-500">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-medium">{output.title}</h4>
+                            <p className="text-sm text-gray-600 mt-1">{output.description}</p>
+                            <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                              <span>ID: {output.id}</span>
+                              <span>Type: {output.type}</span>
+                              <span>Status: {output.status}</span>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="outline">
+                              <Edit className="h-3 w-3 mr-1" />
+                              Edit
+                            </Button>
+                            <Button size="sm" variant="outline">
+                              <Download className="h-3 w-3 mr-1" />
+                              Download
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )) || (
+                    <div className="text-center py-8 text-gray-500">
+                      <Settings className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                      <p>No design outputs found for this project</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
+        {/* Verification Tab */}
         <TabsContent value="verification" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Verification Activities</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Verification activities management interface would go here...</p>
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5" />
+                  Verification Activities
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-between items-center mb-4">
+                  <p className="text-sm text-gray-600">Manage verification activities for DP-2025-001 Cleanroom Environmental Control System</p>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="flex items-center gap-2">
+                        <Plus className="h-4 w-4" />
+                        Add Verification
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Add Verification Activity</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="verification-title">Activity Title</Label>
+                          <Input id="verification-title" placeholder="Enter verification activity title" />
+                        </div>
+                        <div>
+                          <Label htmlFor="verification-method">Verification Method</Label>
+                          <Select>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select verification method" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="testing">Testing</SelectItem>
+                              <SelectItem value="inspection">Inspection</SelectItem>
+                              <SelectItem value="analysis">Analysis</SelectItem>
+                              <SelectItem value="demonstration">Demonstration</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label htmlFor="verification-criteria">Acceptance Criteria</Label>
+                          <Textarea id="verification-criteria" placeholder="Define acceptance criteria" rows={3} />
+                        </div>
+                        <div className="flex gap-4">
+                          <Button>Add Verification</Button>
+                          <Button variant="outline">Cancel</Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+
+                <div className="space-y-3">
+                  {designArtifacts?.verificationActivities?.map((activity: any, index: number) => (
+                    <Card key={index} className="border-l-4 border-l-purple-500">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-medium">{activity.title}</h4>
+                            <p className="text-sm text-gray-600 mt-1">{activity.description}</p>
+                            <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                              <span>ID: {activity.id}</span>
+                              <span>Method: {activity.method}</span>
+                              <span>Status: {activity.status}</span>
+                            </div>
+                            <div className="mt-2">
+                              <Progress value={activity.completionPercentage || 0} className="w-32" />
+                              <span className="text-xs text-gray-500">{activity.completionPercentage || 0}% Complete</span>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="outline">
+                              <Play className="h-3 w-3 mr-1" />
+                              Execute
+                            </Button>
+                            <Button size="sm" variant="outline">
+                              <FileText className="h-3 w-3 mr-1" />
+                              Report
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )) || (
+                    <div className="text-center py-8 text-gray-500">
+                      <Shield className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                      <p>No verification activities found for this project</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
+        {/* Validation Tab */}
         <TabsContent value="validation" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Validation Activities</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Validation activities management interface would go here...</p>
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5" />
+                  Validation Activities
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-between items-center mb-4">
+                  <p className="text-sm text-gray-600">Manage validation activities for DP-2025-001 Cleanroom Environmental Control System</p>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="flex items-center gap-2">
+                        <Plus className="h-4 w-4" />
+                        Add Validation
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Add Validation Activity</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="validation-title">Activity Title</Label>
+                          <Input id="validation-title" placeholder="Enter validation activity title" />
+                        </div>
+                        <div>
+                          <Label htmlFor="validation-type">Validation Type</Label>
+                          <Select>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select validation type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="clinical">Clinical Validation</SelectItem>
+                              <SelectItem value="software">Software Validation</SelectItem>
+                              <SelectItem value="process">Process Validation</SelectItem>
+                              <SelectItem value="usability">Usability Validation</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label htmlFor="validation-protocol">Protocol</Label>
+                          <Textarea id="validation-protocol" placeholder="Define validation protocol" rows={3} />
+                        </div>
+                        <div className="flex gap-4">
+                          <Button>Add Validation</Button>
+                          <Button variant="outline">Cancel</Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+
+                <div className="space-y-3">
+                  {designArtifacts?.validationActivities?.map((activity: any, index: number) => (
+                    <Card key={index} className="border-l-4 border-l-green-500">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-medium">{activity.title}</h4>
+                            <p className="text-sm text-gray-600 mt-1">{activity.description}</p>
+                            <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                              <span>ID: {activity.id}</span>
+                              <span>Type: {activity.type}</span>
+                              <span>Status: {activity.status}</span>
+                            </div>
+                            <div className="mt-2">
+                              <Progress value={activity.completionPercentage || 0} className="w-32" />
+                              <span className="text-xs text-gray-500">{activity.completionPercentage || 0}% Complete</span>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="outline">
+                              <Play className="h-3 w-3 mr-1" />
+                              Execute
+                            </Button>
+                            <Button size="sm" variant="outline">
+                              <FileText className="h-3 w-3 mr-1" />
+                              Report
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )) || (
+                    <div className="text-center py-8 text-gray-500">
+                      <CheckCircle className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                      <p>No validation activities found for this project</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
+        {/* Traceability Tab */}
         <TabsContent value="traceability" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Traceability Matrix</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Traceability matrix interface would go here...</p>
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="h-5 w-5" />
+                  Traceability Matrix
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4">
+                  <p className="text-sm text-gray-600">Complete traceability from user requirements through validation for DP-2025-001</p>
+                </div>
+
+                {/* Traceability Overview */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <Card className="border-l-4 border-l-blue-500">
+                    <CardContent className="p-4">
+                      <h4 className="font-medium">Requirements → Inputs</h4>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Progress value={85} className="flex-1" />
+                        <span className="text-sm">85%</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-l-4 border-l-green-500">
+                    <CardContent className="p-4">
+                      <h4 className="font-medium">Inputs → Outputs</h4>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Progress value={92} className="flex-1" />
+                        <span className="text-sm">92%</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-l-4 border-l-purple-500">
+                    <CardContent className="p-4">
+                      <h4 className="font-medium">Outputs → V&V</h4>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Progress value={78} className="flex-1" />
+                        <span className="text-sm">78%</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Traceability Matrix Table */}
+                <div className="border rounded-lg overflow-hidden">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Item ID</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Type</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Title</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Traces To</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Coverage</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {[
+                        { id: 'UR-001', type: 'User Requirement', title: 'Environmental Monitoring', tracesTo: 'DI-001, DI-002', coverage: 100 },
+                        { id: 'DI-001', type: 'Design Input', title: 'Temperature Sensor Specification', tracesTo: 'DO-001', coverage: 100 },
+                        { id: 'DO-001', type: 'Design Output', title: 'Temperature Control Module', tracesTo: 'VER-001, VAL-001', coverage: 100 },
+                        { id: 'VER-001', type: 'Verification', title: 'Temperature Accuracy Test', tracesTo: 'DO-001', coverage: 100 },
+                        { id: 'VAL-001', type: 'Validation', title: 'Cleanroom Environment Test', tracesTo: 'UR-001', coverage: 100 }
+                      ].map((item, index) => (
+                        <tr key={index} className="hover:bg-gray-50">
+                          <td className="px-4 py-3 text-sm font-medium text-blue-600">{item.id}</td>
+                          <td className="px-4 py-3 text-sm">
+                            <Badge variant="outline">{item.type}</Badge>
+                          </td>
+                          <td className="px-4 py-3 text-sm">{item.title}</td>
+                          <td className="px-4 py-3 text-sm text-blue-600">{item.tracesTo}</td>
+                          <td className="px-4 py-3 text-sm">
+                            <div className="flex items-center gap-2">
+                              <Progress value={item.coverage} className="w-16" />
+                              <span className="text-xs">{item.coverage}%</span>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="mt-4 flex gap-2">
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <Download className="h-4 w-4" />
+                    Export Matrix
+                  </Button>
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Generate Report
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
