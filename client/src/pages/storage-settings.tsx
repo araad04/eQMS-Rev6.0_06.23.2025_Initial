@@ -214,7 +214,7 @@ export default function StorageSettings() {
                   className="flex items-center gap-2"
                 >
                   <Plus className="h-4 w-4" />
-                  Add Your First Configuration
+                  Configure Storage
                 </Button>
               </CardContent>
             </Card>
