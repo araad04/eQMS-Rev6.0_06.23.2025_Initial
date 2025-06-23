@@ -1,0 +1,137 @@
+~/workspace$ # Navigate to your project directory
+cd /path/to/eqms-project
+
+# Initialize git if not already done
+git init
+
+# Add your GitHub repository as remote origin
+git remote add origin https://github.com/biomedical78/eQMS6.0_06.23.2025-.git cd /path/to/eqms-project
+bash: cd: /path/to/eqms-project: No such file or directory
+Reinitialized existing Git repository in /home/runner/workspace/.git/
+usage: git remote add [<options>] <name> <url>
+
+    -f, --[no-]fetch      fetch the remote branches
+    --[no-]tags           import all tags and associated objects when fetching
+                          or do not fetch any tag at all (--no-tags)
+    -t, --[no-]track <branch>
+                          branch(es) to track
+    -m, --[no-]master <branch>
+                          master branch
+    --[no-]mirror[=(push|fetch)]
+                          set up remote as a mirror to push to or fetch from
+
+~/workspace$ cd /path/to/eqms-project
+bash: cd: /path/to/eqms-project: No such file or directory
+~/workspace$ git init
+Reinitialized existing Git repository in /home/runner/workspace/.git/
+~/workspace$ git remote add origin https://github.com/biomedical78/eQMS6.0_06.23.2025-.git
+error: remote origin already exists.
+~/workspace$ # Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# Logs
+logs/
+*.log
+
+# Runtime
+.DS_Store
+Thumbs.db
+
+# Uploads and temp files
+uploads/
+temp/
+tmp/
+
+# Test files
+test-results/
+test-reports/
+test-logs/
+results/
+comprehensive-*.ts
+validation-*.ts
+professional-*.ts
+ultra-*.ts
+final-*.ts
+execute-*.ts
+hot-fix-*.ts
+debug-*.html
+minimal-*.js
+bash: node_modules/: Is a directory
+Install Replit's Node tools [y/n]  y
+bash: npm-debug.log*: command not found
+Install Replit's Node tools [y/n]  y
+bash: yarn-debug.log*: command not found
+Install Replit's Node tools [y/n]  y
+bash: yarn-error.log*: command not found
+bash: .env: command not found
+bash: .env.local: command not found
+bash: .env.development.local: command not found
+bash: .env.test.local: command not found
+bash: .env.production.local: command not found
+bash: dist/: Is a directory
+bash: build/: No such file or directory
+bash: coverage/: Is a directory
+bash: logs/: Is a directory
+bash: final-validation-results.log: command not found
+bash: .DS_Store: command not found
+bash: Thumbs.db: command not found
+bash: uploads/: Is a directory
+bash: temp/: No such file or directory
+bash: tmp/: No such file or directory
+bash: test-results/: Is a directory
+bash: test-reports/: Is a directory
+bash: test-logs/: Is a directory
+bash: results/: Is a directory
+bash: comprehensive-audit-workspace-testing.ts: command not found
+bash: validation-*.ts: command not found
+bash: professional-deep-functional-test.ts: command not found
+bash: ultra-comprehensive-design-module-validation.ts: command not found
+bash: final-comprehensive-professional-validation-execution.ts: command not found
+bash: execute-validation.ts: command not found
+bash: hot-fix-implementation.ts: command not found
+bash: debug-kpi.html: command not found
+bash: simple-server.js: command not found
+bash: minimal-server.js: command not found
+~/workspace$ # Add all files to staging
+git add .
+
+# Create initial commit
+git commit -m "Initial eQMS 6.0 Production Release
+
+- Complete medical device Quality Management System
+- ISO 13485:2016, 21 CFR Part 11, IEC 62304 compliant
+- React 18.3.1 + TypeScript frontend
+- Express.js + PostgreSQL backend
+- Comprehensive design control module with phase-gated workflow
+- Document control, CAPA, audit, training, supplier management
+- Clean production data with authentic Cleanroom Environmental Control System project
+- Zero mock data contamination"
+
+# Push to GitHub
+git branch -M main
+git push -u origin main
+[main 21f371d] Initial eQMS 6.0 Production Release
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+To https://github.com/biomedical78/eQMS6.0_06.23.2025-.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'https://github.com/biomedical78/eQMS6.0_06.23.2025-.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
