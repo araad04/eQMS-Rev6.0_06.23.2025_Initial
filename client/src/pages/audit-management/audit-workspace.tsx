@@ -274,7 +274,7 @@ export default function AuditWorkspace() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-amber-600">Checklist Items</p>
-                <p className="text-2xl font-bold text-amber-900">{checklist.length}</p>
+                <p className="text-2xl font-bold text-amber-900">{checklistData.length}</p>
               </div>
               <ClipboardList className="h-8 w-8 text-amber-600" />
             </div>
@@ -286,7 +286,7 @@ export default function AuditWorkspace() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-green-600">Lead Auditor</p>
-                <p className="text-lg font-bold text-green-900">{audit.leadAuditorName || "Unassigned"}</p>
+                <p className="text-lg font-bold text-green-900">{auditData.leadAuditorName || "Unassigned"}</p>
               </div>
               <Users className="h-8 w-8 text-green-600" />
             </div>
@@ -366,19 +366,19 @@ export default function AuditWorkspace() {
               <CardContent className="space-y-4">
                 <div>
                   <Label className="text-sm font-medium">Scope</Label>
-                  <p className="text-sm text-gray-600 mt-1">{audit.scope || "No scope defined"}</p>
+                  <p className="text-sm text-gray-600 mt-1">{auditData.scope || "No scope defined"}</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Description</Label>
-                  <p className="text-sm text-gray-600 mt-1">{audit.description || "No description provided"}</p>
+                  <p className="text-sm text-gray-600 mt-1">{auditData.description || "No description provided"}</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Location</Label>
-                  <p className="text-sm text-gray-600 mt-1">{audit.auditLocation || "Not specified"}</p>
+                  <p className="text-sm text-gray-600 mt-1">{auditData.auditLocation || "Not specified"}</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Standard References</Label>
-                  <p className="text-sm text-gray-600 mt-1">{audit.standardReference || "Not specified"}</p>
+                  <p className="text-sm text-gray-600 mt-1">{auditData.standardReference || "Not specified"}</p>
                 </div>
               </CardContent>
             </Card>
