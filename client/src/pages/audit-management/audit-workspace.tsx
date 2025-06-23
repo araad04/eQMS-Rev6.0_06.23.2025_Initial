@@ -182,13 +182,13 @@ export default function AuditWorkspace() {
     );
   }
 
-  const status = auditStatusConfig[audit.statusId as keyof typeof auditStatusConfig];
+  const status = auditStatusConfig[auditData.statusId as keyof typeof auditStatusConfig];
   const StatusIcon = status?.icon || Target;
   const currentPhase = auditPhases.find(p => p.id === activePhase) || auditPhases[0];
 
   const calculateProgress = () => {
-    const completedItems = checklist.filter((item: any) => item.response).length;
-    return checklist.length > 0 ? Math.round((completedItems / checklist.length) * 100) : 0;
+    const completedItems = checklistData.filter((item: any) => item.response).length;
+    return checklistData.length > 0 ? Math.round((completedItems / checklistData.length) * 100) : 0;
   };
 
   const handleUpdateAudit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -209,8 +209,8 @@ export default function AuditWorkspace() {
   return (
     <div className="space-y-6">
       <Helmet>
-        <title>{`${audit.title || "Audit"} - Audit Workspace - eQMS`}</title>
-        <meta name="description" content={`Audit workspace for ${audit.title || "audit"} with comprehensive workflow management.`} />
+        <title>{`${auditData.title || "Audit"} - Audit Workspace - eQMS`}</title>
+        <meta name="description" content={`Audit workspace for ${auditData.title || "audit"} with comprehensive workflow management.`} />
       </Helmet>
 
       {/* Header */}
@@ -223,8 +223,8 @@ export default function AuditWorkspace() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{audit.title}</h1>
-            <p className="text-gray-600">{audit.auditId}</p>
+            <h1 className="text-2xl font-bold text-gray-900">{auditData.title}</h1>
+            <p className="text-gray-600">{auditData.auditId}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
