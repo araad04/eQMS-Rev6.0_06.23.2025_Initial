@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { eq, desc, and, sql } from 'drizzle-orm';
 import { technicalDocuments, users, designProjects } from '../shared/schema';
-import { getDatabaseInstance } from './storage';
+import { db } from './db';
 import { authMiddleware } from './middleware/auth';
 
 const router = Router();
@@ -71,8 +71,6 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Title and device model are required' });
     }
 
-    const db = await getDatabaseInstance();
-    
     const [newDocument] = await db.insert(technicalDocuments).values({
       title,
       deviceModel,
@@ -95,8 +93,6 @@ router.post('/', async (req, res) => {
 // Get enhanced technical documents grouped by project
 router.get('/projects', async (req, res) => {
   try {
-    const db = await getDatabaseInstance();
-    
     // Get project statistics
     const projectStats = await db
       .select({
@@ -130,8 +126,6 @@ router.get('/projects', async (req, res) => {
 // Get compliance dashboard metrics
 router.get('/compliance/dashboard', async (req, res) => {
   try {
-    const db = await getDatabaseInstance();
-    
     // Get overall document metrics
     const overallStats = await db
       .select({
@@ -196,8 +190,6 @@ router.put('/:id', async (req, res) => {
       return res.status(400).json({ error: 'Invalid document ID' });
     }
 
-    const db = await getDatabaseInstance();
-    
     const [updatedDocument] = await db
       .update(technicalDocuments)
       .set({
@@ -227,8 +219,6 @@ router.delete('/:id', async (req, res) => {
       return res.status(400).json({ error: 'Invalid document ID' });
     }
 
-    const db = await getDatabaseInstance();
-    
     const [deletedDocument] = await db
       .delete(technicalDocuments)
       .where(eq(technicalDocuments.id, documentId))
@@ -254,8 +244,6 @@ router.get('/:id', async (req, res) => {
       return res.status(400).json({ error: 'Invalid document ID' });
     }
 
-    const db = await getDatabaseInstance();
-    
     const [document] = await db
       .select({
         id: technicalDocuments.id,

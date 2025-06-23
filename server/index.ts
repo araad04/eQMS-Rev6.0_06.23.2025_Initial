@@ -23,7 +23,7 @@ import designInputsRoutes from './routes.design-inputs';
 import designOutputsRoutes from './routes.design-outputs';
 import designVerificationRoutes from './routes.design-verification';
 import designValidationRoutes from './routes.design-validation';
-import technicalDocumentationEnhancedRoutes from './routes.technical-documentation-enhanced';
+import { technicalDocumentationEnhancedRouter } from './routes.technical-documentation-enhanced-fixed';
 
 // Shared rate limit configuration
 const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
@@ -676,7 +676,7 @@ app.use((req, res, next) => {
   app.use('/api/design-plan', designPlanRoutes);
 
   // Setup Enhanced Technical Documentation routes mirroring Design Control architecture
-  app.use('/api/technical-documentation', technicalDocumentationEnhancedRoutes);
+  app.use('/api/technical-documentation-enhanced', technicalDocumentationEnhancedRouter);
 
   // Setup Sequential Phase-Gated Workflow routes for bottleneck enforcement
   const { phaseGatedWorkflowRouter } = await import('./routes.phase-gated-workflow');

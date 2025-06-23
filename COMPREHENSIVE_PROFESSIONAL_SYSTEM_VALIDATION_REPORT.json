@@ -1,9 +1,9 @@
 {
   "reportId": "VAL-SYSTEM-PROFESSIONAL-2025-001",
-  "timestamp": "2025-06-23T03:52:14.403Z",
+  "timestamp": "2025-06-23T03:54:14.129Z",
   "grade": "D",
   "successRate": 50.63291139240506,
-  "executionTime": 205,
+  "executionTime": 217,
   "totalTests": 79,
   "appliedFixes": [
     "Fixed API endpoint issues for API /api/dashboard",
@@ -104,7 +104,7 @@
         "URS-001"
       ],
       "details": "Frontend TypeScript Compilation validation completed with 1 evidence items",
-      "timestamp": "2025-06-23T03:52:14.198Z",
+      "timestamp": "2025-06-23T03:54:13.913Z",
       "fixesApplied": []
     },
     {
@@ -122,7 +122,7 @@
         "URS-002"
       ],
       "details": "Backend Node.js Code Quality validation completed with 1 evidence items",
-      "timestamp": "2025-06-23T03:52:14.199Z",
+      "timestamp": "2025-06-23T03:54:13.914Z",
       "fixesApplied": []
     },
     {
@@ -140,7 +140,7 @@
         "URS-004"
       ],
       "details": "Database Schema Validation validation completed with 1 evidence items",
-      "timestamp": "2025-06-23T03:52:14.199Z",
+      "timestamp": "2025-06-23T03:54:13.915Z",
       "fixesApplied": []
     },
     {
@@ -157,7 +157,7 @@
         "URS-001"
       ],
       "details": "Component Architecture Analysis validation completed with 1 evidence items",
-      "timestamp": "2025-06-23T03:52:14.199Z",
+      "timestamp": "2025-06-23T03:54:13.915Z",
       "fixesApplied": []
     },
     {
@@ -174,7 +174,7 @@
         "URS-001"
       ],
       "details": "API Route Structure Validation validation completed with 1 evidence items",
-      "timestamp": "2025-06-23T03:52:14.200Z",
+      "timestamp": "2025-06-23T03:54:13.916Z",
       "fixesApplied": []
     },
     {
@@ -191,7 +191,7 @@
         "URS-001"
       ],
       "details": "Security Implementation Review validation completed with 1 evidence items",
-      "timestamp": "2025-06-23T03:52:14.200Z",
+      "timestamp": "2025-06-23T03:54:13.916Z",
       "fixesApplied": []
     },
     {
@@ -208,7 +208,7 @@
         "URS-001"
       ],
       "details": "Error Handling Assessment validation completed with 1 evidence items",
-      "timestamp": "2025-06-23T03:52:14.200Z",
+      "timestamp": "2025-06-23T03:54:13.917Z",
       "fixesApplied": []
     },
     {
@@ -225,7 +225,7 @@
         "URS-001"
       ],
       "details": "Performance Code Analysis validation completed with 1 evidence items",
-      "timestamp": "2025-06-23T03:52:14.200Z",
+      "timestamp": "2025-06-23T03:54:13.917Z",
       "fixesApplied": []
     },
     {
@@ -242,14 +242,14 @@
         "URS-001"
       ],
       "details": "Database Connection Pool Performance failed with critical error",
-      "timestamp": "2025-06-23T03:52:14.228Z",
+      "timestamp": "2025-06-23T03:54:13.946Z",
       "fixesApplied": []
     },
     {
       "testSuite": "Database Integration Testing",
       "testCase": "Transaction ACID Compliance",
       "status": "CRITICAL",
-      "responseTime": 4,
+      "responseTime": 17,
       "evidence": [],
       "criticalIssues": [
         "Database Transaction ACID Compliance critical error: FetchError: request to http://localhost:5000/api/health failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
@@ -259,14 +259,14 @@
         "URS-001"
       ],
       "details": "Database Transaction ACID Compliance failed with critical error",
-      "timestamp": "2025-06-23T03:52:14.232Z",
+      "timestamp": "2025-06-23T03:54:13.963Z",
       "fixesApplied": []
     },
     {
       "testSuite": "Database Integration Testing",
       "testCase": "Foreign Key Constraint Validation",
       "status": "CRITICAL",
-      "responseTime": 3,
+      "responseTime": 10,
       "evidence": [],
       "criticalIssues": [
         "Database Foreign Key Constraint Validation critical error: FetchError: request to http://localhost:5000/api/health failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
@@ -276,14 +276,14 @@
         "URS-001"
       ],
       "details": "Database Foreign Key Constraint Validation failed with critical error",
-      "timestamp": "2025-06-23T03:52:14.235Z",
+      "timestamp": "2025-06-23T03:54:13.973Z",
       "fixesApplied": []
     },
     {
       "testSuite": "Database Integration Testing",
       "testCase": "Index Optimization Analysis",
       "status": "CRITICAL",
-      "responseTime": 8,
+      "responseTime": 3,
       "evidence": [],
       "criticalIssues": [
         "Database Index Optimization Analysis critical error: FetchError: request to http://localhost:5000/api/health failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
@@ -293,7 +293,7 @@
         "URS-001"
       ],
       "details": "Database Index Optimization Analysis failed with critical error",
-      "timestamp": "2025-06-23T03:52:14.243Z",
+      "timestamp": "2025-06-23T03:54:13.976Z",
       "fixesApplied": []
     },
     {
@@ -310,7 +310,7 @@
         "URS-001"
       ],
       "details": "Database Query Performance Testing failed with critical error",
-      "timestamp": "2025-06-23T03:52:14.246Z",
+      "timestamp": "2025-06-23T03:54:13.978Z",
       "fixesApplied": []
     },
     {
@@ -327,7 +327,7 @@
         "URS-001"
       ],
       "details": "Database Audit Trail Integrity failed with critical error",
-      "timestamp": "2025-06-23T03:52:14.248Z",
+      "timestamp": "2025-06-23T03:54:13.981Z",
       "fixesApplied": []
     },
     {
@@ -344,14 +344,14 @@
         "URS-001"
       ],
       "details": "Database Data Migration Validation failed with critical error",
-      "timestamp": "2025-06-23T03:52:14.250Z",
+      "timestamp": "2025-06-23T03:54:13.983Z",
       "fixesApplied": []
     },
     {
       "testSuite": "Database Integration Testing",
       "testCase": "Backup and Recovery Testing",
       "status": "CRITICAL",
-      "responseTime": 2,
+      "responseTime": 1,
       "evidence": [],
       "criticalIssues": [
         "Database Backup and Recovery Testing critical error: FetchError: request to http://localhost:5000/api/health failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
@@ -361,7 +361,7 @@
         "URS-001"
       ],
       "details": "Database Backup and Recovery Testing failed with critical error",
-      "timestamp": "2025-06-23T03:52:14.252Z",
+      "timestamp": "2025-06-23T03:54:13.985Z",
       "fixesApplied": []
     },
     {
@@ -378,7 +378,7 @@
         "URS-001"
       ],
       "details": "API endpoint /api/dashboard failed with critical error",
-      "timestamp": "2025-06-23T03:52:14.256Z",
+      "timestamp": "2025-06-23T03:54:13.989Z",
       "fixesApplied": [
         "Applied automated fix for API /api/dashboard"
       ]
@@ -397,7 +397,7 @@
         "URS-001"
       ],
       "details": "API endpoint /api/design-projects failed with critical error",
-      "timestamp": "2025-06-23T03:52:14.258Z",
+      "timestamp": "2025-06-23T03:54:13.991Z",
       "fixesApplied": [
         "Applied automated fix for API /api/design-projects"
       ]
@@ -416,7 +416,7 @@
         "URS-001"
       ],
       "details": "API endpoint /api/design-plan/projects failed with critical error",
-      "timestamp": "2025-06-23T03:52:14.260Z",
+      "timestamp": "2025-06-23T03:54:13.994Z",
       "fixesApplied": [
         "Applied automated fix for API /api/design-plan/projects"
       ]
@@ -435,7 +435,7 @@
         "URS-001"
       ],
       "details": "API endpoint /api/technical-documentation-enhanced failed with critical error",
-      "timestamp": "2025-06-23T03:52:14.262Z",
+      "timestamp": "2025-06-23T03:54:13.996Z",
       "fixesApplied": [
         "Applied automated fix for API /api/technical-documentation-enhanced"
       ]
@@ -454,7 +454,7 @@
         "URS-001"
       ],
       "details": "API endpoint /api/training/modules failed with critical error",
-      "timestamp": "2025-06-23T03:52:14.265Z",
+      "timestamp": "2025-06-23T03:54:13.999Z",
       "fixesApplied": [
         "Applied automated fix for API /api/training/modules"
       ]
@@ -463,7 +463,7 @@
       "testSuite": "API Comprehensive Testing",
       "testCase": "API /api/training/records",
       "status": "CRITICAL",
-      "responseTime": 2,
+      "responseTime": 6,
       "evidence": [],
       "criticalIssues": [
         "API /api/training/records critical error: FetchError: request to http://localhost:5000/api/training/records failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
@@ -473,7 +473,7 @@
         "URS-001"
       ],
       "details": "API endpoint /api/training/records failed with critical error",
-      "timestamp": "2025-06-23T03:52:14.267Z",
+      "timestamp": "2025-06-23T03:54:14.005Z",
       "fixesApplied": [
         "Applied automated fix for API /api/training/records"
       ]
@@ -482,7 +482,7 @@
       "testSuite": "API Comprehensive Testing",
       "testCase": "API /api/capas",
       "status": "CRITICAL",
-      "responseTime": 2,
+      "responseTime": 6,
       "evidence": [],
       "criticalIssues": [
         "API /api/capas critical error: FetchError: request to http://localhost:5000/api/capas failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
@@ -492,7 +492,7 @@
         "URS-001"
       ],
       "details": "API endpoint /api/capas failed with critical error",
-      "timestamp": "2025-06-23T03:52:14.269Z",
+      "timestamp": "2025-06-23T03:54:14.012Z",
       "fixesApplied": [
         "Applied automated fix for API /api/capas"
       ]
@@ -501,7 +501,7 @@
       "testSuite": "API Comprehensive Testing",
       "testCase": "API /api/documents",
       "status": "CRITICAL",
-      "responseTime": 2,
+      "responseTime": 3,
       "evidence": [],
       "criticalIssues": [
         "API /api/documents critical error: FetchError: request to http://localhost:5000/api/documents failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
@@ -511,7 +511,7 @@
         "URS-001"
       ],
       "details": "API endpoint /api/documents failed with critical error",
-      "timestamp": "2025-06-23T03:52:14.271Z",
+      "timestamp": "2025-06-23T03:54:14.015Z",
       "fixesApplied": [
         "Applied automated fix for API /api/documents"
       ]
@@ -530,7 +530,7 @@
         "URS-001"
       ],
       "details": "API endpoint /api/suppliers failed with critical error",
-      "timestamp": "2025-06-23T03:52:14.273Z",
+      "timestamp": "2025-06-23T03:54:14.017Z",
       "fixesApplied": [
         "Applied automated fix for API /api/suppliers"
       ]
@@ -549,7 +549,7 @@
         "URS-001"
       ],
       "details": "API endpoint /api/audits failed with critical error",
-      "timestamp": "2025-06-23T03:52:14.275Z",
+      "timestamp": "2025-06-23T03:54:14.019Z",
       "fixesApplied": [
         "Applied automated fix for API /api/audits"
       ]
@@ -558,7 +558,7 @@
       "testSuite": "Security & Authentication Testing",
       "testCase": "Authentication Bypass Testing",
       "status": "FAILED",
-      "responseTime": 1,
+      "responseTime": 2,
       "evidence": [],
       "criticalIssues": [
         "Security test Authentication Bypass Testing error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
@@ -568,7 +568,7 @@
         "URS-003"
       ],
       "details": "Security test Authentication Bypass Testing failed",
-      "timestamp": "2025-06-23T03:52:14.277Z",
+      "timestamp": "2025-06-23T03:54:14.022Z",
       "fixesApplied": []
     },
     {
@@ -585,7 +585,7 @@
         "URS-003"
       ],
       "details": "Security test Authorization Controls Validation failed",
-      "timestamp": "2025-06-23T03:52:14.279Z",
+      "timestamp": "2025-06-23T03:54:14.025Z",
       "fixesApplied": []
     },
     {
@@ -602,14 +602,14 @@
         "URS-003"
       ],
       "details": "Security test Input Sanitization Testing failed",
-      "timestamp": "2025-06-23T03:52:14.282Z",
+      "timestamp": "2025-06-23T03:54:14.027Z",
       "fixesApplied": []
     },
     {
       "testSuite": "Security & Authentication Testing",
       "testCase": "SQL Injection Prevention",
       "status": "FAILED",
-      "responseTime": 1,
+      "responseTime": 2,
       "evidence": [],
       "criticalIssues": [
         "Security test SQL Injection Prevention error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
@@ -619,14 +619,14 @@
         "URS-003"
       ],
       "details": "Security test SQL Injection Prevention failed",
-      "timestamp": "2025-06-23T03:52:14.284Z",
+      "timestamp": "2025-06-23T03:54:14.029Z",
       "fixesApplied": []
     },
     {
       "testSuite": "Security & Authentication Testing",
       "testCase": "XSS Protection Validation",
       "status": "FAILED",
-      "responseTime": 1,
+      "responseTime": 3,
       "evidence": [],
       "criticalIssues": [
         "Security test XSS Protection Validation error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
@@ -636,7 +636,7 @@
         "URS-003"
       ],
       "details": "Security test XSS Protection Validation failed",
-      "timestamp": "2025-06-23T03:52:14.285Z",
+      "timestamp": "2025-06-23T03:54:14.033Z",
       "fixesApplied": []
     },
     {
@@ -653,14 +653,14 @@
         "URS-003"
       ],
       "details": "Security test CSRF Protection Testing failed",
-      "timestamp": "2025-06-23T03:52:14.287Z",
+      "timestamp": "2025-06-23T03:54:14.036Z",
       "fixesApplied": []
     },
     {
       "testSuite": "Security & Authentication Testing",
       "testCase": "Session Management Security",
       "status": "FAILED",
-      "responseTime": 5,
+      "responseTime": 3,
       "evidence": [],
       "criticalIssues": [
         "Security test Session Management Security error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
@@ -670,7 +670,7 @@
         "URS-003"
       ],
       "details": "Security test Session Management Security failed",
-      "timestamp": "2025-06-23T03:52:14.292Z",
+      "timestamp": "2025-06-23T03:54:14.039Z",
       "fixesApplied": []
     },
     {
@@ -687,7 +687,7 @@
         "URS-003"
       ],
       "details": "Security test API Rate Limiting Testing failed",
-      "timestamp": "2025-06-23T03:52:14.294Z",
+      "timestamp": "2025-06-23T03:54:14.041Z",
       "fixesApplied": [
         "Applied automated fix for API Rate Limiting Testing"
       ]
@@ -707,7 +707,7 @@
         "URS-002"
       ],
       "details": "Frontend React Component Rendering validation completed",
-      "timestamp": "2025-06-23T03:52:14.294Z",
+      "timestamp": "2025-06-23T03:54:14.042Z",
       "fixesApplied": []
     },
     {
@@ -725,7 +725,7 @@
         "URS-002"
       ],
       "details": "Frontend State Management Validation validation completed",
-      "timestamp": "2025-06-23T03:52:14.294Z",
+      "timestamp": "2025-06-23T03:54:14.042Z",
       "fixesApplied": []
     },
     {
@@ -743,7 +743,7 @@
         "URS-002"
       ],
       "details": "Frontend React Query Integration validation completed",
-      "timestamp": "2025-06-23T03:52:14.294Z",
+      "timestamp": "2025-06-23T03:54:14.042Z",
       "fixesApplied": []
     },
     {
@@ -761,7 +761,7 @@
         "URS-002"
       ],
       "details": "Frontend Form Validation Testing validation completed",
-      "timestamp": "2025-06-23T03:52:14.294Z",
+      "timestamp": "2025-06-23T03:54:14.042Z",
       "fixesApplied": []
     },
     {
@@ -779,7 +779,7 @@
         "URS-002"
       ],
       "details": "Frontend UI/UX Responsiveness validation completed",
-      "timestamp": "2025-06-23T03:52:14.294Z",
+      "timestamp": "2025-06-23T03:54:14.043Z",
       "fixesApplied": []
     },
     {
@@ -797,7 +797,7 @@
         "URS-002"
       ],
       "details": "Frontend Accessibility Compliance validation completed",
-      "timestamp": "2025-06-23T03:52:14.295Z",
+      "timestamp": "2025-06-23T03:54:14.043Z",
       "fixesApplied": []
     },
     {
@@ -815,7 +815,7 @@
         "URS-002"
       ],
       "details": "Frontend Browser Compatibility validation completed",
-      "timestamp": "2025-06-23T03:52:14.295Z",
+      "timestamp": "2025-06-23T03:54:14.043Z",
       "fixesApplied": []
     },
     {
@@ -833,7 +833,7 @@
         "URS-002"
       ],
       "details": "Frontend Performance Optimization validation completed",
-      "timestamp": "2025-06-23T03:52:14.295Z",
+      "timestamp": "2025-06-23T03:54:14.043Z",
       "fixesApplied": []
     },
     {
@@ -850,7 +850,7 @@
         "URS-001"
       ],
       "details": "Integration test Frontend-Backend Integration completed",
-      "timestamp": "2025-06-23T03:52:14.295Z",
+      "timestamp": "2025-06-23T03:54:14.044Z",
       "fixesApplied": []
     },
     {
@@ -867,7 +867,7 @@
         "URS-001"
       ],
       "details": "Integration test Database-API Integration completed",
-      "timestamp": "2025-06-23T03:52:14.295Z",
+      "timestamp": "2025-06-23T03:54:14.045Z",
       "fixesApplied": []
     },
     {
@@ -884,7 +884,7 @@
         "URS-001"
       ],
       "details": "Integration test Authentication Flow Integration completed",
-      "timestamp": "2025-06-23T03:52:14.295Z",
+      "timestamp": "2025-06-23T03:54:14.045Z",
       "fixesApplied": []
     },
     {
@@ -901,14 +901,14 @@
         "URS-001"
       ],
       "details": "Integration test Document Workflow Integration completed",
-      "timestamp": "2025-06-23T03:52:14.295Z",
+      "timestamp": "2025-06-23T03:54:14.045Z",
       "fixesApplied": []
     },
     {
       "testSuite": "Integration & End-to-End Testing",
       "testCase": "Design Control Workflow Integration",
       "status": "FAILED",
-      "responseTime": 1,
+      "responseTime": 2,
       "evidence": [],
       "criticalIssues": [
         "Integration test Design Control Workflow Integration error: FetchError: request to http://localhost:5000/api/design-projects failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
@@ -918,7 +918,7 @@
         "URS-001"
       ],
       "details": "Integration test Design Control Workflow Integration failed",
-      "timestamp": "2025-06-23T03:52:14.296Z",
+      "timestamp": "2025-06-23T03:54:14.048Z",
       "fixesApplied": []
     },
     {
@@ -935,7 +935,7 @@
         "URS-001"
       ],
       "details": "Integration test CAPA Process Integration completed",
-      "timestamp": "2025-06-23T03:52:14.297Z",
+      "timestamp": "2025-06-23T03:54:14.048Z",
       "fixesApplied": []
     },
     {
@@ -952,7 +952,7 @@
         "URS-001"
       ],
       "details": "Integration test Training Module Integration completed",
-      "timestamp": "2025-06-23T03:52:14.297Z",
+      "timestamp": "2025-06-23T03:54:14.049Z",
       "fixesApplied": []
     },
     {
@@ -969,14 +969,14 @@
         "URS-001"
       ],
       "details": "Integration test Cross-Module Data Flow completed",
-      "timestamp": "2025-06-23T03:52:14.297Z",
+      "timestamp": "2025-06-23T03:54:14.049Z",
       "fixesApplied": []
     },
     {
       "testSuite": "Performance & Load Testing",
       "testCase": "API Response Time Testing",
       "status": "CRITICAL",
-      "responseTime": 11,
+      "responseTime": 5,
       "evidence": [],
       "criticalIssues": [
         "Performance test API Response Time Testing critical error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
@@ -986,7 +986,7 @@
         "URS-001"
       ],
       "details": "Performance test API Response Time Testing failed",
-      "timestamp": "2025-06-23T03:52:14.308Z",
+      "timestamp": "2025-06-23T03:54:14.055Z",
       "fixesApplied": [
         "Applied automated fix for API Response Time Testing"
       ]
@@ -1005,7 +1005,7 @@
         "URS-001"
       ],
       "details": "Performance test Database Query Performance failed",
-      "timestamp": "2025-06-23T03:52:14.316Z",
+      "timestamp": "2025-06-23T03:54:14.063Z",
       "fixesApplied": [
         "Applied automated fix for Database Query Performance"
       ]
@@ -1014,7 +1014,7 @@
       "testSuite": "Performance & Load Testing",
       "testCase": "Frontend Load Time Analysis",
       "status": "CRITICAL",
-      "responseTime": 5,
+      "responseTime": 7,
       "evidence": [],
       "criticalIssues": [
         "Performance test Frontend Load Time Analysis critical error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
@@ -1024,7 +1024,7 @@
         "URS-001"
       ],
       "details": "Performance test Frontend Load Time Analysis failed",
-      "timestamp": "2025-06-23T03:52:14.321Z",
+      "timestamp": "2025-06-23T03:54:14.071Z",
       "fixesApplied": [
         "Applied automated fix for Frontend Load Time Analysis"
       ]
@@ -1033,7 +1033,7 @@
       "testSuite": "Performance & Load Testing",
       "testCase": "Memory Usage Optimization",
       "status": "CRITICAL",
-      "responseTime": 10,
+      "responseTime": 8,
       "evidence": [],
       "criticalIssues": [
         "Performance test Memory Usage Optimization critical error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
@@ -1043,14 +1043,14 @@
         "URS-001"
       ],
       "details": "Performance test Memory Usage Optimization failed",
-      "timestamp": "2025-06-23T03:52:14.332Z",
+      "timestamp": "2025-06-23T03:54:14.079Z",
       "fixesApplied": []
     },
     {
       "testSuite": "Performance & Load Testing",
       "testCase": "Concurrent User Testing",
       "status": "CRITICAL",
-      "responseTime": 10,
+      "responseTime": 6,
       "evidence": [],
       "criticalIssues": [
         "Performance test Concurrent User Testing critical error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
@@ -1060,14 +1060,14 @@
         "URS-001"
       ],
       "details": "Performance test Concurrent User Testing failed",
-      "timestamp": "2025-06-23T03:52:14.342Z",
+      "timestamp": "2025-06-23T03:54:14.085Z",
       "fixesApplied": []
     },
     {
       "testSuite": "Performance & Load Testing",
       "testCase": "Throughput Analysis",
       "status": "CRITICAL",
-      "responseTime": 11,
+      "responseTime": 7,
       "evidence": [],
       "criticalIssues": [
         "Performance test Throughput Analysis critical error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
@@ -1077,14 +1077,14 @@
         "URS-001"
       ],
       "details": "Performance test Throughput Analysis failed",
-      "timestamp": "2025-06-23T03:52:14.353Z",
+      "timestamp": "2025-06-23T03:54:14.092Z",
       "fixesApplied": []
     },
     {
       "testSuite": "Performance & Load Testing",
       "testCase": "Resource Utilization",
       "status": "CRITICAL",
-      "responseTime": 7,
+      "responseTime": 6,
       "evidence": [],
       "criticalIssues": [
         "Performance test Resource Utilization critical error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
@@ -1094,7 +1094,7 @@
         "URS-001"
       ],
       "details": "Performance test Resource Utilization failed",
-      "timestamp": "2025-06-23T03:52:14.360Z",
+      "timestamp": "2025-06-23T03:54:14.099Z",
       "fixesApplied": []
     },
     {
@@ -1111,7 +1111,7 @@
         "URS-001"
       ],
       "details": "Performance test Scalability Assessment failed",
-      "timestamp": "2025-06-23T03:52:14.368Z",
+      "timestamp": "2025-06-23T03:54:14.107Z",
       "fixesApplied": []
     },
     {
@@ -1131,7 +1131,7 @@
         "URS-002"
       ],
       "details": "Compliance test ISO 13485:2016 Compliance completed",
-      "timestamp": "2025-06-23T03:52:14.369Z",
+      "timestamp": "2025-06-23T03:54:14.108Z",
       "fixesApplied": []
     },
     {
@@ -1151,7 +1151,7 @@
         "URS-002"
       ],
       "details": "Compliance test 21 CFR Part 11 Compliance completed",
-      "timestamp": "2025-06-23T03:52:14.370Z",
+      "timestamp": "2025-06-23T03:54:14.108Z",
       "fixesApplied": []
     },
     {
@@ -1171,7 +1171,7 @@
         "URS-002"
       ],
       "details": "Compliance test IEC 62304 Compliance completed",
-      "timestamp": "2025-06-23T03:52:14.370Z",
+      "timestamp": "2025-06-23T03:54:14.108Z",
       "fixesApplied": []
     },
     {
@@ -1189,7 +1189,7 @@
         "URS-002"
       ],
       "details": "Compliance test EU MDR Compliance completed",
-      "timestamp": "2025-06-23T03:52:14.370Z",
+      "timestamp": "2025-06-23T03:54:14.108Z",
       "fixesApplied": []
     },
     {
@@ -1207,7 +1207,7 @@
         "URS-002"
       ],
       "details": "Compliance test Audit Trail Compliance completed",
-      "timestamp": "2025-06-23T03:52:14.370Z",
+      "timestamp": "2025-06-23T03:54:14.108Z",
       "fixesApplied": []
     },
     {
@@ -1225,7 +1225,7 @@
         "URS-002"
       ],
       "details": "Compliance test Electronic Signature Compliance completed",
-      "timestamp": "2025-06-23T03:52:14.370Z",
+      "timestamp": "2025-06-23T03:54:14.108Z",
       "fixesApplied": []
     },
     {
@@ -1243,7 +1243,7 @@
         "URS-002"
       ],
       "details": "Compliance test Data Integrity Compliance completed",
-      "timestamp": "2025-06-23T03:52:14.370Z",
+      "timestamp": "2025-06-23T03:54:14.108Z",
       "fixesApplied": []
     },
     {
@@ -1261,7 +1261,7 @@
         "URS-002"
       ],
       "details": "Compliance test Documentation Compliance completed",
-      "timestamp": "2025-06-23T03:52:14.371Z",
+      "timestamp": "2025-06-23T03:54:14.109Z",
       "fixesApplied": []
     },
     {
@@ -1282,14 +1282,14 @@
         "URS-001"
       ],
       "details": "URS requirement URS-001 validation completed",
-      "timestamp": "2025-06-23T03:52:14.371Z",
+      "timestamp": "2025-06-23T03:54:14.109Z",
       "fixesApplied": []
     },
     {
       "testSuite": "URS Requirements Validation",
       "testCase": "URS-002: Design Control Process Management (ISO 13485:7.3)",
       "status": "PASSED",
-      "responseTime": 0,
+      "responseTime": 1,
       "evidence": [
         "17/17 related tests passed",
         "Priority: High",
@@ -1301,7 +1301,7 @@
         "URS-002"
       ],
       "details": "URS requirement URS-002 validation completed",
-      "timestamp": "2025-06-23T03:52:14.372Z",
+      "timestamp": "2025-06-23T03:54:14.110Z",
       "fixesApplied": []
     },
     {
@@ -1322,7 +1322,7 @@
         "URS-003"
       ],
       "details": "URS requirement URS-003 validation completed",
-      "timestamp": "2025-06-23T03:52:14.372Z",
+      "timestamp": "2025-06-23T03:54:14.110Z",
       "fixesApplied": []
     },
     {
@@ -1341,7 +1341,7 @@
         "URS-004"
       ],
       "details": "URS requirement URS-004 validation completed",
-      "timestamp": "2025-06-23T03:52:14.372Z",
+      "timestamp": "2025-06-23T03:54:14.110Z",
       "fixesApplied": []
     },
     {
@@ -1362,14 +1362,14 @@
         "URS-005"
       ],
       "details": "URS requirement URS-005 validation completed",
-      "timestamp": "2025-06-23T03:52:14.372Z",
+      "timestamp": "2025-06-23T03:54:14.110Z",
       "fixesApplied": []
     },
     {
       "testSuite": "System-Level Functional Testing",
       "testCase": "Complete User Workflow Testing",
       "status": "FAILED",
-      "responseTime": 18,
+      "responseTime": 7,
       "evidence": [],
       "criticalIssues": [
         "Functional test Complete User Workflow Testing error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
@@ -1379,7 +1379,7 @@
         "URS-001"
       ],
       "details": "Functional test Complete User Workflow Testing failed",
-      "timestamp": "2025-06-23T03:52:14.391Z",
+      "timestamp": "2025-06-23T03:54:14.118Z",
       "fixesApplied": []
     },
     {
@@ -1396,7 +1396,7 @@
         "URS-001"
       ],
       "details": "Functional test Module Integration Testing completed",
-      "timestamp": "2025-06-23T03:52:14.392Z",
+      "timestamp": "2025-06-23T03:54:14.118Z",
       "fixesApplied": []
     },
     {
@@ -1413,7 +1413,7 @@
         "URS-001"
       ],
       "details": "Functional test Data Flow Validation completed",
-      "timestamp": "2025-06-23T03:52:14.392Z",
+      "timestamp": "2025-06-23T03:54:14.119Z",
       "fixesApplied": []
     },
     {
@@ -1430,7 +1430,7 @@
         "URS-001"
       ],
       "details": "Functional test Business Logic Testing completed",
-      "timestamp": "2025-06-23T03:52:14.393Z",
+      "timestamp": "2025-06-23T03:54:14.119Z",
       "fixesApplied": []
     },
     {
@@ -1447,7 +1447,7 @@
         "URS-001"
       ],
       "details": "Functional test Error Recovery Testing completed",
-      "timestamp": "2025-06-23T03:52:14.393Z",
+      "timestamp": "2025-06-23T03:54:14.119Z",
       "fixesApplied": []
     },
     {
@@ -1464,7 +1464,7 @@
         "URS-001"
       ],
       "details": "Functional test User Interface Testing completed",
-      "timestamp": "2025-06-23T03:52:14.393Z",
+      "timestamp": "2025-06-23T03:54:14.119Z",
       "fixesApplied": []
     },
     {
@@ -1481,7 +1481,7 @@
         "URS-001"
       ],
       "details": "Functional test Reporting Functionality completed",
-      "timestamp": "2025-06-23T03:52:14.393Z",
+      "timestamp": "2025-06-23T03:54:14.119Z",
       "fixesApplied": []
     },
     {
@@ -1498,7 +1498,7 @@
         "URS-001"
       ],
       "details": "Functional test System Administration completed",
-      "timestamp": "2025-06-23T03:52:14.393Z",
+      "timestamp": "2025-06-23T03:54:14.119Z",
       "fixesApplied": []
     }
   ],
