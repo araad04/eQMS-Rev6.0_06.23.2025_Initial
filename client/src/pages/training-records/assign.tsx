@@ -252,8 +252,8 @@ export default function TrainingAssignmentPage() {
                         </FormControl>
                         <SelectContent>
                           {users.map((user) => (
-                            <SelectItem key={user.id} value={user.id}>
-                              {user.name}
+                            <SelectItem key={user.id} value={user.id.toString()}>
+                              {user.firstName} {user.lastName} ({user.username})
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -280,7 +280,7 @@ export default function TrainingAssignmentPage() {
                         </FormControl>
                         <SelectContent>
                           {trainingModules.map((module) => (
-                            <SelectItem key={module.id} value={module.id}>
+                            <SelectItem key={module.id} value={module.id.toString()}>
                               {module.name} ({module.type})
                             </SelectItem>
                           ))}
