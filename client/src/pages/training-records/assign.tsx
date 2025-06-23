@@ -70,6 +70,12 @@ export default function TrainingAssignmentPage() {
     enabled: true
   });
 
+  // Fetch organizational structure to prioritize employees with positions
+  const { data: orgStructure = [] } = useQuery({
+    queryKey: ['/api/organizational/structure'],
+    enabled: true
+  });
+
   // Fetch authentic training modules from API
   const { data: trainingModules = [] } = useQuery({
     queryKey: ['/api/training/modules'],
@@ -251,7 +257,24 @@ export default function TrainingAssignmentPage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {users.map((user) => (
+                          {/* Prioritize employees assigned to organizational positions */}
+                          {orgStructure.filter(item => item.user).length > 0 && (
+                            <>
+                              <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
+                                Organizational Chart Employees
+                              </div>
+                              {orgStructure.filter(item => item.user).map((item) => (
+                                <SelectItem key={item.user.id} value={item.user.id.toString()}>
+                                  {item.user.firstName} {item.user.lastName} - {item.position?.title} ({item.user.department})
+                                </SelectItem>
+                              ))}
+                              <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
+                                Other Employees
+                              </div>
+                            </>
+                          )}
+                          {/* Show all users not in organizational chart */}
+                          {users.filter(user => !orgStructure.some(item => item.user?.id === user.id)).map((user) => (
                             <SelectItem key={user.id} value={user.id.toString()}>
                               {user.firstName} {user.lastName} ({user.username})
                             </SelectItem>
@@ -259,7 +282,16 @@ export default function TrainingAssignmentPage() {
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        Select the employee who will receive this training assignment.
+                        Select the employee who will receive this training assignment. 
+                        Employees assigned to organizational positions are prioritized at the top.
+                        {orgStructure.filter(item => item.user).length === 0 && (
+                          <span className="block mt-1 text-amber-600">
+                            No employees are assigned to organizational positions yet. 
+                            <a href="/organizational-chart" className="text-blue-600 hover:underline ml-1">
+                              Visit Organizational Chart
+                            </a> to assign positions.
+                          </span>
+                        )}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -353,7 +385,88 @@ export default function TrainingAssignmentPage() {
             </Form>
           </CardContent>
         </Card>
+
+        {/* Recent Training Assignments with Organizational Context */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Recent Training Assignments
+            </CardTitle>
+            <CardDescription>
+              Training assignments showing organizational chart integration
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <RecentTrainingAssignments orgStructure={orgStructure} />
+          </CardContent>
+        </Card>
       </div>
     </>
+  );
+}
+
+// Component to display recent training assignments with organizational context
+function RecentTrainingAssignments({ orgStructure }: { orgStructure: any[] }) {
+  const { data: trainingRecords = [] } = useQuery({
+    queryKey: ['/api/training-records'],
+    enabled: true
+  });
+
+  // Get the most recent 5 assignments
+  const recentAssignments = trainingRecords
+    .filter((record: any) => record.status === 'assigned')
+    .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 5);
+
+  if (recentAssignments.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        No recent training assignments found. Create some assignments to see them here.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {recentAssignments.map((record: any) => {
+        // Find if this user is in the organizational chart
+        const orgPosition = orgStructure.find(item => item.user?.id === record.userId);
+        
+        return (
+          <div key={record.id} className="flex items-center justify-between p-4 border rounded-lg bg-card">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <User className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <div className="font-medium">
+                  {record.user?.firstName} {record.user?.lastName}
+                  {orgPosition && (
+                    <span className="ml-2 text-sm text-blue-600 font-medium">
+                      • {orgPosition.position?.title}
+                    </span>
+                  )}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {record.trainingModule?.title}
+                  {orgPosition && (
+                    <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
+                      Org Chart Employee
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-sm font-medium capitalize">{record.status}</div>
+              <div className="text-xs text-muted-foreground">
+                Due: {new Date(record.dueDate).toLocaleDateString()}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }

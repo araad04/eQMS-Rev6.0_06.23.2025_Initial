@@ -269,7 +269,20 @@ export default function SupplierManagementPage() {
           </div>
         ) : activeTab === 'demo' ? (
           <div className="space-y-6">
-            <DemoDataCreator />
+            <Card>
+              <CardHeader>
+                <CardTitle>Demo Data</CardTitle>
+                <CardDescription>
+                  Demo data functionality has been disabled. Only authentic supplier data is displayed.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>Demo data creation is not available in production mode.</p>
+                  <p className="mt-2">Please use the authentic supplier management features.</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         ) : (
           /* Suppliers Table */
