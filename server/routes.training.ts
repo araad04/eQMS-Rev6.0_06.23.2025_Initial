@@ -181,6 +181,16 @@ trainingRouter.post("/assign", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Training module not found" });
     }
     
+    // Organizational structure integration: Validate employee is in authorized organizational unit
+    const organizationalValidation = await validateEmployeeOrganizationalContext(employee, module);
+    
+    if (!organizationalValidation.isValid) {
+      return res.status(403).json({ 
+        error: "Organizational authorization required",
+        details: `Employee role '${organizationalValidation.employeeRole}' not authorized for ${module.type} training. Required roles: ${organizationalValidation.authorizedRoles.join(', ')}`
+      });
+    }
+    
     // Check existing assignments to prevent duplicates
     const existingAssignment = await db.query.trainingRecords.findFirst({
       where: and(
@@ -197,7 +207,7 @@ trainingRouter.post("/assign", async (req: Request, res: Response) => {
       });
     }
     
-    // Create the training record
+    // Create the training record with organizational context
     const [trainingRecord] = await db
       .insert(trainingRecords)
       .values({
@@ -205,11 +215,8 @@ trainingRouter.post("/assign", async (req: Request, res: Response) => {
         moduleId: validatedData.moduleId,
         assignedBy,
         dueDate: validatedData.dueDate,
-        completedDate: null,
-        expiryDate,
         status: "assigned",
-        score: null,
-        comments: validatedData.comments,
+        comments: validatedData.comments || `Assigned through organizational structure - Role: ${organizationalValidation.employeeRole}, Department: ${organizationalValidation.organizationalUnit}`,
       })
       .returning();
     
