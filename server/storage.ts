@@ -155,6 +155,9 @@ export interface IStorage {
   createManagementReviewInput(input: any): Promise<any>;
   getManagementReviewActionItems(reviewId: number): Promise<any[]>;
   createManagementReviewActionItem(item: any): Promise<any>;
+
+  // Supplier Management
+  getSuppliers(): Promise<any[]>;
   
   // Measurement & Analysis - Complaints
   getComplaints(): Promise<Complaint[]>;

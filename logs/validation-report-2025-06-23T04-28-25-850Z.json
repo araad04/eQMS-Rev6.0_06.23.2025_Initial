@@ -1,0 +1,362 @@
+{
+  "protocolId": "VAL-eQMS-QA-2025-001",
+  "timestamp": "2025-06-23T04:28:25.850Z",
+  "executionTime": "1328ms",
+  "summary": {
+    "totalTests": 20,
+    "passedTests": 20,
+    "failedTests": 0,
+    "successRate": "100.0%",
+    "criticalIssues": 0,
+    "appliedFixes": 0
+  },
+  "results": [
+    {
+      "module": "Code Validation",
+      "testCase": "Frontend React Hook Form Validation",
+      "status": "PASSED",
+      "responseTime": 207,
+      "evidence": [
+        "Form component client/src/pages/capa-detail.tsx accessible",
+        "Form component client/src/pages/document-control/create.tsx accessible",
+        "Form component client/src/pages/audit-management/create.tsx accessible",
+        "Form component client/src/pages/supplier-management/create.tsx accessible"
+      ],
+      "criticalIssues": [],
+      "fixes": [],
+      "traceabilityLinks": [],
+      "timestamp": "2025-06-23T04:28:24.525Z"
+    },
+    {
+      "module": "Code Validation",
+      "testCase": "Zod Schema Consistency Check",
+      "status": "PASSED",
+      "responseTime": 113,
+      "evidence": [
+        "Zod schemas loading successfully"
+      ],
+      "criticalIssues": [],
+      "fixes": [],
+      "traceabilityLinks": [
+        "URS-MD-eQMS-001-SCHEMA"
+      ],
+      "timestamp": "2025-06-23T04:28:24.732Z"
+    },
+    {
+      "module": "Code Validation",
+      "testCase": "Tailwind & Shadcn/ui Component Integrity",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Tailwind & Shadcn/ui Component Integrity validation completed"
+      ],
+      "criticalIssues": [],
+      "fixes": [],
+      "traceabilityLinks": [],
+      "timestamp": "2025-06-23T04:28:24.845Z"
+    },
+    {
+      "module": "Code Validation",
+      "testCase": "REST API Schema Validation",
+      "status": "PASSED",
+      "responseTime": 417,
+      "evidence": [
+        "API endpoint /api/documents responding correctly",
+        "API endpoint /api/capas responding correctly",
+        "API endpoint /api/audits responding correctly",
+        "API endpoint /api/suppliers responding correctly",
+        "API endpoint /api/training/modules responding correctly",
+        "API endpoint /api/design-projects responding correctly"
+      ],
+      "criticalIssues": [],
+      "fixes": [],
+      "traceabilityLinks": [
+        "URS-MD-eQMS-001-API-DOCUMENTS",
+        "URS-MD-eQMS-001-API-CAPAS",
+        "URS-MD-eQMS-001-API-AUDITS",
+        "URS-MD-eQMS-001-API-SUPPLIERS",
+        "URS-MD-eQMS-001-API-TRAINING/MODULES",
+        "URS-MD-eQMS-001-API-DESIGN-PROJECTS"
+      ],
+      "timestamp": "2025-06-23T04:28:24.845Z"
+    },
+    {
+      "module": "Code Validation",
+      "testCase": "Drizzle ORM Model Consistency",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Drizzle ORM Model Consistency validation completed"
+      ],
+      "criticalIssues": [],
+      "fixes": [],
+      "traceabilityLinks": [],
+      "timestamp": "2025-06-23T04:28:25.262Z"
+    },
+    {
+      "module": "Code Validation",
+      "testCase": "TypeScript Type Safety Check",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "TypeScript Type Safety Check validation completed"
+      ],
+      "criticalIssues": [],
+      "fixes": [],
+      "traceabilityLinks": [],
+      "timestamp": "2025-06-23T04:28:25.262Z"
+    },
+    {
+      "module": "Code Validation",
+      "testCase": "Database Schema Integrity",
+      "status": "PASSED",
+      "responseTime": 64,
+      "evidence": [
+        "Database schema validation completed"
+      ],
+      "criticalIssues": [],
+      "fixes": [],
+      "traceabilityLinks": [
+        "URS-MD-eQMS-001-DATABASE"
+      ],
+      "timestamp": "2025-06-23T04:28:25.263Z"
+    },
+    {
+      "module": "Document Control",
+      "testCase": "Functional Workflow Test",
+      "status": "PASSED",
+      "responseTime": 190,
+      "evidence": [
+        "Document Control endpoint /api/documents functional",
+        "Document Control endpoint /api/iso13485-documents functional",
+        "Document Control endpoint /api/iso13485-documents/analytics functional"
+      ],
+      "criticalIssues": [],
+      "fixes": [],
+      "traceabilityLinks": [
+        "URS-MD-eQMS-001-DOC-CONTROL",
+        "URS-MD-eQMS-001-DOC-CONTROL",
+        "URS-MD-eQMS-001-DOC-CONTROL"
+      ],
+      "timestamp": "2025-06-23T04:28:25.328Z"
+    },
+    {
+      "module": "CAPA Management",
+      "testCase": "Functional Workflow Test",
+      "status": "PASSED",
+      "responseTime": 63,
+      "evidence": [
+        "CAPA workflow functional - 1 CAPAs loaded"
+      ],
+      "criticalIssues": [],
+      "fixes": [],
+      "traceabilityLinks": [
+        "URS-MD-eQMS-001-CAPA-MGMT"
+      ],
+      "timestamp": "2025-06-23T04:28:25.518Z"
+    },
+    {
+      "module": "Internal Audits",
+      "testCase": "Functional Workflow Test",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Internal Audits generic workflow test completed"
+      ],
+      "criticalIssues": [],
+      "fixes": [],
+      "traceabilityLinks": [
+        "URS-MD-eQMS-001-INTERNAL-AUDITS"
+      ],
+      "timestamp": "2025-06-23T04:28:25.581Z"
+    },
+    {
+      "module": "Risk Management",
+      "testCase": "Functional Workflow Test",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Risk Management generic workflow test completed"
+      ],
+      "criticalIssues": [],
+      "fixes": [],
+      "traceabilityLinks": [
+        "URS-MD-eQMS-001-RISK-MANAGEMENT"
+      ],
+      "timestamp": "2025-06-23T04:28:25.581Z"
+    },
+    {
+      "module": "Design Control",
+      "testCase": "Functional Workflow Test",
+      "status": "PASSED",
+      "responseTime": 71,
+      "evidence": [
+        "Design Control endpoint /api/design-projects functional",
+        "Design Control endpoint /api/design-projects-flow functional",
+        "Design Control endpoint /api/design-plan functional"
+      ],
+      "criticalIssues": [],
+      "fixes": [],
+      "traceabilityLinks": [
+        "URS-MD-eQMS-001-DESIGN-CONTROL",
+        "URS-MD-eQMS-001-DESIGN-CONTROL",
+        "URS-MD-eQMS-001-DESIGN-CONTROL"
+      ],
+      "timestamp": "2025-06-23T04:28:25.581Z"
+    },
+    {
+      "module": "Supplier Management",
+      "testCase": "Functional Workflow Test",
+      "status": "PASSED",
+      "responseTime": 70,
+      "evidence": [
+        "Supplier Management workflow functional"
+      ],
+      "criticalIssues": [],
+      "fixes": [],
+      "traceabilityLinks": [
+        "URS-MD-eQMS-001-SUPPLIER-MGMT"
+      ],
+      "timestamp": "2025-06-23T04:28:25.652Z"
+    },
+    {
+      "module": "Training Records",
+      "testCase": "Functional Workflow Test",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Training Records generic workflow test completed"
+      ],
+      "criticalIssues": [],
+      "fixes": [],
+      "traceabilityLinks": [
+        "URS-MD-eQMS-001-TRAINING-RECORDS"
+      ],
+      "timestamp": "2025-06-23T04:28:25.722Z"
+    },
+    {
+      "module": "Management Review",
+      "testCase": "Functional Workflow Test",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Management Review generic workflow test completed"
+      ],
+      "criticalIssues": [],
+      "fixes": [],
+      "traceabilityLinks": [
+        "URS-MD-eQMS-001-MANAGEMENT-REVIEW"
+      ],
+      "timestamp": "2025-06-23T04:28:25.722Z"
+    },
+    {
+      "module": "Complaint Handling",
+      "testCase": "Functional Workflow Test",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Complaint Handling generic workflow test completed"
+      ],
+      "criticalIssues": [],
+      "fixes": [],
+      "traceabilityLinks": [
+        "URS-MD-eQMS-001-COMPLAINT-HANDLING"
+      ],
+      "timestamp": "2025-06-23T04:28:25.722Z"
+    },
+    {
+      "module": "System Traceability",
+      "testCase": "URS-DDS Traceability Matrix",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Design Control traceability verified - 1 projects",
+        "URS requirement URS-MD-eQMS-001-CORE traced",
+        "URS requirement URS-MD-eQMS-001-DESIGN-CONTROL traced",
+        "URS requirement URS-MD-eQMS-001-21-CFR-PART-11 traced",
+        "URS requirement URS-MD-eQMS-001-DOC-CONTROL traced",
+        "URS requirement URS-MD-eQMS-001-CAPA-MGMT traced"
+      ],
+      "criticalIssues": [],
+      "fixes": [],
+      "traceabilityLinks": [
+        "URS-MD-eQMS-001-TRACEABILITY",
+        "URS-MD-eQMS-001-CORE",
+        "URS-MD-eQMS-001-DESIGN-CONTROL",
+        "URS-MD-eQMS-001-21-CFR-PART-11",
+        "URS-MD-eQMS-001-DOC-CONTROL",
+        "URS-MD-eQMS-001-CAPA-MGMT"
+      ],
+      "timestamp": "2025-06-23T04:28:25.723Z"
+    },
+    {
+      "module": "Document Export",
+      "testCase": "PDF Export Functions",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "PDF export endpoint /api/capas/1/export available",
+        "PDF export endpoint /api/audits/export available",
+        "PDF export endpoint /api/documents/export available",
+        "PDF export endpoint /api/design-projects/export available"
+      ],
+      "criticalIssues": [],
+      "fixes": [],
+      "traceabilityLinks": [
+        "URS-MD-eQMS-001-EXPORT",
+        "URS-MD-eQMS-001-EXPORT",
+        "URS-MD-eQMS-001-EXPORT",
+        "URS-MD-eQMS-001-EXPORT"
+      ],
+      "timestamp": "2025-06-23T04:28:25.726Z"
+    },
+    {
+      "module": "RBAC Security",
+      "testCase": "Role-Based Access Control",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Role admin access patterns validated",
+        "Role auditor access patterns validated",
+        "Role operator access patterns validated",
+        "Role reviewer access patterns validated",
+        "Role supplier access patterns validated",
+        "Role compliance access patterns validated"
+      ],
+      "criticalIssues": [],
+      "fixes": [],
+      "traceabilityLinks": [
+        "URS-MD-eQMS-001-RBAC",
+        "URS-MD-eQMS-001-RBAC",
+        "URS-MD-eQMS-001-RBAC",
+        "URS-MD-eQMS-001-RBAC",
+        "URS-MD-eQMS-001-RBAC",
+        "URS-MD-eQMS-001-RBAC"
+      ],
+      "timestamp": "2025-06-23T04:28:25.726Z"
+    },
+    {
+      "module": "Performance & Security",
+      "testCase": "System Performance Metrics",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "API response time: 122ms (acceptable)"
+      ],
+      "criticalIssues": [],
+      "fixes": [],
+      "traceabilityLinks": [
+        "URS-MD-eQMS-001-PERFORMANCE"
+      ],
+      "timestamp": "2025-06-23T04:28:25.727Z"
+    }
+  ],
+  "criticalIssues": [],
+  "appliedFixes": [],
+  "traceabilityMap": {},
+  "complianceStatus": {
+    "iso13485": true,
+    "iec62304": true,
+    "cfr21Part11": true
+  }
+}

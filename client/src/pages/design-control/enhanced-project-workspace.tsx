@@ -412,20 +412,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
                         <DialogTitle>Submit Phase Review</DialogTitle>
                       </DialogHeader>
                       <div className="space-y-4">
-                        <div>
-                          <Label htmlFor="review-phase">Phase</Label>
-                          <select
-                            id="review-phase"
-                            className="w-full p-2 border rounded"
-                            value={phaseReviewForm.phaseId}
-                            onChange={(e) => setPhaseReviewForm({ ...phaseReviewForm, phaseId: e.target.value })}
-                          >
-                            <option value="">Select Phase</option>
-                            {phases.map((phase: any) => (
-                              <option key={phase.id} value={phase.id}>{phase.name}</option>
-                            ))}
-                          </select>
-                        </div>
+                        
                         <div>
                           <Label htmlFor="review-decision">Decision</Label>
                           <select
