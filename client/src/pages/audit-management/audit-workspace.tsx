@@ -487,20 +487,136 @@ export default function AuditWorkspace() {
         <TabsContent value="findings">
           <Card>
             <CardHeader>
-              <CardTitle>Audit Findings</CardTitle>
+              <CardTitle className="flex items-center justify-between">
+                <span>Audit Findings & CAPAs</span>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                    <AlertTriangle className="h-3 w-3 mr-1" />
+                    2 Findings
+                  </Badge>
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                    <FileText className="h-3 w-3 mr-1" />
+                    1 CAPA
+                  </Badge>
+                </div>
+              </CardTitle>
               <CardDescription>
-                Document findings, non-conformances, and opportunities for improvement
+                Document findings, non-conformities, and automatically generate CAPAs for regulatory compliance
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-8">
-                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No Findings Yet</h3>
-                <p className="text-gray-600 mb-4">Findings will be documented during audit execution.</p>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Finding
-                </Button>
+              <div className="space-y-4">
+                {/* Sample Finding with CAPA Integration */}
+                <div className="border rounded-lg p-4 bg-red-50 border-red-200">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="h-5 w-5 text-red-600" />
+                      <span className="font-medium text-red-900">Critical Non-Conformance</span>
+                      <Badge variant="secondary" className="bg-red-100 text-red-800">
+                        NC-001
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50">
+                        <FileText className="h-4 w-4 mr-2" />
+                        Create CAPA
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit
+                      </Button>
+                    </div>
+                  </div>
+                  <h4 className="font-medium mb-2">Equipment Calibration Records Missing</h4>
+                  <p className="text-sm text-gray-700 mb-3">
+                    Critical measurement equipment (ID: CAL-2025-001) lacks calibration records for the past 6 months, 
+                    violating ISO 13485:2016 Section 7.6 requirements.
+                  </p>
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <span className="font-medium text-gray-600">Clause:</span>
+                      <p>ISO 13485:7.6</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-600">Risk Level:</span>
+                      <p className="text-red-600">High</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-600">Response Required:</span>
+                      <p className="text-red-600">Within 30 days</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sample Finding with Existing CAPA */}
+                <div className="border rounded-lg p-4 bg-yellow-50 border-yellow-200">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="h-5 w-5 text-yellow-600" />
+                      <span className="font-medium text-yellow-900">Minor Non-Conformance</span>
+                      <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                        NC-002
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-blue-600 text-white">
+                        <FileText className="h-3 w-3 mr-1" />
+                        CAPA-2025-001
+                      </Badge>
+                      <Button variant="outline" size="sm">
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        View CAPA
+                      </Button>
+                    </div>
+                  </div>
+                  <h4 className="font-medium mb-2">Document Control Procedure Gaps</h4>
+                  <p className="text-sm text-gray-700 mb-3">
+                    Document review periods exceed established timelines. CAPA assigned to Quality Manager for 
+                    procedure review and system improvements.
+                  </p>
+                  <div className="grid grid-cols-4 gap-4 text-sm">
+                    <div>
+                      <span className="font-medium text-gray-600">CAPA Status:</span>
+                      <p className="text-blue-600">In Progress</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-600">Assigned To:</span>
+                      <p>Quality Manager</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-600">Due Date:</span>
+                      <p>2025-07-15</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-600">Progress:</span>
+                      <p className="text-green-600">60%</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick CAPA Generation Interface */}
+                <div className="border-2 border-dashed border-gray-200 rounded-lg p-6">
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-2 mb-3">
+                      <Plus className="h-8 w-8 text-gray-400" />
+                      <FileText className="h-8 w-8 text-blue-500" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Add Finding & Auto-Generate CAPA</h3>
+                    <p className="text-gray-600 mb-4">
+                      Document new findings and automatically create linked CAPAs for regulatory compliance
+                    </p>
+                    <div className="flex items-center justify-center gap-3">
+                      <Button>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Finding
+                      </Button>
+                      <Button variant="outline">
+                        <FileText className="h-4 w-4 mr-2" />
+                        Quick CAPA
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
