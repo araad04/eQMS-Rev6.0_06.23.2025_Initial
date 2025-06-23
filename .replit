@@ -1,0 +1,620 @@
+modules = ["nodejs-20", "web", "postgresql-16", "python-3.11"]
+run = "npm run dev"
+hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
+
+[nix]
+channel = "stable-24_05"
+packages = ["jq"]
+
+[deployment]
+deploymentTarget = "autoscale"
+build = ["npm", "run", "build"]
+run = ["npm", "run", "start"]
+
+[[ports]]
+localPort = 3000
+externalPort = 3001
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 5001
+externalPort = 3000
+
+[[ports]]
+localPort = 5002
+externalPort = 3002
+
+[workflows]
+runButton = "Start Application"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Start Dev Server"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=development tsx watch server/index.ts"
+
+[[workflows.workflow]]
+name = "Run Smoke Tests"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest smoke.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow]]
+name = "Extended Quantum Test Suite"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest quantum-decoherence.test.ts system-robustness.test.ts --coverage --threads=false"
+
+[[workflows.workflow]]
+name = "Full System Test Suite"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest system-stress.test.ts system-robustness.test.ts system-health.test.ts --no-threads --coverage --reporter=verbose --testTimeout=10800000"
+
+[[workflows.workflow]]
+name = "Full System Test Run"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest smoke.test.ts auth-comprehensive.test.ts system-health.test.ts binary-security.test.ts --coverage --reporter=verbose --testTimeout=10800000"
+
+[[workflows.workflow]]
+name = "CAPA Module Test Suite"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest capa-regression.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow]]
+name = "Full System Regression"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest system-stress.test.ts system-robustness.test.ts system-health.test.ts binary-security.test.ts --no-threads --coverage --reporter=verbose --testTimeout=10800000"
+
+[[workflows.workflow]]
+name = "Backward Test Suite"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest auth-regression.test.ts"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest quantum-decoherence.test.ts quantum-system.test.ts"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest system-health.test.ts system-robustness.test.ts"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest capa-regression.test.ts system-validation.test.ts"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest schema-validation.test.ts form-validation.test.ts"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest smoke.test.ts"
+
+[[workflows.workflow]]
+name = "Full System Regression Scan"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest system-stress.test.ts system-robustness.test.ts system-health.test.ts binary-security.test.ts quantum-system.test.ts quantum-decoherence.test.ts --no-threads --coverage --reporter=verbose --testTimeout=10800000"
+
+[[workflows.workflow]]
+name = "CAPA Comprehensive Test Suite"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest capa-regression.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest auth-regression.test.ts --coverage --reporter=verbose "
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest form-validation.test.ts schema-validation.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest system-validation.test.ts system-requirements.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow]]
+name = "Deep Penetration Test Suite"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest binary-security.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest system-robustness.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest quantum-system.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest auth-regression.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest system-health.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow]]
+name = "CAPA Regression Suite"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest capa-regression.test.ts complaint-regression.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow]]
+name = "Design Control Suite"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest design-control-system.test.ts design-control-integration.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow]]
+name = "Initial Smoke Test"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest smoke.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow]]
+name = "Validation Test Suite"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest form-validation.test.ts schema-validation.test.ts system-validation.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow]]
+name = "System Health Suite"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest system-health.test.ts system-robustness.test.ts system-stress.test.ts --coverage --reporter=verbose --testTimeout=10800000"
+
+[[workflows.workflow]]
+name = "Auth Coverage Test"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest auth-comprehensive.test.ts auth-regression.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow]]
+name = "Auth Test Suite"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest auth-comprehensive.test.ts auth-regression.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow]]
+name = "Quantum Edge Testing"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest quantum-decoherence.test.ts quantum-penetration.test.ts --coverage --reporter=verbose --no-threads"
+
+[[workflows.workflow]]
+name = "System Stress Analysis"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest system-stress.test.ts system-health.test.ts --coverage --reporter=verbose --no-threads --testTimeout=10800000"
+
+[[workflows.workflow]]
+name = "Deep System Analysis"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest quantum-system.test.ts system-health.test.ts binary-security.test.ts --coverage --reporter=verbose --no-threads --testTimeout=10800000"
+
+[[workflows.workflow]]
+name = "Initial System Check"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest smoke.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow]]
+name = "Database Validation Suite"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest schema-validation.test.ts form-validation.test.ts system-validation.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest system-health.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest auth-comprehensive.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow]]
+name = "Quantum Deep Analysis"
+author = 36632825
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest quantum-system.test.ts quantum-decoherence.test.ts quantum-penetration.test.ts --coverage --reporter=verbose --no-threads --testTimeout=10800000"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest system-robustness.test.ts system-stress.test.ts system-health.test.ts --coverage --reporter=verbose --no-threads --testTimeout=10800000"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest binary-security.test.ts --coverage --reporter=verbose --no-threads"
+
+[[workflows.workflow]]
+name = "Full System Verification"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest smoke.test.ts system-health.test.ts quantum-system.test.ts --coverage --reporter=verbose --testTimeout=10800000"
+
+[[workflows.workflow]]
+name = "SAP Integration Test Suite"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest smoke.test.ts system-regression.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow]]
+name = "Run Tests"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest smoke.test.ts auth-comprehensive.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow]]
+name = "Deep Smoke Test"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest smoke.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow]]
+name = "Full Test Suite"
+author = 36632825
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest smoke.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest auth-comprehensive.test.ts auth-regression.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest system-health.test.ts system-validation.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest binary-security.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow]]
+name = "Core Test Suite"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest smoke.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest auth-comprehensive.test.ts auth-regression.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest system-health.test.ts system-validation.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow]]
+name = "Progressive Test Suite"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest smoke.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest auth-comprehensive.test.ts system-health.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest system-validation.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow]]
+name = "Run"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
+[[workflows.workflow]]
+name = "Start Clean Server"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "kill -9 $(lsof -t -i:5000) 2>/dev/null || true"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=development tsx server/index.ts"
+
+[[workflows.workflow]]
+name = "Start Application"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
+[[workflows.workflow]]
+name = "Comprehensive Functional Test Suite"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest tests/functional/comprehensive-eqms-functional-test.ts --coverage --reporter=verbose --testTimeout=120000"
+
+[[workflows.workflow]]
+name = "eQMS Comprehensive Functional Test Suite"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest tests/functional/comprehensive-eqms-functional-test.ts --coverage --reporter=verbose --testTimeout=300000"
+
+[[workflows.workflow]]
+name = "Professional Validation Suite"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest professional-test-execution.ts --coverage --reporter=verbose --testTimeout=300000"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest tests/functional/comprehensive-eqms-functional-test.ts --coverage --reporter=verbose --testTimeout=300000"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest client/src/__tests__/system-health.test.ts client/src/__tests__/system-validation.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest client/src/__tests__/auth-comprehensive.test.ts client/src/__tests__/binary-security.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest client/src/__tests__/schema-validation.test.ts client/src/__tests__/form-validation.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow]]
+name = "Professional Grade System Validation"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest professional-test-execution.ts --coverage --reporter=verbose --testTimeout=300000"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest tests/functional/comprehensive-eqms-functional-test.ts --coverage --reporter=verbose --testTimeout=300000"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest client/src/__tests__/system-health.test.ts client/src/__tests__/system-validation.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest client/src/__tests__/auth-comprehensive.test.ts client/src/__tests__/binary-security.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest client/src/__tests__/schema-validation.test.ts client/src/__tests__/form-validation.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest client/src/__tests__/quantum-system.test.ts client/src/__tests__/quantum-decoherence.test.ts --coverage --reporter=verbose --no-threads"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest client/src/__tests__/system-robustness.test.ts client/src/__tests__/system-stress.test.ts --coverage --reporter=verbose --no-threads --testTimeout=10800000"
+
+[[workflows.workflow]]
+name = "Professional System Validation"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest professional-validation-suite.ts --coverage --reporter=verbose --testTimeout=300000"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest comprehensive-functional-validation.ts --coverage --reporter=verbose --testTimeout=300000"
+
+[[workflows.workflow]]
+name = "Complete Professional Validation"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest professional-validation-suite.ts --coverage --reporter=verbose --testTimeout=300000"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest comprehensive-functional-validation.ts --coverage --reporter=verbose --testTimeout=300000"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest client/src/__tests__/system-health.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest client/src/__tests__/auth-comprehensive.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest client/src/__tests__/schema-validation.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow]]
+name = "Professional URS Validation Suite"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest professional-deep-functional-test.ts --coverage --reporter=verbose --testTimeout=300000"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest hot-fix-implementation.ts --coverage --reporter=verbose --testTimeout=60000"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest comprehensive-functional-validation.ts --coverage --reporter=verbose --testTimeout=300000"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest client/src/__tests__/system-health.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest client/src/__tests__/system-validation.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest client/src/__tests__/auth-comprehensive.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=test vitest client/src/__tests__/schema-validation.test.ts --coverage --reporter=verbose"
+
+[[workflows.workflow]]
+name = "Phase Transition Demonstration"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=development tsx phase-transition-demonstration.ts"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=development tsx phase-transition-api-integration.ts"
+
+[[workflows.workflow]]
+name = "Comprehensive Phase Transition Validation"
+author = 36632825
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=development tsx comprehensive-phase-transition-validation.ts"

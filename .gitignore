@@ -1,38 +1,152 @@
-# Node modules and build output
+# Dependencies
 node_modules/
-dist/
-build/
-.cache/
-.vite/
-.next/
-
-# Replit-specific
-.replit
-replit.nix
-replit.db*
-.env.local
-replit.md
-
-# Environment and logs
-.env
-.env.*
-*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
 
-# IDE/editor configs
-.vscode/
-.idea/
-.DS_Store
-*.swp
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# Test results
+# Build outputs
+dist/
+build/
 coverage/
-test-logs/
+
+# Logs
+logs/
+*.log
+
+# Runtime
+.DS_Store
+Thumbs.db
+
+# Uploads and temp files
+uploads/
+temp/
+tmp/
+
+# Test files and validation artifacts
 test-results/
 test-reports/
+test-logs/
+results/
+comprehensive-*.ts
+validation-*.ts
+professional-*.ts
+ultra-*.ts
+final-*.ts
+execute-*.ts
+hot-fix-*.ts
+debug-*.html
+simple-*.js
+minimal-*.js
+comprehensive-*.js
+phase-*.ts
+create-project-*.ts
+design-project-*.ts
+populate-*.ts
 
-# SQLite (if used for local dev)
-*.sqlite
+# Agent command artifacts
+*validation*.ts
+*validation*.js
+*comprehensive*.ts
+*comprehensive*.js
+*professional*.ts
+*professional*.js
+*ultra*.ts
+*ultra*.js
+*execution*.ts
+*execution*.js
+*testing*.ts
+*testing*.js
+*demo*.ts
+*protocol*.ts
+*hotfix*.ts
+
+# Specific files to exclude
+comprehensive-audit-workspace-testing.ts
+comprehensive-design-module-professional-validation.ts
+comprehensive-design-module-validation.ts
+comprehensive-dp-2025-001-interactive-demo.ts
+comprehensive-eqms-qa-validation.ts
+comprehensive-functional-validation.test.ts
+comprehensive-functional-validation.ts
+comprehensive-jira-level-deep-functional-test.ts
+comprehensive-phase-gated-validation.ts
+comprehensive-phase-transition-validation.ts
+comprehensive-phase-workflow-demo.ts
+comprehensive-planning-urs-validation.ts
+comprehensive-professional-system-validation.ts
+comprehensive-system-level-testing.ts
+comprehensive-unified-ribbon-validation.ts
+cookies.txt
+crontab-setup.sh
+debug-kpi.html
+design-project-fix-validation.ts
+execute-design-module-validation.js
+execute-validation.ts
+final-comprehensive-professional-validation-execution.ts
+final-comprehensive-validation.ts
+final-phase-gated-validation.ts
+final-planning-urs-validation.ts
+final-validation-results.log
+hot-fix-implementation.ts
+minimal-server.js
+package-test-scripts.json
+phase-gated-validation-protocol.ts
+phase-transition-api-integration.ts
+phase-transition-demonstration.ts
+phase-workflow-demonstration.ts
+populate-cleanroom-design-data.ts
+professional-deep-functional-test.ts
+professional-design-interface-validation.ts
+professional-grade-planning-urs-validation.ts
+professional-grade-sequential-workflow-validation.ts
+professional-redundancy-duplicate-detection.ts
+professional-test-execution.ts
+professional-validation-suite.test.ts
+professional-validation-suite.ts
+remove_system_health.py
+run-simple-server.sh
+run-tests.sh
+simple-server-package.json
+simple-server.js
+simple-test.html
+test-capa-system.html
+test-organizational-chart.md
+ultra-comprehensive-design-module-validation.ts
+ultra-comprehensive-hotfix-implementation.ts
+ultra-comprehensive-regression-test-protocol.ts
+ultra-comprehensive-system-validation.ts
+ultra-professional-design-validation.ts
+
+# Documentation files with validation content
+*VALIDATION*.md
+*VALIDATION*.json
+*COMPREHENSIVE*.md
+*PROFESSIONAL*.md
+*ULTRA*.md
+*HOTFIX*.md
+*ASSESSMENT*.md
+*REPORT*.md
+*SUMMARY*.md
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

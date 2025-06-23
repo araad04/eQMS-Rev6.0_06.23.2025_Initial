@@ -1,244 +1,203 @@
-# eQMS - Electronic Quality Management System
+# eQMS 6.0 - Electronic Quality Management System
 
-A comprehensive medical device Quality Management System built with modern web technologies and designed for regulatory compliance with ISO 13485:2016 and 21 CFR Part 11.
+A comprehensive medical device Quality Management System built with modern web technologies and designed for regulatory compliance with ISO 13485:2016, 21 CFR Part 11, and IEC 62304.
 
-## 🏗️ Architecture
+## Overview
 
-- **Frontend**: React 18+ with TypeScript, Vite, Tailwind CSS, Shadcn/UI
-- **Backend**: Node.js with Express.js, JWT authentication
-- **Database**: PostgreSQL with Drizzle ORM
-- **Deployment**: Docker, Kubernetes, CI/CD with GitHub Actions
-- **Monitoring**: Prometheus, Grafana, Sentry
+The eQMS provides end-to-end quality management for medical device manufacturers, featuring document control, CAPA management, audit tracking, supplier management, training records, and compliance reporting with enterprise-grade phase-gated design control workflows.
 
-## 📋 Features
+## Key Features
 
 ### Core QMS Modules
-- **Management Reviews** - ISO 13485 compliant management review processes
-- **CAPA Management** - Corrective and Preventive Action workflows
-- **Audit Management** - Internal and supplier audit execution
-- **Document Control** - Controlled document management with versioning
-- **Supplier Management** - Supplier qualification and assessment
+- **Document Control** - ISO 13485 compliant document lifecycle management
+- **CAPA Management** - Corrective and Preventive Action workflows with root cause analysis
+- **Design Control** - Phase-gated design development with sequential workflow enforcement
+- **Audit Management** - Internal and external audit execution with automated checklists
+- **Training Management** - Competency tracking with validity periods and automatic renewals
+- **Supplier Management** - Risk-based supplier qualification and performance monitoring
+- **Management Review** - Automated review processes with intelligent action generation
+- **Complaint Handling** - Customer feedback and complaint tracking with regulatory reporting
 
-### Compliance Features
-- **21 CFR Part 11 Compliant** - Electronic records and signatures
-- **Audit Trails** - Complete tamper-evident change tracking
-- **Role-Based Access Control** - Multi-level security permissions
-- **Data Encryption** - Field-level encryption for sensitive data
-- **Validation Ready** - IQ/OQ/PQ protocols included
+### Advanced Features
+- **Unified Ribbon Navigation** - Consistent enterprise-grade UI across all modules
+- **Dynamic Traceability Matrix** - Automated requirement linking from user needs to validation
+- **KPI Analytics Dashboard** - Real-time performance metrics and compliance monitoring
+- **Electronic Signatures** - 21 CFR Part 11 compliant digital signatures
+- **Comprehensive Audit Trails** - Complete tamper-evident change tracking
+- **Role-Based Access Control** - Multi-level permissions (admin, manager, qa, viewer)
 
-## 🚀 Quick Start
+## Technology Stack
+
+- **Frontend**: React 18.3.1, TypeScript, Vite, Tailwind CSS, Shadcn/UI
+- **Backend**: Node.js, Express.js, Drizzle ORM
+- **Database**: PostgreSQL with comprehensive audit trail schema
+- **Authentication**: Session-based with Passport.js and JWT tokens
+- **State Management**: TanStack Query (React Query)
+- **Form Handling**: React Hook Form with Zod validation
+- **File Management**: Multer with secure local storage
+
+## Quick Start
 
 ### Prerequisites
 - Node.js 18+ 
 - PostgreSQL 14+
-- Git
+- npm or yarn package manager
 
 ### Installation
 
 1. **Clone the repository**
-```bash
-git clone <repository-url>
-cd eqms
-```
+   ```bash
+   git clone https://github.com/biomedical78/eQMS6.0_06.23.2025-.git
+   cd eQMS6.0_06.23.2025-
+   ```
 
 2. **Install dependencies**
-```bash
-npm install
+   ```bash
+   npm install
+   ```
+
+3. **Environment Setup**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your database configuration
+   ```
+
+4. **Database Setup**
+   ```bash
+   npm run db:push
+   ```
+
+5. **Start Development Server**
+   ```bash
+   npm run dev
+   ```
+
+6. **Access Application**
+   - Open http://localhost:5000 in your browser
+   - Default development user: Biomedical78
+
+### Production Deployment
+
+1. **Build Application**
+   ```bash
+   npm run build
+   ```
+
+2. **Start Production Server**
+   ```bash
+   npm start
+   ```
+
+## Project Structure
+
 ```
-
-3. **Set up environment variables**
-```bash
-cp .env.example .env
-# Edit .env with your database credentials and secrets
-```
-
-4. **Initialize database**
-```bash
-npm run db:push
-```
-
-5. **Start development server**
-```bash
-npm run dev
-```
-
-The application will be available at `http://localhost:5000`
-
-## 🔧 Development
-
-### Available Scripts
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run test` - Run test suite
-- `npm run test:coverage` - Generate test coverage report
-- `npm run lint` - Run ESLint
-- `npm run type-check` - Run TypeScript type checking
-- `npm run db:push` - Push schema changes to database
-- `npm run db:studio` - Open Drizzle Studio
-
-### Project Structure
-```
-eqms/
+eQMS6.0_06.23.2025-/
 ├── client/                 # React frontend application
 │   ├── src/
 │   │   ├── components/     # Reusable UI components
-│   │   ├── pages/          # Application pages
+│   │   ├── pages/          # Application pages and modules
 │   │   ├── hooks/          # Custom React hooks
-│   │   └── lib/            # Utility functions
-├── server/                 # Node.js backend API
+│   │   └── lib/            # Utility functions and configurations
+├── server/                 # Express.js backend
 │   ├── routes/             # API route handlers
-│   ├── middleware/         # Express middleware
-│   ├── services/           # Business logic services
-│   └── utils/              # Server utilities
-├── shared/                 # Shared code between client/server
+│   ├── auth.ts             # Authentication middleware
+│   └── storage.ts          # Database abstraction layer
+├── shared/                 # Shared types and schemas
 │   └── schema.ts           # Database schema definitions
-├── documentation/          # Comprehensive project documentation
-├── tests/                  # Test files
-└── migrations/             # Database migrations
+├── public/                 # Static assets
+└── docs/                   # Documentation
 ```
 
-## 📚 Documentation
+## Core Modules
 
-Comprehensive documentation is available in the `/documentation` folder:
+### Design Control
+- Phase-gated workflow management (Planning → Inputs → Outputs → Verification → Validation → Transfer)
+- Sequential enforcement with mandatory gate reviews
+- Comprehensive traceability matrix from user requirements to validation
+- ISO 13485:7.3 compliant design history file generation
 
-### Technical Documentation
-1. **[User Requirements Specification](documentation/USER_REQUIREMENTS_SPECIFICATION.md)** - Functional and non-functional requirements
-2. **[Detailed Design Specification](documentation/DETAILED_DESIGN_SPECIFICATION.md)** - Technical architecture and implementation
-3. **[Architectural Diagrams](documentation/ARCHITECTURAL_DIAGRAMS.md)** - System architecture visualizations
-4. **[Traceability Matrix](documentation/TRACEABILITY_MATRIX.md)** - Requirements to test case mapping
+### Document Control
+- Version control with approval workflows
+- Electronic signatures and audit trails
+- ISO 13485 compliant document lifecycle
+- Automated notifications and review scheduling
 
-### Testing & Validation
-5. **[Test Protocols](documentation/TEST_PROTOCOLS.md)** - Comprehensive testing strategy
-6. **[Validation Master Plan](documentation/VALIDATION_MASTER_PLAN.md)** - Computer system validation approach
+### CAPA Management
+- Root cause analysis workflows
+- Effectiveness review tracking
+- Integration with audit findings
+- Risk-based prioritization
 
-### Operations & Deployment
-7. **[Deployment Strategy](documentation/DEPLOYMENT_STRATEGY.md)** - DevOps and infrastructure setup
-8. **[Security & Compliance Controls](documentation/SECURITY_COMPLIANCE_CONTROLS.md)** - Security architecture
-9. **[Change Control Strategy](documentation/CHANGE_CONTROL_STRATEGY.md)** - Software change management
-10. **[SLA & Monitoring Strategy](documentation/SLA_MONITORING_STRATEGY.md)** - System monitoring and SLAs
+### Audit Management
+- Internal and external audit planning
+- Automated checklist generation
+- Finding tracking and CAPA integration
+- Comprehensive reporting capabilities
 
-## 🔒 Security
+## Regulatory Compliance
 
-- **Authentication**: JWT tokens with refresh mechanism
-- **Authorization**: Role-based access control (RBAC)
-- **Data Protection**: AES-256 encryption at rest, TLS 1.3 in transit
-- **Audit Logging**: Comprehensive tamper-evident audit trails
-- **Compliance**: 21 CFR Part 11 compliant electronic records
+- **ISO 13485:2016** - Medical device quality management systems
+- **21 CFR Part 11** - Electronic records and signatures
+- **IEC 62304** - Medical device software lifecycle processes
+- **EU MDR** - European Medical Device Regulation compliance features
 
-## 🧪 Testing
+## Security Features
 
-### Test Coverage
-- **Unit Tests**: Component and service-level testing
-- **Integration Tests**: API and database integration testing
-- **Security Tests**: Authentication, authorization, and data protection
-- **Performance Tests**: Load testing and scalability validation
-- **Compliance Tests**: Regulatory requirement verification
+- Role-based access control with granular permissions
+- Session-based authentication with secure token management
+- Input sanitization and XSS prevention
+- SQL injection protection through parameterized queries
+- Rate limiting to prevent API abuse
+- Comprehensive audit trails for all operations
 
-### Running Tests
-```bash
-# Run all tests
-npm test
+## API Documentation
 
-# Run tests with coverage
-npm run test:coverage
+The application includes built-in API documentation accessible at `/api/docs` when running in development mode.
 
-# Run specific test suites
-npm run test:unit
-npm run test:integration
-npm run test:security
+## Scripts
+
+- `npm run dev` - Start development server with hot reload
+- `npm run build` - Build production application
+- `npm start` - Start production server
+- `npm run db:push` - Apply database schema changes
+- `npm test` - Run test suite
+- `npm run lint` - Run code linting
+
+## Environment Variables
+
+```env
+# Database
+DATABASE_URL=postgresql://username:password@localhost:5432/eqms
+
+# Authentication
+SESSION_SECRET=your-secure-session-secret
+
+# Application
+NODE_ENV=production
+PORT=5000
 ```
 
-## 🚀 Deployment
+## Contributing
 
-### Development Environment
-```bash
-npm run dev
-```
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/new-feature`)
+3. Commit your changes (`git commit -am 'Add new feature'`)
+4. Push to the branch (`git push origin feature/new-feature`)
+5. Create a Pull Request
 
-### Production Deployment
-The system supports multiple deployment options:
+## License
 
-1. **Docker Containers**
-```bash
-docker-compose up -d
-```
+This project is proprietary software developed for medical device quality management.
 
-2. **Kubernetes**
-```bash
-kubectl apply -f k8s/
-```
+## Support
 
-3. **CI/CD Pipeline**
-- GitHub Actions workflow for automated testing and deployment
-- Blue-green deployment strategy
-- Automated rollback capabilities
-
-## 🏥 Regulatory Compliance
-
-### ISO 13485:2016
-- Quality management system requirements for medical devices
-- Risk management integration
-- Design controls and document management
-- Management review and CAPA processes
-
-### 21 CFR Part 11 Compliant
-- Electronic record requirements
-- Electronic signature compliance
-- Audit trail maintenance
-- System validation documentation
-
-## 🤝 Contributing
-
-### Development Workflow
-1. Create feature branch from `develop`
-2. Implement changes with tests
-3. Run quality checks: `npm run lint && npm run test`
-4. Submit pull request for review
-5. Merge to `develop` after approval
-
-### Code Standards
-- TypeScript for type safety
-- ESLint + Prettier for code formatting
-- Comprehensive test coverage (>90%)
-- Security-first development practices
-
-### Change Control
-All changes must follow the established change control process:
-- Change request documentation
-- Impact assessment
-- Testing and validation
-- Change Control Board approval
-
-## 📊 Monitoring
-
-### Application Monitoring
-- **Metrics**: Prometheus with Grafana dashboards
-- **Logs**: Structured logging with Elasticsearch/Kibana
-- **Errors**: Sentry for error tracking and alerting
-- **Health Checks**: Automated system health monitoring
-
-### SLA Targets
-- **Availability**: 99.9% uptime
-- **Performance**: <2s response time (95th percentile)
-- **Recovery**: <1 hour RTO, <15 minutes RPO
-
-## 📞 Support
-
-### Getting Help
-- **Documentation**: Check the `/documentation` folder
-- **Issues**: Create GitHub issues for bugs or feature requests
-- **Development**: Contact the development team
-
-### Team Contacts
-- **Project Lead**: [Name] - [email]
-- **DevOps**: [Name] - [email]
-- **QA Lead**: [Name] - [email]
-- **Compliance**: [Name] - [email]
-
-## 📄 License
-
-This project is proprietary software. All rights reserved.
+For technical support or questions about deployment:
+- Review the documentation in the `docs/` directory
+- Check the `replit.md` file for detailed project context
+- Refer to the GitHub Transfer Guide for deployment instructions
 
 ---
 
-**Built with enterprise-grade quality for medical device manufacturing compliance.**
+**Version**: 6.0 Production Ready  
+**Compliance**: ISO 13485:2016, 21 CFR Part 11, IEC 62304  
+**Status**: Production Ready with Enterprise-Grade Validation
