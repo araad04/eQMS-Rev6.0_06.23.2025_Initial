@@ -380,7 +380,21 @@ function App() {
 
         <ProtectedRoute path="/design-control/projects" component={() => (
           <Layout>
-            <DesignControlPage />
+            <Suspense fallback={<div className="flex justify-center py-8"><Loader2 className="animate-spin" /></div>}>
+              <React.Suspense>
+                {React.createElement(React.lazy(() => import("./pages/design-control/all-projects")))}
+              </React.Suspense>
+            </Suspense>
+          </Layout>
+        )} />
+
+        <ProtectedRoute path="/design-control" component={() => (
+          <Layout>
+            <Suspense fallback={<div className="flex justify-center py-8"><Loader2 className="animate-spin" /></div>}>
+              <React.Suspense>
+                {React.createElement(React.lazy(() => import("./pages/design-control/all-projects")))}
+              </React.Suspense>
+            </Suspense>
           </Layout>
         )} />
 

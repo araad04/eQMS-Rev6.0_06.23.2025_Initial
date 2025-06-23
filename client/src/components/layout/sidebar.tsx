@@ -186,7 +186,6 @@ export function Sidebar({ isOpen, closeSidebar }: SidebarProps) {
       subItems: [
         { title: "All Projects", path: "/design-control" },
         { title: "Create New Project", path: "/design-control/create" },
-        { title: "DP-2025-001 Cleanroom", path: "/design-control/project/16" },
         { title: "Project Templates", path: "/design-control/templates" },
         { title: "Global Traceability", path: "/design-control/dynamic-traceability" },
         { title: "Design History Files", path: "/design-control/history-file" },
