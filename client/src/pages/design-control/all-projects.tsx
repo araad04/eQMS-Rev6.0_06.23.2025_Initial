@@ -60,16 +60,16 @@ const AllProjectsPage = () => {
     queryKey: ['/api/design-projects'],
   });
 
-  const filteredProjects = projects?.filter((project: DesignProject) => {
-    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.projectCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = selectedStatus === 'all' || project.status.toLowerCase() === selectedStatus;
+  const filteredProjects = (projects as DesignProject[] || [])?.filter((project: DesignProject) => {
+    const matchesSearch = (project.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (project.projectCode || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (project.description || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = selectedStatus === 'all' || (project.status || '').toLowerCase() === selectedStatus;
     return matchesSearch && matchesStatus;
   }) || [];
 
   const getStatusConfig = (status: string) => {
-    const configs = {
+    const configs: Record<string, { label: string; color: string }> = {
       'active': { label: 'Active', color: 'bg-green-100 text-green-700' },
       'planning': { label: 'Planning', color: 'bg-blue-100 text-blue-700' },
       'in_progress': { label: 'In Progress', color: 'bg-green-100 text-green-700' },
@@ -77,17 +77,17 @@ const AllProjectsPage = () => {
       'completed': { label: 'Completed', color: 'bg-gray-100 text-gray-700' },
       'on_hold': { label: 'On Hold', color: 'bg-red-100 text-red-700' }
     };
-    return configs[status.toLowerCase()] || configs['planning'];
+    return configs[status?.toLowerCase() || 'planning'] || configs['planning'];
   };
 
   const getRiskConfig = (risk: string) => {
-    const configs = {
+    const configs: Record<string, { color: string }> = {
       'low': { color: 'bg-green-50 text-green-600 border-green-200' },
       'medium': { color: 'bg-yellow-50 text-yellow-600 border-yellow-200' },
       'high': { color: 'bg-orange-50 text-orange-600 border-orange-200' },
       'critical': { color: 'bg-red-50 text-red-600 border-red-200' }
     };
-    return configs[risk.toLowerCase()] || configs['medium'];
+    return configs[risk?.toLowerCase() || 'medium'] || configs['medium'];
   };
 
   if (isLoading) {
@@ -105,9 +105,9 @@ const AllProjectsPage = () => {
     );
   }
 
-  const activeProjects = filteredProjects.filter(p => p.status.toLowerCase() === 'active' || p.status.toLowerCase() === 'in_progress');
-  const completedProjects = filteredProjects.filter(p => p.status.toLowerCase() === 'completed');
-  const reviewProjects = filteredProjects.filter(p => p.status.toLowerCase() === 'review');
+  const activeProjects = filteredProjects.filter((p: DesignProject) => (p.status || '').toLowerCase() === 'active' || (p.status || '').toLowerCase() === 'in_progress');
+  const completedProjects = filteredProjects.filter((p: DesignProject) => (p.status || '').toLowerCase() === 'completed');
+  const reviewProjects = filteredProjects.filter((p: DesignProject) => (p.status || '').toLowerCase() === 'review');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
