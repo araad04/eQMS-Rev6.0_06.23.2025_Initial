@@ -71,6 +71,18 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
     progress: 0
   });
 
+  // Phase Review Dialog State
+  const [showPhaseReviewDialog, setShowPhaseReviewDialog] = useState(false);
+  const [selectedPhaseForReview, setSelectedPhaseForReview] = useState<any>(null);
+  const [phaseReviewForm, setPhaseReviewForm] = useState({
+    reviewerId: '9999',
+    reviewerName: 'Development User',
+    decision: 'pending',
+    comments: '',
+    actionItems: '',
+    reviewDate: new Date().toISOString().split('T')[0]
+  });
+
   const { data: projectDetails, isLoading: projectDetailsLoading } = useQuery({
     queryKey: ['/api/design-projects', projectId],
     queryFn: async () => {
@@ -250,6 +262,59 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
     });
     setSelectedPhaseId(phase.id);
     setShowEditPhaseDialog(true);
+  };
+
+  // Phase Review Handler - Bottleneck Control
+  const handlePhaseReview = (phase: any) => {
+    setSelectedPhaseForReview(phase);
+    setPhaseReviewForm({
+      reviewerId: '9999',
+      reviewerName: 'Development User',
+      decision: phase.gateReview?.decision === 'approved' ? 'approved' : 'pending',
+      comments: phase.gateReview?.comments || '',
+      actionItems: phase.gateReview?.actionItems || '',
+      reviewDate: new Date().toISOString().split('T')[0]
+    });
+    setShowPhaseReviewDialog(true);
+  };
+
+  const submitPhaseReview = async () => {
+    try {
+      const reviewData = {
+        phaseId: selectedPhaseForReview.id,
+        projectId: parseInt(projectId || '0'),
+        ...phaseReviewForm,
+        initiatedDate: new Date().toISOString(),
+        completedDate: phaseReviewForm.decision === 'approved' ? new Date().toISOString() : null
+      };
+
+      const response = await fetch(`/api/design-control-enhanced/project/${projectId}/phase-review`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Auth-Local': 'true'
+        },
+        body: JSON.stringify(reviewData)
+      });
+
+      if (!response.ok) throw new Error('Failed to submit phase review');
+
+      await refetchPhases();
+      setShowPhaseReviewDialog(false);
+      setSelectedPhaseForReview(null);
+      
+      // Reset form
+      setPhaseReviewForm({
+        reviewerId: '9999',
+        reviewerName: 'Development User',
+        decision: 'pending',
+        comments: '',
+        actionItems: '',
+        reviewDate: new Date().toISOString().split('T')[0]
+      });
+    } catch (error) {
+      console.error('Failed to submit phase review:', error);
+    }
   };
 
   if (projectDetailsLoading) {
@@ -770,12 +835,44 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
                       <Button 
                         size="sm" 
                         variant="outline" 
-                        className="w-full"
+                        className="flex-1"
                         disabled={gateStatus.status === 'blocked'}
                         onClick={() => openEditDialog(phase)}
                       >
                         <Edit className="h-3 w-3 mr-1" />
                         Edit
+                      </Button>
+                      
+                      {/* Phase Review Button - Bottleneck Control */}
+                      <Button 
+                        size="sm" 
+                        variant={phase.gateReview?.decision === 'approved' ? 'default' : 'secondary'}
+                        className={`flex-1 ${
+                          phase.gateReview?.decision === 'approved' 
+                            ? 'bg-green-600 hover:bg-green-700 text-white' 
+                            : phase.gateReview?.decision === 'pending'
+                            ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                            : 'bg-blue-600 hover:bg-blue-700 text-white'
+                        }`}
+                        disabled={gateStatus.status === 'blocked' || phase.status !== 'in_progress'}
+                        onClick={() => handlePhaseReview(phase)}
+                      >
+                        {phase.gateReview?.decision === 'approved' ? (
+                          <>
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            Approved
+                          </>
+                        ) : phase.gateReview?.decision === 'pending' ? (
+                          <>
+                            <Clock className="h-3 w-3 mr-1" />
+                            Reviewing
+                          </>
+                        ) : (
+                          <>
+                            <Shield className="h-3 w-3 mr-1" />
+                            Review
+                          </>
+                        )}
                       </Button>
                     </div>
 
@@ -1386,6 +1483,124 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Phase Review Dialog - Bottleneck Control */}
+      <Dialog open={showPhaseReviewDialog} onOpenChange={setShowPhaseReviewDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-blue-600" />
+              Phase Gate Review - {selectedPhaseForReview?.name}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {/* Review Information */}
+            <div className="grid grid-cols-2 gap-4 p-4 bg-blue-50 rounded-lg">
+              <div>
+                <Label className="text-sm font-medium text-blue-700">Phase Status</Label>
+                <p className="text-sm text-blue-800">{selectedPhaseForReview?.status}</p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-blue-700">Progress</Label>
+                <p className="text-sm text-blue-800">{selectedPhaseForReview?.progress}%</p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-blue-700">Reviewer</Label>
+                <p className="text-sm text-blue-800">{phaseReviewForm.reviewerName}</p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-blue-700">Review Date</Label>
+                <Input
+                  type="date"
+                  value={phaseReviewForm.reviewDate}
+                  onChange={(e) => setPhaseReviewForm(prev => ({ ...prev, reviewDate: e.target.value }))}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+
+            {/* Review Decision */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Review Decision</Label>
+              <Select
+                value={phaseReviewForm.decision}
+                onValueChange={(value) => setPhaseReviewForm(prev => ({ ...prev, decision: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select decision" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Under Review</SelectItem>
+                  <SelectItem value="approved">Approved - Gate Opened</SelectItem>
+                  <SelectItem value="rejected">Rejected - Requires Action</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Review Comments */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Review Comments</Label>
+              <Textarea
+                placeholder="Provide detailed review comments, findings, and rationale for decision..."
+                value={phaseReviewForm.comments}
+                onChange={(e) => setPhaseReviewForm(prev => ({ ...prev, comments: e.target.value }))}
+                rows={4}
+              />
+            </div>
+
+            {/* Action Items */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Action Items (if required)</Label>
+              <Textarea
+                placeholder="List any action items or requirements before phase approval..."
+                value={phaseReviewForm.actionItems}
+                onChange={(e) => setPhaseReviewForm(prev => ({ ...prev, actionItems: e.target.value }))}
+                rows={3}
+              />
+            </div>
+
+            {/* Bottleneck Warning */}
+            {phaseReviewForm.decision !== 'approved' && (
+              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-yellow-600" />
+                  <span className="text-sm font-medium text-yellow-800">Phase Gate Bottleneck</span>
+                </div>
+                <p className="text-sm text-yellow-700 mt-2">
+                  This phase must be approved before downstream phases can be activated. 
+                  All subsequent phases will remain blocked until gate approval.
+                </p>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="flex justify-end gap-3 pt-4 border-t">
+              <Button
+                variant="outline"
+                onClick={() => setShowPhaseReviewDialog(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={submitPhaseReview}
+                className={
+                  phaseReviewForm.decision === 'approved' 
+                    ? 'bg-green-600 hover:bg-green-700' 
+                    : phaseReviewForm.decision === 'rejected'
+                    ? 'bg-red-600 hover:bg-red-700'
+                    : 'bg-blue-600 hover:bg-blue-700'
+                }
+              >
+                {phaseReviewForm.decision === 'approved' && <CheckCircle className="h-4 w-4 mr-2" />}
+                {phaseReviewForm.decision === 'rejected' && <AlertCircle className="h-4 w-4 mr-2" />}
+                {phaseReviewForm.decision === 'pending' && <Clock className="h-4 w-4 mr-2" />}
+                Submit Review
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
