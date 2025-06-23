@@ -621,6 +621,11 @@ export class MemStorage implements IStorage {
     return newItem;
   }
 
+  // Supplier Management
+  async getSuppliers(): Promise<any[]> {
+    return this.suppliers;
+  }
+
   async updateManagementReviewActionItem(id: number, item: any) {
     const index = this.managementReviewActionItems.findIndex(i => i.id === id);
     if (index === -1) return undefined;
