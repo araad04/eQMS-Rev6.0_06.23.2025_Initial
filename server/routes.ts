@@ -508,7 +508,10 @@ export function registerRoutes(app: Express): Server {
 
       // Get counts from various modules
       try {
-        const documents = await storage.getDocuments();
+        const documents = await db.select()
+      .from(documents)
+      .limit(10)
+      .execute() || [];
         dashboardData.summary.totalDocuments = documents.length;
       } catch (error) {
         console.warn("Error fetching documents for dashboard:", error);
@@ -530,7 +533,10 @@ export function registerRoutes(app: Express): Server {
       }
 
       try {
-        const suppliers = await storage.getSuppliers();
+        const suppliers = await db.select()
+      .from(suppliers)
+      .limit(10)
+      .execute() || [];
         dashboardData.summary.totalSuppliers = suppliers ? suppliers.length : 0;
       } catch (error) {
         console.warn("Error fetching suppliers for dashboard:", error);

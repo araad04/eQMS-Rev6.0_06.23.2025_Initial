@@ -1,104 +1,269 @@
-/* Print styles for CAPA and other document exports */
+/* Comprehensive Print Styles for eQMS Forms */
 @media print {
-  .print-container {
-    background-color: white;
-    color: black;
-    padding: 20px;
-    width: 100%;
+  /* Reset and base styles */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  /* Hide navigation and controls not needed for printing */
-  nav, header, footer, button, .tabs-list, .actions-bar {
+  html, body {
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: white !important;
+  }
+
+  /* Page setup */
+  @page {
+    size: A4;
+    margin: 0.5in;
+    @top-center {
+      content: "eQMS - " attr(data-document-type);
+    }
+    @bottom-center {
+      content: "Page " counter(page) " of " counter(pages);
+    }
+  }
+
+  /* Hide non-printable elements */
+  .no-print,
+  button:not(.print-button),
+  .sidebar,
+  .navigation,
+  .floating-action,
+  .tooltip,
+  .dropdown-menu {
     display: none !important;
   }
 
-  /* Ensure form fields display correctly */
-  input, textarea, select {
-    border: 1px solid #ddd;
-    background-color: white;
-    color: black;
-    box-shadow: none;
-    padding: 4px 8px;
+  /* Form containers */
+  .print-container {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
   }
 
-  /* Adjusted spacing for printed documents */
-  .card {
-    margin-bottom: 20px;
+  /* Form sections */
+  .form-section {
     page-break-inside: avoid;
-    border: 1px solid #eee;
+    margin-bottom: 20px;
+    border: 1px solid #000;
     padding: 15px;
   }
 
-  .card-header {
-    border-bottom: 1px solid #eee;
+  .form-section h2 {
+    font-size: 14pt;
+    font-weight: bold;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #000;
+    padding-bottom: 5px;
+  }
+
+  /* Form fields */
+  .form-field {
     margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+  }
+
+  .form-field label {
+    font-weight: bold;
+    min-width: 150px;
+    margin-right: 10px;
+  }
+
+  .form-field input,
+  .form-field textarea,
+  .form-field select {
+    border: none !important;
+    border-bottom: 1px solid #000 !important;
+    background: transparent !important;
+    padding: 2px 5px !important;
+    font-size: 11pt !important;
+    min-height: 20px !important;
+  }
+
+  /* Checkboxes and radio buttons */
+  input[type="checkbox"],
+  input[type="radio"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px !important;
+    height: 12px !important;
+    border: 2px solid #000 !important;
+    margin-right: 5px;
+  }
+
+  input[type="checkbox"]:checked::before,
+  input[type="radio"]:checked::before {
+    content: "✓";
+    display: block;
+    text-align: center;
+    font-size: 10px;
+    line-height: 8px;
+  }
+
+  /* Tables */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-bottom: 20px;
+    page-break-inside: avoid;
+  }
+
+  table th,
+  table td {
+    border: 1px solid #000 !important;
+    padding: 8px !important;
+    text-align: left !important;
+    font-size: 10pt !important;
+    vertical-align: top !important;
+  }
+
+  table th {
+    background-color: #f0f0f0 !important;
+    font-weight: bold !important;
+  }
+
+  /* Signatures */
+  .signature-section {
+    page-break-inside: avoid;
+    margin-top: 30px;
+    border-top: 2px solid #000;
+    padding-top: 20px;
+  }
+
+  .signature-field {
+    display: inline-block;
+    width: 250px;
+    margin-right: 50px;
+    margin-bottom: 40px;
+  }
+
+  .signature-line {
+    border-bottom: 1px solid #000;
+    height: 30px;
+    margin-bottom: 5px;
+  }
+
+  /* Headers and footers */
+  .document-header {
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 3px solid #000;
+    padding-bottom: 15px;
+  }
+
+  .document-title {
+    font-size: 18pt;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .document-number {
+    font-size: 12pt;
+    margin-bottom: 5px;
+  }
+
+  /* Page breaks */
+  .page-break {
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    page-break-after: always;
+  }
+
+  .keep-together {
+    page-break-inside: avoid;
+  }
+
+  /* CAPA specific styles */
+  .capa-form {
+    font-family: Arial, sans-serif;
+  }
+
+  .capa-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 25px;
+  }
+
+  .capa-section {
+    margin-bottom: 25px;
+    border: 2px solid #000;
+    padding: 15px;
+  }
+
+  /* Management Review specific styles */
+  .management-review-form {
+    font-family: Arial, sans-serif;
+  }
+
+  .review-input-category {
+    margin-bottom: 30px;
+    page-break-inside: avoid;
+  }
+
+  .review-action-items {
+    margin-top: 25px;
+  }
+
+  /* Audit specific styles */
+  .audit-checklist {
+    font-family: Arial, sans-serif;
+  }
+
+  .checklist-item {
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ccc;
     padding-bottom: 10px;
   }
 
-  .card-title {
-    font-size: 18px;
-    font-weight: bold;
+  /* Training record styles */
+  .training-record {
+    font-family: Arial, sans-serif;
   }
 
-  .card-content {
-    margin-bottom: 15px;
-  }
-
-  /* Make checkboxes visible in print */
-  .checkbox {
-    border: 1px solid #888;
-    width: 16px;
-    height: 16px;
-    display: inline-block;
-    position: relative;
-  }
-
-  .checkbox[data-checked="true"]::after {
-    content: '✓';
-    position: absolute;
-    top: -4px;
-    left: 2px;
-  }
-
-  /* Add page breaks between major sections */
-  .page-break {
-    page-break-after: always;
-    height: 0;
-  }
-
-  /* QR code for document traceability */
-  .document-qr {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    width: 80px;
-    height: 80px;
-  }
-
-  /* Document metadata section */
-  .document-meta {
-    font-size: 10px;
-    color: #666;
-    margin-top: 30px;
-    border-top: 1px solid #eee;
-    padding-top: 10px;
-  }
-
-  /* Tables in printed documents */
-  table {
+  .training-matrix {
     width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
+    font-size: 9pt;
   }
 
-  th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
+  /* Document control styles */
+  .document-control-form {
+    font-family: Arial, sans-serif;
   }
 
-  th {
-    background-color: #f5f5f5;
+  .approval-matrix {
+    margin-top: 20px;
+  }
+
+  /* Utilities */
+  .text-center { text-align: center !important; }
+  .text-right { text-align: right !important; }
+  .font-bold { font-weight: bold !important; }
+  .underline { text-decoration: underline !important; }
+
+  /* Error prevention */
+  img { max-width: 100% !important; }
+  pre { white-space: pre-wrap !important; }
+
+  /* Form completion indicators */
+  .required-field::after {
+    content: " *";
+    color: #000;
     font-weight: bold;
+  }
+
+  .completed-field {
+    background-color: #f9f9f9 !important;
   }
 }

@@ -12,33 +12,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
-  CheckCircle, 
-  Clock, 
-  AlertCircle, 
-  FileText, 
-  Users, 
-  Target,
-  TrendingUp,
-  Download,
-  Plus,
-  Edit,
-  Play,
-  Settings,
-  CheckSquare,
-  GitBranch,
-  Shield,
-  BarChart3,
-  Workflow,
-  X,
-  Briefcase,
-  Eye
-} from 'lucide-react';
+  Briefcase, Calendar, FileText, Users, CheckCircle, AlertCircle, Clock, Target, BarChart3, Settings, Download, Upload, Eye, Edit, Trash2
+} from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 interface EnhancedProjectWorkspaceProps {}
 
 const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => {
   const { projectId } = useParams<{ projectId: string }>();
-  
+
   const [activeTab, setActiveTab] = useState<string>('phases-overview');
   const [showURSDialog, setShowURSDialog] = useState(false);
   const [showAddItemDialog, setShowAddItemDialog] = useState(false);
@@ -108,7 +90,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
     enabled: !!projectId
   });
 
-  const { data: designArtifacts } = useQuery({
+  const { data: designArtifactsData } = useQuery({
     queryKey: ['/api/design-control-enhanced/project', projectId, 'design-artifacts'],
     queryFn: async () => {
       const response = await fetch(`/api/design-control-enhanced/project/${projectId}/design-artifacts`, {
@@ -132,13 +114,13 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
 
   const checkPhaseGateStatus = (phaseName: string, phases: any[]) => {
     const gatingRule = phaseGatingRules[phaseName];
-    
+
     if (!gatingRule) return { status: 'blocked', reason: 'Unknown phase' };
-    
+
     if (phaseName === 'Planning & URS') {
       return { status: 'active', reason: 'Entry phase - always accessible' };
     }
-    
+
     if (gatingRule.prerequisite) {
       const prerequisitePhase = phases.find(p => p.name === gatingRule.prerequisite);
       if (!prerequisitePhase || prerequisitePhase.gateReview?.decision !== 'approved') {
@@ -148,7 +130,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
         };
       }
     }
-    
+
     return { status: 'active', reason: 'Prerequisites met' };
   };
 
@@ -191,7 +173,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
           projectId: parseInt(projectId || '0')
         })
       });
-      
+
       if (response.ok) {
         setShowURSDialog(false);
         setUrsForm({ identifier: '', title: '', description: '', priority: 'medium', riskLevel: 'medium' });
@@ -218,7 +200,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
           projectId: parseInt(projectId || '0')
         })
       });
-      
+
       if (response.ok) {
         setShowAddItemDialog(false);
         setAddItemForm({ title: '', description: '', category: '', priority: 'medium' });
@@ -232,7 +214,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
   const handleEditPhase = async () => {
     try {
       if (!selectedPhaseId) return;
-      
+
       const response = await fetch(`/api/design-control-enhanced/project/${projectId}/phases/${selectedPhaseId}`, {
         method: 'PUT',
         headers: {
@@ -241,7 +223,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
         },
         body: JSON.stringify(editPhaseForm)
       });
-      
+
       if (response.ok) {
         setShowEditPhaseDialog(false);
         setEditPhaseForm({ name: '', description: '', status: 'not_started', progress: 0 });
@@ -302,7 +284,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
       await refetchPhases();
       setShowPhaseReviewDialog(false);
       setSelectedPhaseForReview(null);
-      
+
       // Reset form
       setPhaseReviewForm({
         reviewerId: '9999',
@@ -431,6 +413,59 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
   ];
 
   const phases = projectPhases?.phases || phaseDefinitions;
+
+  const designArtifacts = {
+    inputs: [
+      {
+        id: "DI-001",
+        title: "Temperature Control Requirements",
+        status: "approved",
+        owner: "System Engineering",
+        lastModified: "2025-06-21"
+      },
+      {
+        id: "DI-002", 
+        title: "Alert System Requirements",
+        status: "approved",
+        owner: "System Engineering", 
+        lastModified: "2025-06-21"
+      }
+    ],
+    outputs: [
+      {
+        id: "DO-001",
+        title: "HVAC Control Software",
+        status: "approved",
+        owner: "Software Engineering",
+        lastModified: "2025-06-21"
+      },
+      {
+        id: "DO-002",
+        title: "Alert Management System", 
+        status: "approved",
+        owner: "Software Engineering",
+        lastModified: "2025-06-21"
+      }
+    ],
+    verification: [
+      {
+        id: "VER-001",
+        title: "Temperature Control Verification",
+        status: "completed",
+        owner: "QA Engineering",
+        lastModified: "2025-06-21"
+      }
+    ],
+    validation: [
+      {
+        id: "VAL-001", 
+        title: "System Integration Validation",
+        status: "completed",
+        owner: "QA Engineering",
+        lastModified: "2025-06-21"
+      }
+    ]
+  };
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -657,7 +692,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
                     Add Validation
                   </Button>
                 </div>
-                
+
                 <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
                   <h4 className="font-medium text-blue-900 mb-2">Current Phase Status</h4>
                   <p className="text-sm text-blue-700">
@@ -709,7 +744,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {phases.map((phase: any, index: number) => {
               const gateStatus = checkPhaseGateStatus(phase.name, phases);
-              
+
               return (
                 <Card key={phase.id || index} className={`transition-all duration-300 ${
                   gateStatus.status === 'blocked' ? 'border-red-200 bg-red-50' : 
@@ -791,6 +826,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
                               minute: '2-digit'
                             }) : 'N/A'}
                           </span>
+                        ```text
                         </div>
                         {phase.gateReview?.initiatedDate && (
                           <div className="flex justify-between">
@@ -842,7 +878,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
                         <Edit className="h-3 w-3 mr-1" />
                         Edit
                       </Button>
-                      
+
                       {/* Phase Review Button - Bottleneck Control */}
                       <Button 
                         size="sm" 
@@ -1052,7 +1088,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
                 </div>
 
                 <div className="space-y-3">
-                  {(designArtifacts?.designInputs || []).map((input: any, index: number) => (
+                  {(designArtifacts.inputs || []).map((input: any, index: number) => (
                     <Card key={index} className="border-l-4 border-l-green-500">
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between">
@@ -1147,7 +1183,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
                 </div>
 
                 <div className="space-y-3">
-                  {(designArtifacts?.designOutputs || []).map((output: any, index: number) => (
+                  {(designArtifacts.outputs || []).map((output: any, index: number) => (
                     <Card key={index} className="border-l-4 border-l-blue-500">
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between">
@@ -1242,7 +1278,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
                 </div>
 
                 <div className="space-y-3">
-                  {(designArtifacts?.verificationActivities || []).map((activity: any, index: number) => (
+                  {(designArtifacts.verification || []).map((activity: any, index: number) => (
                     <Card key={index} className="border-l-4 border-l-purple-500">
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between">
@@ -1341,7 +1377,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
                 </div>
 
                 <div className="space-y-3">
-                  {(designArtifacts?.validationActivities || []).map((activity: any, index: number) => (
+                  {(designArtifacts.validation || []).map((activity: any, index: number) => (
                     <Card key={index} className="border-l-4 border-l-green-500">
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between">
@@ -1493,7 +1529,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
               Phase Gate Review - {selectedPhaseForReview?.name}
             </DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-6">
             {/* Review Information */}
             <div className="grid grid-cols-2 gap-4 p-4 bg-blue-50 rounded-lg">
