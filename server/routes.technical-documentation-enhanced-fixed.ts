@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { eq, desc, and, sql } from 'drizzle-orm';
-import { technicalDocuments, users, designProjects } from '../shared/schema';
-import { db } from './db';
-import { authMiddleware } from './middleware/auth';
+import { technicalDocuments, users, designProjects } from '../../shared/schema';
+import { db } from '../db';
+import { authMiddleware } from '../middleware/auth';
 
 const router = Router();
 
@@ -289,4 +289,4 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-export { router as technicalDocumentationEnhancedRouter };
+export default router;
