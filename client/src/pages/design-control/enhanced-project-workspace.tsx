@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
-  Briefcase, Calendar, FileText, Users, CheckCircle, AlertCircle, Clock, Target, BarChart3, Settings, Download, Upload, Eye, Edit, Trash2
+  Briefcase, Calendar, FileText, Users, CheckCircle, AlertCircle, Clock, Target, BarChart3, Settings, Download, Upload, Eye, Edit, Trash2, Workflow, Plus, Shield, Play
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
