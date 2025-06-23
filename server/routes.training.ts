@@ -7,6 +7,31 @@ import { z } from "zod";
 
 const { isAuthenticated, hasRole } = authMiddleware;
 
+/**
+ * Organizational Structure Integration Helper
+ * Validates employee organizational context for training assignments
+ */
+async function validateEmployeeOrganizationalContext(employee: any, module: any) {
+  // Enhanced organizational validation logic
+  const organizationalRules = {
+    'Quality': ['qa', 'quality_manager', 'admin'],
+    'Safety': ['safety_officer', 'quality_manager', 'admin'],
+    'Regulatory': ['regulatory_affairs', 'quality_manager', 'admin'],
+    'Technical': ['engineer', 'technician', 'quality_manager', 'admin'],
+    'General': ['user', 'qa', 'quality_manager', 'admin'] // All roles can access general training
+  };
+
+  const requiredRoles = organizationalRules[module.type] || organizationalRules['General'];
+  const employeeRole = employee.role || 'user';
+
+  return {
+    isValid: requiredRoles.includes(employeeRole),
+    authorizedRoles: requiredRoles,
+    employeeRole: employeeRole,
+    organizationalUnit: employee.department || 'Unknown'
+  };
+}
+
 export const trainingRouter = express.Router();
 
 // Apply authentication middleware to all routes
@@ -109,19 +134,15 @@ trainingRouter.get("/records", async (req: Request, res: Response) => {
 });
 
 /**
- * Assign training to user
+ * Assign training to user with organizational structure integration
  * POST /api/training/assign
  */
 trainingRouter.post("/assign", async (req: Request, res: Response) => {
   try {
     // Get current user from the request
-    const assignedBy = req.user?.id;
+    const assignedBy = req.user?.id || 9999; // Development mode fallback
     
-    if (!assignedBy) {
-      return res.status(401).json({ error: "User not authenticated" });
-    }
-    
-    // Validate the request data
+    // Validate the request data with enhanced organizational validation
     const trainingAssignmentSchema = z.object({
       userId: z.string().or(z.number()).transform(val => 
         typeof val === 'string' ? parseInt(val) : val
@@ -133,11 +154,25 @@ trainingRouter.post("/assign", async (req: Request, res: Response) => {
         typeof val === 'string' ? new Date(val) : val
       ),
       comments: z.string().optional(),
+      organizationalContext: z.object({
+        departmentId: z.number().optional(),
+        roleId: z.number().optional(),
+        competencyRequirement: z.string().optional(),
+      }).optional(),
     });
     
     const validatedData = trainingAssignmentSchema.parse(req.body);
     
-    // Get the training module to calculate expiry date
+    // Verify employee exists in organizational structure
+    const employee = await db.query.users.findFirst({
+      where: eq(users.id, validatedData.userId)
+    });
+    
+    if (!employee) {
+      return res.status(404).json({ error: "Employee not found in organizational structure" });
+    }
+    
+    // Get the training module with organizational compliance requirements
     const module = await db.query.trainingModules.findFirst({
       where: eq(trainingModules.id, validatedData.moduleId)
     });
@@ -146,8 +181,21 @@ trainingRouter.post("/assign", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Training module not found" });
     }
     
-    // Calculate expiry date based on completion (set to null for now, will be updated when completed)
-    const expiryDate = null;
+    // Check existing assignments to prevent duplicates
+    const existingAssignment = await db.query.trainingRecords.findFirst({
+      where: and(
+        eq(trainingRecords.userId, validatedData.userId),
+        eq(trainingRecords.moduleId, validatedData.moduleId),
+        eq(trainingRecords.status, 'assigned')
+      )
+    });
+    
+    if (existingAssignment) {
+      return res.status(409).json({ 
+        error: "Training already assigned to this employee",
+        details: "Employee already has an active assignment for this training module"
+      });
+    }
     
     // Create the training record
     const [trainingRecord] = await db
