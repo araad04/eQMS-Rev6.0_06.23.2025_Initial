@@ -796,6 +796,22 @@ function App() {
           </Layout>
         )} />
 
+        <ProtectedRoute path="/management-review/create" component={() => (
+          <Layout>
+            <CreateManagementReview />
+          </Layout>
+        )} />
+
+        <ProtectedRoute path="/management-review/:id" component={() => (
+          <Layout>
+            <Suspense fallback={<div className="flex justify-center py-8"><Loader2 className="animate-spin" /></div>}>
+              <React.Suspense>
+                {React.createElement(React.lazy(() => import("./pages/management-review-detail")))}
+              </React.Suspense>
+            </Suspense>
+          </Layout>
+        )} />
+
         <ProtectedRoute path="/management-review" component={() => (
           <Layout>
             <ManagementReviewList />
