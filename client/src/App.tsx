@@ -308,6 +308,16 @@ function App() {
           </Layout>
         )} />
 
+        <ProtectedRoute path="/design-control/templates" component={() => (
+          <Layout>
+            <Suspense fallback={<div className="flex justify-center py-8"><Loader2 className="animate-spin" /></div>}>
+              <React.Suspense>
+                {React.createElement(React.lazy(() => import("./pages/design-control/templates")))}
+              </React.Suspense>
+            </Suspense>
+          </Layout>
+        )} />
+
         <ProtectedRoute path="/design-control/verification" component={() => (
           <Layout>
             <Suspense fallback={<div className="flex justify-center py-8"><Loader2 className="animate-spin" /></div>}>
