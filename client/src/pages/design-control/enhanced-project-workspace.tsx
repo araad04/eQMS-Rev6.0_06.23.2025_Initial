@@ -1120,7 +1120,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
                 </div>
 
                 <div className="space-y-3">
-                  {designArtifacts?.validationActivities?.map((activity: any, index: number) => (
+                  {(designArtifacts?.validationActivities || []).map((activity: any, index: number) => (
                     <Card key={index} className="border-l-4 border-l-green-500">
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between">
