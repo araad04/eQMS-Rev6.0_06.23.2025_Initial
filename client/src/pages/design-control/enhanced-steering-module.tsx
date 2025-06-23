@@ -311,7 +311,7 @@ export default function EnhancedSteeringModule() {
 
       <Tabs defaultValue="urs" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="urs">URS Requirements</TabsTrigger>
+          <TabsTrigger value="urs">Planning & URS</TabsTrigger>
           <TabsTrigger value="phase-gates">Phase Gate Reviews</TabsTrigger>
           <TabsTrigger value="traceability">Traceability Chain</TabsTrigger>
           <TabsTrigger value="verification">Verification</TabsTrigger>

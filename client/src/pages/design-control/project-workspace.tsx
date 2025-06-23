@@ -132,7 +132,7 @@ const ProjectWorkspace: React.FC<ProjectWorkspaceProps> = () => {
       {/* Project Artifacts Tabs */}
       <Tabs defaultValue="urs" className="w-full">
         <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="urs">URS Requirements</TabsTrigger>
+          <TabsTrigger value="urs">Planning & URS</TabsTrigger>
           <TabsTrigger value="inputs">Design Inputs</TabsTrigger>
           <TabsTrigger value="outputs">Design Outputs</TabsTrigger>
           <TabsTrigger value="verification">Verification</TabsTrigger>
@@ -144,7 +144,7 @@ const ProjectWorkspace: React.FC<ProjectWorkspaceProps> = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="h-5 w-5" />
-                URS Requirements
+                Planning & URS
               </CardTitle>
             </CardHeader>
             <CardContent>
