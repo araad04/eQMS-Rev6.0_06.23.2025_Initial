@@ -384,13 +384,7 @@ const AllProjectsPage = () => {
                   path: '/design-control/enhanced',
                   color: 'bg-blue-500'
                 },
-                {
-                  icon: FileText,
-                  title: 'Global Traceability',
-                  description: 'Requirements traceability matrix',
-                  path: '/design-control/dynamic-traceability',
-                  color: 'bg-green-500'
-                },
+
                 {
                   icon: FileText,
                   title: 'Design History File',

@@ -187,7 +187,7 @@ export function Sidebar({ isOpen, closeSidebar }: SidebarProps) {
         { title: "All Projects", path: "/design-control" },
         { title: "Create New Project", path: "/design-control/create" },
         { title: "Project Templates", path: "/design-control/templates" },
-        { title: "Global Traceability", path: "/design-control/dynamic-traceability" },
+
         { title: "Design History Files", path: "/design-control/history-file" },
       ],
     },
