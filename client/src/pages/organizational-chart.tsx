@@ -66,8 +66,17 @@ const structureFormSchema = z.object({
   signatureAuthority: z.string().optional(),
 });
 
+const trainingAssignmentSchema = z.object({
+  userId: z.number().min(1, "Employee is required"),
+  trainingModuleId: z.number().min(1, "Training module is required"),
+  dueDate: z.string().min(1, "Due date is required"),
+  priority: z.enum(["low", "medium", "high"]),
+  notes: z.string().optional(),
+});
+
 type PositionFormData = z.infer<typeof positionFormSchema>;
 type StructureFormData = z.infer<typeof structureFormSchema>;
+type TrainingAssignmentData = z.infer<typeof trainingAssignmentSchema>;
 
 // Custom node component for organizational positions
 const OrganizationalNode = ({ data }: { data: any }) => {
@@ -124,6 +133,8 @@ export default function OrganizationalChart() {
   const [showDelegationDialog, setShowDelegationDialog] = useState(false);
   const [showPositionDialog, setShowPositionDialog] = useState(false);
   const [showStructureDialog, setShowStructureDialog] = useState(false);
+  const [showTrainingDialog, setShowTrainingDialog] = useState(false);
+  const [selectedEmployeeForTraining, setSelectedEmployeeForTraining] = useState<any>(null);
   const [editingStructure, setEditingStructure] = useState<any>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -156,6 +167,16 @@ export default function OrganizationalChart() {
   // Fetch departments
   const { data: departments = [] } = useQuery({
     queryKey: ["/api/organizational/departments"],
+  });
+
+  // Fetch training modules for assignment
+  const { data: trainingModules = [] } = useQuery({
+    queryKey: ["/api/training/modules"],
+  });
+
+  // Fetch users for training assignment
+  const { data: users = [] } = useQuery({
+    queryKey: ["/api/users"],
   });
 
   // Fetch document types
@@ -269,6 +290,23 @@ export default function OrganizationalChart() {
     },
     onError: () => {
       toast({ title: "Failed to create delegation", variant: "destructive" });
+    },
+  });
+
+  // Create training assignment mutation
+  const assignTrainingMutation = useMutation({
+    mutationFn: (data: any) => apiRequest("/api/training/records", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+    onSuccess: () => {
+      toast({ title: "Training assigned successfully" });
+      queryClient.invalidateQueries({ queryKey: ["/api/training/records"] });
+      setShowTrainingDialog(false);
+      setSelectedEmployeeForTraining(null);
+    },
+    onError: () => {
+      toast({ title: "Failed to assign training", variant: "destructive" });
     },
   });
 
@@ -981,10 +1019,112 @@ export default function OrganizationalChart() {
                 {/* Team Training Matrix */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Team Training Matrix</CardTitle>
-                    <CardDescription>
-                      Track training completion across teams and departments
-                    </CardDescription>
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <CardTitle>Team Training Matrix</CardTitle>
+                        <CardDescription>
+                          Track training completion across teams and departments
+                        </CardDescription>
+                      </div>
+                      <Dialog open={showTrainingDialog} onOpenChange={setShowTrainingDialog}>
+                        <DialogTrigger asChild>
+                          <Button size="sm">
+                            <Plus className="h-4 w-4 mr-2" />
+                            Assign Training
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Assign Training to Employee</DialogTitle>
+                            <DialogDescription>
+                              Select an employee and training module to create a training assignment.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <form onSubmit={(e) => {
+                            e.preventDefault();
+                            const formData = new FormData(e.currentTarget);
+                            const data = {
+                              userId: parseInt(formData.get('userId') as string),
+                              trainingModuleId: parseInt(formData.get('trainingModuleId') as string),
+                              dueDate: formData.get('dueDate') as string,
+                              priority: formData.get('priority') as string,
+                              notes: formData.get('notes') as string,
+                              status: 'assigned',
+                              assignedBy: 9999 // Current user ID
+                            };
+                            assignTrainingMutation.mutate(data);
+                          }} className="space-y-4">
+                            <div>
+                              <Label htmlFor="userId">Employee</Label>
+                              <Select name="userId" required>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select employee" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {structure.filter(item => item.user).map((item: any) => (
+                                    <SelectItem key={item.user.id} value={item.user.id.toString()}>
+                                      {item.user.firstName} {item.user.lastName} - {item.position?.title}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label htmlFor="trainingModuleId">Training Module</Label>
+                              <Select name="trainingModuleId" required>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select training module" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {trainingModules.map((module: any) => (
+                                    <SelectItem key={module.id} value={module.id.toString()}>
+                                      {module.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label htmlFor="dueDate">Due Date</Label>
+                              <Input 
+                                type="date" 
+                                name="dueDate" 
+                                required 
+                                min={new Date().toISOString().split('T')[0]}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="priority">Priority</Label>
+                              <Select name="priority" required>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select priority" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="low">Low</SelectItem>
+                                  <SelectItem value="medium">Medium</SelectItem>
+                                  <SelectItem value="high">High</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label htmlFor="notes">Notes (Optional)</Label>
+                              <Textarea 
+                                name="notes" 
+                                placeholder="Additional notes or instructions..."
+                              />
+                            </div>
+                            <div className="flex justify-end gap-2">
+                              <Button type="button" variant="outline" onClick={() => setShowTrainingDialog(false)}>
+                                Cancel
+                              </Button>
+                              <Button type="submit" disabled={assignTrainingMutation.isPending}>
+                                {assignTrainingMutation.isPending ? "Assigning..." : "Assign Training"}
+                              </Button>
+                            </div>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div className="overflow-x-auto">
