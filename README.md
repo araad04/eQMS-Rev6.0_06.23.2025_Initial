@@ -47,8 +47,8 @@ The eQMS provides end-to-end quality management for medical device manufacturers
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/biomedical78/eQMS6.0_06.23.2025-.git
-   cd eQMS6.0_06.23.2025-
+   git clone https://github.com/biomedical78/eQMS-Rev6.0_06.23.2025_Initial.git
+   cd eQMS-Rev6.0_06.23.2025_Initial
    ```
 
 2. **Install dependencies**

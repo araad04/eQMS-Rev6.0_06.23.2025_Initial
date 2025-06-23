@@ -14,7 +14,7 @@ Open terminal/command prompt in the downloaded project folder and run:
 git init
 
 # Add your GitHub repository as remote
-git remote add origin https://github.com/biomedical78/eQMS6.0_06.23.2025-.git
+git remote add origin https://github.com/biomedical78/eQMS-Rev6.0_06.23.2025_Initial.git
 
 # Pull existing content from GitHub (this will merge the README.md)
 git pull origin main --allow-unrelated-histories
@@ -62,8 +62,8 @@ On your deployment server:
 
 ```bash
 # Clone the repository
-git clone https://github.com/biomedical78/eQMS6.0_06.23.2025-.git
-cd eQMS6.0_06.23.2025-
+git clone https://github.com/biomedical78/eQMS-Rev6.0_06.23.2025_Initial.git
+cd eQMS-Rev6.0_06.23.2025_Initial
 
 # Install dependencies
 npm install

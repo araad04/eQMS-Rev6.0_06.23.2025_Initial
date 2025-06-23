@@ -1,7 +1,7 @@
 # eQMS 6.0 GitHub Transfer Guide
 
 ## Repository Information
-- **GitHub Repository**: https://github.com/biomedical78/eQMS6.0_06.23.2025-.git
+- **GitHub Repository**: https://github.com/biomedical78/eQMS-Rev6.0_06.23.2025_Initial.git
 - **Transfer Date**: June 23, 2025
 - **Version**: 6.0 Production Ready
 
@@ -23,7 +23,7 @@ cd /path/to/eqms-project
 git init
 
 # Add your GitHub repository as remote origin
-git remote add origin https://github.com/biomedical78/eQMS6.0_06.23.2025-.git
+git remote add origin https://github.com/biomedical78/eQMS-Rev6.0_06.23.2025_Initial.git
 ```
 
 ### Step 2: Prepare Files for Transfer
