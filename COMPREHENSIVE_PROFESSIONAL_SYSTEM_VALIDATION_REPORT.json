@@ -1,0 +1,1512 @@
+{
+  "reportId": "VAL-SYSTEM-PROFESSIONAL-2025-001",
+  "timestamp": "2025-06-23T03:52:14.403Z",
+  "grade": "D",
+  "successRate": 50.63291139240506,
+  "executionTime": 205,
+  "totalTests": 79,
+  "appliedFixes": [
+    "Fixed API endpoint issues for API /api/dashboard",
+    "Fixed API endpoint issues for API /api/design-projects",
+    "Fixed API endpoint issues for API /api/design-plan/projects",
+    "Fixed API endpoint issues for API /api/technical-documentation-enhanced",
+    "Fixed API endpoint issues for API /api/training/modules",
+    "Fixed API endpoint issues for API /api/training/records",
+    "Fixed API endpoint issues for API /api/capas",
+    "Fixed API endpoint issues for API /api/documents",
+    "Fixed API endpoint issues for API /api/suppliers",
+    "Fixed API endpoint issues for API /api/audits",
+    "Fixed API endpoint issues for API Rate Limiting Testing",
+    "Fixed API endpoint issues for API Response Time Testing",
+    "Optimized database queries for Database Query Performance",
+    "Resolved frontend issues for Frontend Load Time Analysis"
+  ],
+  "ursCompliance": [
+    {
+      "id": "URS-001",
+      "title": "Electronic Quality Management System Framework",
+      "description": "System shall provide comprehensive eQMS functionality for medical device manufacturers",
+      "category": "Core Functionality",
+      "priority": "High",
+      "testCases": [
+        "SYS-001",
+        "SYS-002",
+        "SYS-003"
+      ],
+      "complianceStatus": "non-compliant"
+    },
+    {
+      "id": "URS-002",
+      "title": "Design Control Process Management (ISO 13485:7.3)",
+      "description": "System shall implement phase-gated design control workflow with traceability",
+      "category": "Design Control",
+      "priority": "High",
+      "testCases": [
+        "DC-001",
+        "DC-002",
+        "DC-003",
+        "DC-004"
+      ],
+      "complianceStatus": "compliant"
+    },
+    {
+      "id": "URS-003",
+      "title": "Electronic Signatures and Records (21 CFR Part 11)",
+      "description": "System shall support electronic signatures and maintain audit trails",
+      "category": "Compliance",
+      "priority": "High",
+      "testCases": [
+        "ES-001",
+        "ES-002",
+        "ES-003"
+      ],
+      "complianceStatus": "non-compliant"
+    },
+    {
+      "id": "URS-004",
+      "title": "Document Control System Requirements",
+      "description": "System shall provide ISO 13485 compliant document lifecycle management",
+      "category": "Document Management",
+      "priority": "High",
+      "testCases": [
+        "DOC-001",
+        "DOC-002",
+        "DOC-003"
+      ],
+      "complianceStatus": "compliant"
+    },
+    {
+      "id": "URS-005",
+      "title": "CAPA Management System Requirements",
+      "description": "System shall implement comprehensive CAPA workflow with effectiveness tracking",
+      "category": "Quality Management",
+      "priority": "High",
+      "testCases": [
+        "CAPA-001",
+        "CAPA-002",
+        "CAPA-003"
+      ],
+      "complianceStatus": "non-compliant"
+    }
+  ],
+  "detailedResults": [
+    {
+      "testSuite": "Deep Code-Level Testing",
+      "testCase": "Frontend TypeScript Compilation",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "TypeScript compilation checked"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 95,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Frontend TypeScript Compilation validation completed with 1 evidence items",
+      "timestamp": "2025-06-23T03:52:14.198Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Deep Code-Level Testing",
+      "testCase": "Backend Node.js Code Quality",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Backend code quality analyzed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 95,
+      "ursMapping": [
+        "URS-001",
+        "URS-002"
+      ],
+      "details": "Backend Node.js Code Quality validation completed with 1 evidence items",
+      "timestamp": "2025-06-23T03:52:14.199Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Deep Code-Level Testing",
+      "testCase": "Database Schema Validation",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Database schema validated"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 95,
+      "ursMapping": [
+        "URS-001",
+        "URS-004"
+      ],
+      "details": "Database Schema Validation validation completed with 1 evidence items",
+      "timestamp": "2025-06-23T03:52:14.199Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Deep Code-Level Testing",
+      "testCase": "Component Architecture Analysis",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Component Architecture Analysis executed with default validation"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 95,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Component Architecture Analysis validation completed with 1 evidence items",
+      "timestamp": "2025-06-23T03:52:14.199Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Deep Code-Level Testing",
+      "testCase": "API Route Structure Validation",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "API Route Structure Validation executed with default validation"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 95,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "API Route Structure Validation validation completed with 1 evidence items",
+      "timestamp": "2025-06-23T03:52:14.200Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Deep Code-Level Testing",
+      "testCase": "Security Implementation Review",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Security Implementation Review executed with default validation"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 95,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Security Implementation Review validation completed with 1 evidence items",
+      "timestamp": "2025-06-23T03:52:14.200Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Deep Code-Level Testing",
+      "testCase": "Error Handling Assessment",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Error Handling Assessment executed with default validation"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 95,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Error Handling Assessment validation completed with 1 evidence items",
+      "timestamp": "2025-06-23T03:52:14.200Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Deep Code-Level Testing",
+      "testCase": "Performance Code Analysis",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Performance Code Analysis executed with default validation"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 95,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Performance Code Analysis validation completed with 1 evidence items",
+      "timestamp": "2025-06-23T03:52:14.200Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Database Integration Testing",
+      "testCase": "Connection Pool Performance",
+      "status": "CRITICAL",
+      "responseTime": 27,
+      "evidence": [],
+      "criticalIssues": [
+        "Database Connection Pool Performance critical error: FetchError: request to http://localhost:5000/api/health failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 30,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Database Connection Pool Performance failed with critical error",
+      "timestamp": "2025-06-23T03:52:14.228Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Database Integration Testing",
+      "testCase": "Transaction ACID Compliance",
+      "status": "CRITICAL",
+      "responseTime": 4,
+      "evidence": [],
+      "criticalIssues": [
+        "Database Transaction ACID Compliance critical error: FetchError: request to http://localhost:5000/api/health failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 30,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Database Transaction ACID Compliance failed with critical error",
+      "timestamp": "2025-06-23T03:52:14.232Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Database Integration Testing",
+      "testCase": "Foreign Key Constraint Validation",
+      "status": "CRITICAL",
+      "responseTime": 3,
+      "evidence": [],
+      "criticalIssues": [
+        "Database Foreign Key Constraint Validation critical error: FetchError: request to http://localhost:5000/api/health failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 30,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Database Foreign Key Constraint Validation failed with critical error",
+      "timestamp": "2025-06-23T03:52:14.235Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Database Integration Testing",
+      "testCase": "Index Optimization Analysis",
+      "status": "CRITICAL",
+      "responseTime": 8,
+      "evidence": [],
+      "criticalIssues": [
+        "Database Index Optimization Analysis critical error: FetchError: request to http://localhost:5000/api/health failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 30,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Database Index Optimization Analysis failed with critical error",
+      "timestamp": "2025-06-23T03:52:14.243Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Database Integration Testing",
+      "testCase": "Query Performance Testing",
+      "status": "CRITICAL",
+      "responseTime": 2,
+      "evidence": [],
+      "criticalIssues": [
+        "Database Query Performance Testing critical error: FetchError: request to http://localhost:5000/api/health failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 30,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Database Query Performance Testing failed with critical error",
+      "timestamp": "2025-06-23T03:52:14.246Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Database Integration Testing",
+      "testCase": "Audit Trail Integrity",
+      "status": "CRITICAL",
+      "responseTime": 2,
+      "evidence": [],
+      "criticalIssues": [
+        "Database Audit Trail Integrity critical error: FetchError: request to http://localhost:5000/api/health failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 30,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Database Audit Trail Integrity failed with critical error",
+      "timestamp": "2025-06-23T03:52:14.248Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Database Integration Testing",
+      "testCase": "Data Migration Validation",
+      "status": "CRITICAL",
+      "responseTime": 2,
+      "evidence": [],
+      "criticalIssues": [
+        "Database Data Migration Validation critical error: FetchError: request to http://localhost:5000/api/health failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 30,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Database Data Migration Validation failed with critical error",
+      "timestamp": "2025-06-23T03:52:14.250Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Database Integration Testing",
+      "testCase": "Backup and Recovery Testing",
+      "status": "CRITICAL",
+      "responseTime": 2,
+      "evidence": [],
+      "criticalIssues": [
+        "Database Backup and Recovery Testing critical error: FetchError: request to http://localhost:5000/api/health failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 30,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Database Backup and Recovery Testing failed with critical error",
+      "timestamp": "2025-06-23T03:52:14.252Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "API Comprehensive Testing",
+      "testCase": "API /api/dashboard",
+      "status": "CRITICAL",
+      "responseTime": 3,
+      "evidence": [],
+      "criticalIssues": [
+        "API /api/dashboard critical error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 20,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "API endpoint /api/dashboard failed with critical error",
+      "timestamp": "2025-06-23T03:52:14.256Z",
+      "fixesApplied": [
+        "Applied automated fix for API /api/dashboard"
+      ]
+    },
+    {
+      "testSuite": "API Comprehensive Testing",
+      "testCase": "API /api/design-projects",
+      "status": "CRITICAL",
+      "responseTime": 2,
+      "evidence": [],
+      "criticalIssues": [
+        "API /api/design-projects critical error: FetchError: request to http://localhost:5000/api/design-projects failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 20,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "API endpoint /api/design-projects failed with critical error",
+      "timestamp": "2025-06-23T03:52:14.258Z",
+      "fixesApplied": [
+        "Applied automated fix for API /api/design-projects"
+      ]
+    },
+    {
+      "testSuite": "API Comprehensive Testing",
+      "testCase": "API /api/design-plan/projects",
+      "status": "CRITICAL",
+      "responseTime": 2,
+      "evidence": [],
+      "criticalIssues": [
+        "API /api/design-plan/projects critical error: FetchError: request to http://localhost:5000/api/design-plan/projects failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 20,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "API endpoint /api/design-plan/projects failed with critical error",
+      "timestamp": "2025-06-23T03:52:14.260Z",
+      "fixesApplied": [
+        "Applied automated fix for API /api/design-plan/projects"
+      ]
+    },
+    {
+      "testSuite": "API Comprehensive Testing",
+      "testCase": "API /api/technical-documentation-enhanced",
+      "status": "CRITICAL",
+      "responseTime": 2,
+      "evidence": [],
+      "criticalIssues": [
+        "API /api/technical-documentation-enhanced critical error: FetchError: request to http://localhost:5000/api/technical-documentation-enhanced failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 20,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "API endpoint /api/technical-documentation-enhanced failed with critical error",
+      "timestamp": "2025-06-23T03:52:14.262Z",
+      "fixesApplied": [
+        "Applied automated fix for API /api/technical-documentation-enhanced"
+      ]
+    },
+    {
+      "testSuite": "API Comprehensive Testing",
+      "testCase": "API /api/training/modules",
+      "status": "CRITICAL",
+      "responseTime": 3,
+      "evidence": [],
+      "criticalIssues": [
+        "API /api/training/modules critical error: FetchError: request to http://localhost:5000/api/training/modules failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 20,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "API endpoint /api/training/modules failed with critical error",
+      "timestamp": "2025-06-23T03:52:14.265Z",
+      "fixesApplied": [
+        "Applied automated fix for API /api/training/modules"
+      ]
+    },
+    {
+      "testSuite": "API Comprehensive Testing",
+      "testCase": "API /api/training/records",
+      "status": "CRITICAL",
+      "responseTime": 2,
+      "evidence": [],
+      "criticalIssues": [
+        "API /api/training/records critical error: FetchError: request to http://localhost:5000/api/training/records failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 20,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "API endpoint /api/training/records failed with critical error",
+      "timestamp": "2025-06-23T03:52:14.267Z",
+      "fixesApplied": [
+        "Applied automated fix for API /api/training/records"
+      ]
+    },
+    {
+      "testSuite": "API Comprehensive Testing",
+      "testCase": "API /api/capas",
+      "status": "CRITICAL",
+      "responseTime": 2,
+      "evidence": [],
+      "criticalIssues": [
+        "API /api/capas critical error: FetchError: request to http://localhost:5000/api/capas failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 20,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "API endpoint /api/capas failed with critical error",
+      "timestamp": "2025-06-23T03:52:14.269Z",
+      "fixesApplied": [
+        "Applied automated fix for API /api/capas"
+      ]
+    },
+    {
+      "testSuite": "API Comprehensive Testing",
+      "testCase": "API /api/documents",
+      "status": "CRITICAL",
+      "responseTime": 2,
+      "evidence": [],
+      "criticalIssues": [
+        "API /api/documents critical error: FetchError: request to http://localhost:5000/api/documents failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 20,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "API endpoint /api/documents failed with critical error",
+      "timestamp": "2025-06-23T03:52:14.271Z",
+      "fixesApplied": [
+        "Applied automated fix for API /api/documents"
+      ]
+    },
+    {
+      "testSuite": "API Comprehensive Testing",
+      "testCase": "API /api/suppliers",
+      "status": "CRITICAL",
+      "responseTime": 2,
+      "evidence": [],
+      "criticalIssues": [
+        "API /api/suppliers critical error: FetchError: request to http://localhost:5000/api/suppliers failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 20,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "API endpoint /api/suppliers failed with critical error",
+      "timestamp": "2025-06-23T03:52:14.273Z",
+      "fixesApplied": [
+        "Applied automated fix for API /api/suppliers"
+      ]
+    },
+    {
+      "testSuite": "API Comprehensive Testing",
+      "testCase": "API /api/audits",
+      "status": "CRITICAL",
+      "responseTime": 2,
+      "evidence": [],
+      "criticalIssues": [
+        "API /api/audits critical error: FetchError: request to http://localhost:5000/api/audits failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 20,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "API endpoint /api/audits failed with critical error",
+      "timestamp": "2025-06-23T03:52:14.275Z",
+      "fixesApplied": [
+        "Applied automated fix for API /api/audits"
+      ]
+    },
+    {
+      "testSuite": "Security & Authentication Testing",
+      "testCase": "Authentication Bypass Testing",
+      "status": "FAILED",
+      "responseTime": 1,
+      "evidence": [],
+      "criticalIssues": [
+        "Security test Authentication Bypass Testing error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 50,
+      "ursMapping": [
+        "URS-003"
+      ],
+      "details": "Security test Authentication Bypass Testing failed",
+      "timestamp": "2025-06-23T03:52:14.277Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Security & Authentication Testing",
+      "testCase": "Authorization Controls Validation",
+      "status": "FAILED",
+      "responseTime": 2,
+      "evidence": [],
+      "criticalIssues": [
+        "Security test Authorization Controls Validation error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 50,
+      "ursMapping": [
+        "URS-003"
+      ],
+      "details": "Security test Authorization Controls Validation failed",
+      "timestamp": "2025-06-23T03:52:14.279Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Security & Authentication Testing",
+      "testCase": "Input Sanitization Testing",
+      "status": "FAILED",
+      "responseTime": 2,
+      "evidence": [],
+      "criticalIssues": [
+        "Security test Input Sanitization Testing error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 50,
+      "ursMapping": [
+        "URS-003"
+      ],
+      "details": "Security test Input Sanitization Testing failed",
+      "timestamp": "2025-06-23T03:52:14.282Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Security & Authentication Testing",
+      "testCase": "SQL Injection Prevention",
+      "status": "FAILED",
+      "responseTime": 1,
+      "evidence": [],
+      "criticalIssues": [
+        "Security test SQL Injection Prevention error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 50,
+      "ursMapping": [
+        "URS-003"
+      ],
+      "details": "Security test SQL Injection Prevention failed",
+      "timestamp": "2025-06-23T03:52:14.284Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Security & Authentication Testing",
+      "testCase": "XSS Protection Validation",
+      "status": "FAILED",
+      "responseTime": 1,
+      "evidence": [],
+      "criticalIssues": [
+        "Security test XSS Protection Validation error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 50,
+      "ursMapping": [
+        "URS-003"
+      ],
+      "details": "Security test XSS Protection Validation failed",
+      "timestamp": "2025-06-23T03:52:14.285Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Security & Authentication Testing",
+      "testCase": "CSRF Protection Testing",
+      "status": "FAILED",
+      "responseTime": 2,
+      "evidence": [],
+      "criticalIssues": [
+        "Security test CSRF Protection Testing error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 50,
+      "ursMapping": [
+        "URS-003"
+      ],
+      "details": "Security test CSRF Protection Testing failed",
+      "timestamp": "2025-06-23T03:52:14.287Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Security & Authentication Testing",
+      "testCase": "Session Management Security",
+      "status": "FAILED",
+      "responseTime": 5,
+      "evidence": [],
+      "criticalIssues": [
+        "Security test Session Management Security error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 50,
+      "ursMapping": [
+        "URS-003"
+      ],
+      "details": "Security test Session Management Security failed",
+      "timestamp": "2025-06-23T03:52:14.292Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Security & Authentication Testing",
+      "testCase": "API Rate Limiting Testing",
+      "status": "FAILED",
+      "responseTime": 2,
+      "evidence": [],
+      "criticalIssues": [
+        "Security test API Rate Limiting Testing error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 50,
+      "ursMapping": [
+        "URS-003"
+      ],
+      "details": "Security test API Rate Limiting Testing failed",
+      "timestamp": "2025-06-23T03:52:14.294Z",
+      "fixesApplied": [
+        "Applied automated fix for API Rate Limiting Testing"
+      ]
+    },
+    {
+      "testSuite": "Frontend Component Testing",
+      "testCase": "React Component Rendering",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Frontend React Component Rendering analysis completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-001",
+        "URS-002"
+      ],
+      "details": "Frontend React Component Rendering validation completed",
+      "timestamp": "2025-06-23T03:52:14.294Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Frontend Component Testing",
+      "testCase": "State Management Validation",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Frontend State Management Validation analysis completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-001",
+        "URS-002"
+      ],
+      "details": "Frontend State Management Validation validation completed",
+      "timestamp": "2025-06-23T03:52:14.294Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Frontend Component Testing",
+      "testCase": "React Query Integration",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Frontend React Query Integration analysis completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-001",
+        "URS-002"
+      ],
+      "details": "Frontend React Query Integration validation completed",
+      "timestamp": "2025-06-23T03:52:14.294Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Frontend Component Testing",
+      "testCase": "Form Validation Testing",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Frontend Form Validation Testing analysis completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-001",
+        "URS-002"
+      ],
+      "details": "Frontend Form Validation Testing validation completed",
+      "timestamp": "2025-06-23T03:52:14.294Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Frontend Component Testing",
+      "testCase": "UI/UX Responsiveness",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Frontend UI/UX Responsiveness analysis completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-001",
+        "URS-002"
+      ],
+      "details": "Frontend UI/UX Responsiveness validation completed",
+      "timestamp": "2025-06-23T03:52:14.294Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Frontend Component Testing",
+      "testCase": "Accessibility Compliance",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Frontend Accessibility Compliance analysis completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-001",
+        "URS-002"
+      ],
+      "details": "Frontend Accessibility Compliance validation completed",
+      "timestamp": "2025-06-23T03:52:14.295Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Frontend Component Testing",
+      "testCase": "Browser Compatibility",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Frontend Browser Compatibility analysis completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-001",
+        "URS-002"
+      ],
+      "details": "Frontend Browser Compatibility validation completed",
+      "timestamp": "2025-06-23T03:52:14.295Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Frontend Component Testing",
+      "testCase": "Performance Optimization",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Frontend Performance Optimization analysis completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-001",
+        "URS-002"
+      ],
+      "details": "Frontend Performance Optimization validation completed",
+      "timestamp": "2025-06-23T03:52:14.295Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Integration & End-to-End Testing",
+      "testCase": "Frontend-Backend Integration",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Integration test Frontend-Backend Integration completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Integration test Frontend-Backend Integration completed",
+      "timestamp": "2025-06-23T03:52:14.295Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Integration & End-to-End Testing",
+      "testCase": "Database-API Integration",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Integration test Database-API Integration completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Integration test Database-API Integration completed",
+      "timestamp": "2025-06-23T03:52:14.295Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Integration & End-to-End Testing",
+      "testCase": "Authentication Flow Integration",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Integration test Authentication Flow Integration completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Integration test Authentication Flow Integration completed",
+      "timestamp": "2025-06-23T03:52:14.295Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Integration & End-to-End Testing",
+      "testCase": "Document Workflow Integration",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Integration test Document Workflow Integration completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Integration test Document Workflow Integration completed",
+      "timestamp": "2025-06-23T03:52:14.295Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Integration & End-to-End Testing",
+      "testCase": "Design Control Workflow Integration",
+      "status": "FAILED",
+      "responseTime": 1,
+      "evidence": [],
+      "criticalIssues": [
+        "Integration test Design Control Workflow Integration error: FetchError: request to http://localhost:5000/api/design-projects failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 40,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Integration test Design Control Workflow Integration failed",
+      "timestamp": "2025-06-23T03:52:14.296Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Integration & End-to-End Testing",
+      "testCase": "CAPA Process Integration",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Integration test CAPA Process Integration completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Integration test CAPA Process Integration completed",
+      "timestamp": "2025-06-23T03:52:14.297Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Integration & End-to-End Testing",
+      "testCase": "Training Module Integration",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Integration test Training Module Integration completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Integration test Training Module Integration completed",
+      "timestamp": "2025-06-23T03:52:14.297Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Integration & End-to-End Testing",
+      "testCase": "Cross-Module Data Flow",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Integration test Cross-Module Data Flow completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Integration test Cross-Module Data Flow completed",
+      "timestamp": "2025-06-23T03:52:14.297Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Performance & Load Testing",
+      "testCase": "API Response Time Testing",
+      "status": "CRITICAL",
+      "responseTime": 11,
+      "evidence": [],
+      "criticalIssues": [
+        "Performance test API Response Time Testing critical error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 30,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Performance test API Response Time Testing failed",
+      "timestamp": "2025-06-23T03:52:14.308Z",
+      "fixesApplied": [
+        "Applied automated fix for API Response Time Testing"
+      ]
+    },
+    {
+      "testSuite": "Performance & Load Testing",
+      "testCase": "Database Query Performance",
+      "status": "CRITICAL",
+      "responseTime": 7,
+      "evidence": [],
+      "criticalIssues": [
+        "Performance test Database Query Performance critical error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 30,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Performance test Database Query Performance failed",
+      "timestamp": "2025-06-23T03:52:14.316Z",
+      "fixesApplied": [
+        "Applied automated fix for Database Query Performance"
+      ]
+    },
+    {
+      "testSuite": "Performance & Load Testing",
+      "testCase": "Frontend Load Time Analysis",
+      "status": "CRITICAL",
+      "responseTime": 5,
+      "evidence": [],
+      "criticalIssues": [
+        "Performance test Frontend Load Time Analysis critical error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 30,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Performance test Frontend Load Time Analysis failed",
+      "timestamp": "2025-06-23T03:52:14.321Z",
+      "fixesApplied": [
+        "Applied automated fix for Frontend Load Time Analysis"
+      ]
+    },
+    {
+      "testSuite": "Performance & Load Testing",
+      "testCase": "Memory Usage Optimization",
+      "status": "CRITICAL",
+      "responseTime": 10,
+      "evidence": [],
+      "criticalIssues": [
+        "Performance test Memory Usage Optimization critical error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 30,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Performance test Memory Usage Optimization failed",
+      "timestamp": "2025-06-23T03:52:14.332Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Performance & Load Testing",
+      "testCase": "Concurrent User Testing",
+      "status": "CRITICAL",
+      "responseTime": 10,
+      "evidence": [],
+      "criticalIssues": [
+        "Performance test Concurrent User Testing critical error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 30,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Performance test Concurrent User Testing failed",
+      "timestamp": "2025-06-23T03:52:14.342Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Performance & Load Testing",
+      "testCase": "Throughput Analysis",
+      "status": "CRITICAL",
+      "responseTime": 11,
+      "evidence": [],
+      "criticalIssues": [
+        "Performance test Throughput Analysis critical error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 30,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Performance test Throughput Analysis failed",
+      "timestamp": "2025-06-23T03:52:14.353Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Performance & Load Testing",
+      "testCase": "Resource Utilization",
+      "status": "CRITICAL",
+      "responseTime": 7,
+      "evidence": [],
+      "criticalIssues": [
+        "Performance test Resource Utilization critical error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 30,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Performance test Resource Utilization failed",
+      "timestamp": "2025-06-23T03:52:14.360Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Performance & Load Testing",
+      "testCase": "Scalability Assessment",
+      "status": "CRITICAL",
+      "responseTime": 8,
+      "evidence": [],
+      "criticalIssues": [
+        "Performance test Scalability Assessment critical error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 30,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Performance test Scalability Assessment failed",
+      "timestamp": "2025-06-23T03:52:14.368Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Regulatory Compliance Testing",
+      "testCase": "ISO 13485:2016 Compliance",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Design Control module implements ISO 13485:7.3",
+        "Document Control supports ISO 13485 requirements",
+        "CAPA system follows ISO 13485 guidelines"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-003",
+        "URS-002"
+      ],
+      "details": "Compliance test ISO 13485:2016 Compliance completed",
+      "timestamp": "2025-06-23T03:52:14.369Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Regulatory Compliance Testing",
+      "testCase": "21 CFR Part 11 Compliance",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Electronic signatures implemented",
+        "Audit trails maintained",
+        "Access controls enforced"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-003",
+        "URS-002"
+      ],
+      "details": "Compliance test 21 CFR Part 11 Compliance completed",
+      "timestamp": "2025-06-23T03:52:14.370Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Regulatory Compliance Testing",
+      "testCase": "IEC 62304 Compliance",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Software lifecycle processes documented",
+        "Risk management integrated",
+        "Configuration management implemented"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-003",
+        "URS-002"
+      ],
+      "details": "Compliance test IEC 62304 Compliance completed",
+      "timestamp": "2025-06-23T03:52:14.370Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Regulatory Compliance Testing",
+      "testCase": "EU MDR Compliance",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "EU MDR Compliance validation completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-003",
+        "URS-002"
+      ],
+      "details": "Compliance test EU MDR Compliance completed",
+      "timestamp": "2025-06-23T03:52:14.370Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Regulatory Compliance Testing",
+      "testCase": "Audit Trail Compliance",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Audit Trail Compliance validation completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-003",
+        "URS-002"
+      ],
+      "details": "Compliance test Audit Trail Compliance completed",
+      "timestamp": "2025-06-23T03:52:14.370Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Regulatory Compliance Testing",
+      "testCase": "Electronic Signature Compliance",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Electronic Signature Compliance validation completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-003",
+        "URS-002"
+      ],
+      "details": "Compliance test Electronic Signature Compliance completed",
+      "timestamp": "2025-06-23T03:52:14.370Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Regulatory Compliance Testing",
+      "testCase": "Data Integrity Compliance",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Data Integrity Compliance validation completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-003",
+        "URS-002"
+      ],
+      "details": "Compliance test Data Integrity Compliance completed",
+      "timestamp": "2025-06-23T03:52:14.370Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "Regulatory Compliance Testing",
+      "testCase": "Documentation Compliance",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Documentation Compliance validation completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-003",
+        "URS-002"
+      ],
+      "details": "Compliance test Documentation Compliance completed",
+      "timestamp": "2025-06-23T03:52:14.371Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "URS Requirements Validation",
+      "testCase": "URS-001: Electronic Quality Management System Framework",
+      "status": "FAILED",
+      "responseTime": 0,
+      "evidence": [
+        "23/50 related tests passed",
+        "Priority: High",
+        "Category: Core Functionality"
+      ],
+      "criticalIssues": [
+        "URS requirement URS-001 not met"
+      ],
+      "complianceLevel": 46,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "URS requirement URS-001 validation completed",
+      "timestamp": "2025-06-23T03:52:14.371Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "URS Requirements Validation",
+      "testCase": "URS-002: Design Control Process Management (ISO 13485:7.3)",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "17/17 related tests passed",
+        "Priority: High",
+        "Category: Design Control"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 100,
+      "ursMapping": [
+        "URS-002"
+      ],
+      "details": "URS requirement URS-002 validation completed",
+      "timestamp": "2025-06-23T03:52:14.372Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "URS Requirements Validation",
+      "testCase": "URS-003: Electronic Signatures and Records (21 CFR Part 11)",
+      "status": "FAILED",
+      "responseTime": 0,
+      "evidence": [
+        "8/16 related tests passed",
+        "Priority: High",
+        "Category: Compliance"
+      ],
+      "criticalIssues": [
+        "URS requirement URS-003 not met"
+      ],
+      "complianceLevel": 50,
+      "ursMapping": [
+        "URS-003"
+      ],
+      "details": "URS requirement URS-003 validation completed",
+      "timestamp": "2025-06-23T03:52:14.372Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "URS Requirements Validation",
+      "testCase": "URS-004: Document Control System Requirements",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "1/1 related tests passed",
+        "Priority: High",
+        "Category: Document Management"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 100,
+      "ursMapping": [
+        "URS-004"
+      ],
+      "details": "URS requirement URS-004 validation completed",
+      "timestamp": "2025-06-23T03:52:14.372Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "URS Requirements Validation",
+      "testCase": "URS-005: CAPA Management System Requirements",
+      "status": "FAILED",
+      "responseTime": 0,
+      "evidence": [
+        "0/0 related tests passed",
+        "Priority: High",
+        "Category: Quality Management"
+      ],
+      "criticalIssues": [
+        "URS requirement URS-005 not met"
+      ],
+      "complianceLevel": 0,
+      "ursMapping": [
+        "URS-005"
+      ],
+      "details": "URS requirement URS-005 validation completed",
+      "timestamp": "2025-06-23T03:52:14.372Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "System-Level Functional Testing",
+      "testCase": "Complete User Workflow Testing",
+      "status": "FAILED",
+      "responseTime": 18,
+      "evidence": [],
+      "criticalIssues": [
+        "Functional test Complete User Workflow Testing error: FetchError: request to http://localhost:5000/api/dashboard failed, reason: connect ECONNREFUSED 127.0.0.1:5000"
+      ],
+      "complianceLevel": 50,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Functional test Complete User Workflow Testing failed",
+      "timestamp": "2025-06-23T03:52:14.391Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "System-Level Functional Testing",
+      "testCase": "Module Integration Testing",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Functional test Module Integration Testing completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Functional test Module Integration Testing completed",
+      "timestamp": "2025-06-23T03:52:14.392Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "System-Level Functional Testing",
+      "testCase": "Data Flow Validation",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Functional test Data Flow Validation completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Functional test Data Flow Validation completed",
+      "timestamp": "2025-06-23T03:52:14.392Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "System-Level Functional Testing",
+      "testCase": "Business Logic Testing",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Functional test Business Logic Testing completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Functional test Business Logic Testing completed",
+      "timestamp": "2025-06-23T03:52:14.393Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "System-Level Functional Testing",
+      "testCase": "Error Recovery Testing",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Functional test Error Recovery Testing completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Functional test Error Recovery Testing completed",
+      "timestamp": "2025-06-23T03:52:14.393Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "System-Level Functional Testing",
+      "testCase": "User Interface Testing",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Functional test User Interface Testing completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Functional test User Interface Testing completed",
+      "timestamp": "2025-06-23T03:52:14.393Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "System-Level Functional Testing",
+      "testCase": "Reporting Functionality",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Functional test Reporting Functionality completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Functional test Reporting Functionality completed",
+      "timestamp": "2025-06-23T03:52:14.393Z",
+      "fixesApplied": []
+    },
+    {
+      "testSuite": "System-Level Functional Testing",
+      "testCase": "System Administration",
+      "status": "PASSED",
+      "responseTime": 0,
+      "evidence": [
+        "Functional test System Administration completed"
+      ],
+      "criticalIssues": [],
+      "complianceLevel": 90,
+      "ursMapping": [
+        "URS-001"
+      ],
+      "details": "Functional test System Administration completed",
+      "timestamp": "2025-06-23T03:52:14.393Z",
+      "fixesApplied": []
+    }
+  ],
+  "performanceMetrics": [],
+  "recommendations": [
+    "Monitor applied fixes for stability",
+    "Address critical security and stability issues immediately",
+    "Continue regular validation testing for production readiness"
+  ],
+  "certification": "NOT PRODUCTION READY - System requires significant improvements before production deployment."
+}

@@ -1,144 +1,264 @@
-import { Router } from "express";
-import { eq, desc, and, sql } from "drizzle-orm";
-import { db } from "./db";
-import { 
-  technicalDocuments, 
-  users, 
-  designProjects,
-  technicalDocumentSections,
-  mdrSections
-} from "@shared/schema";
-import { authMiddleware } from "./middleware/auth";
-import { z } from "zod";
+import { Router } from 'express';
+import { eq, desc, and, sql } from 'drizzle-orm';
+import { technicalDocuments, users, designProjects } from '../shared/schema';
+import { getDatabaseInstance } from './storage';
+import { authMiddleware } from './middleware/auth';
 
 const router = Router();
 
+// Apply authentication middleware to all routes
+router.use(authMiddleware);
+
 /**
- * JIRA-Level Professional Technical Documentation Enhanced Routes
- * Implements comprehensive technical documentation management with ISO 13485 compliance
- * Features: Project-based organization, compliance tracking, enhanced document lifecycle
+ * PROFESSIONAL TECHNICAL DOCUMENTATION ENHANCED ROUTES
+ * Implements comprehensive technical documentation management with project integration
+ * Features: ISO 13485 compliance, project-based organization, enhanced workflow management
  */
 
-// GET /api/technical-documentation-enhanced - Enhanced document listing with project integration
-router.get("/", authMiddleware.isAuthenticated, async (req, res) => {
+// Get all enhanced technical documents with project integration
+router.get('/', async (req, res) => {
   try {
+    const db = await getDatabaseInstance();
+    
     const documents = await db
       .select({
         id: technicalDocuments.id,
-        documentNumber: technicalDocuments.documentNumber,
         title: technicalDocuments.title,
-        description: technicalDocuments.deviceModel, // Using deviceModel as description
         deviceModel: technicalDocuments.deviceModel,
         status: technicalDocuments.status,
         version: technicalDocuments.version,
         revisionLevel: technicalDocuments.revisionLevel,
-        designProjectId: technicalDocuments.designProjectId,
-        authorId: technicalDocuments.createdBy,
+        createdBy: technicalDocuments.createdBy,
         approvedBy: technicalDocuments.approvedBy,
         approvedAt: technicalDocuments.approvedAt,
-        // Enhanced fields using SQL defaults for compatibility
-        completionPercentage: sql`CASE WHEN ${technicalDocuments.status} = 'APPROVED' THEN 100 WHEN ${technicalDocuments.status} = 'IN_REVIEW' THEN 75 WHEN ${technicalDocuments.status} = 'DRAFT' THEN 25 ELSE 0 END`.as('completionPercentage'),
-        complianceStatus: sql`CASE WHEN ${technicalDocuments.status} = 'APPROVED' THEN 'compliant' WHEN ${technicalDocuments.status} = 'IN_REVIEW' THEN 'pending' ELSE 'not_started' END`.as('complianceStatus'),
-        riskClassification: sql`'medium'`.as('riskClassification'),
-        regulatoryImpact: sql`true`.as('regulatoryImpact'),
         createdAt: technicalDocuments.createdAt,
         updatedAt: technicalDocuments.updatedAt,
-        authorName: sql`COALESCE(${users.firstName} || ' ' || ${users.lastName}, 'Unknown')`.as('authorName'),
-        projectCode: sql`COALESCE(${designProjects.projectCode}, 'UNASSIGNED')`.as('projectCode'),
-        projectTitle: sql`COALESCE(${designProjects.title}, 'Unassigned Project')`.as('projectTitle')
+        authorName: users.firstName,
+        projectCode: designProjects.projectCode,
+        projectTitle: designProjects.title
       })
       .from(technicalDocuments)
       .leftJoin(users, eq(technicalDocuments.createdBy, users.id))
       .leftJoin(designProjects, eq(technicalDocuments.designProjectId, designProjects.id))
       .orderBy(desc(technicalDocuments.updatedAt));
 
-    res.json(documents);
+    // Add enhanced properties for frontend compatibility
+    const enhancedDocuments = documents.map(doc => ({
+      ...doc,
+      documentNumber: `TD-${doc.id.toString().padStart(4, '0')}`,
+      description: `Technical documentation for ${doc.deviceModel}`,
+      designProjectId: null,
+      completionPercentage: doc.status === 'approved' ? 100 : doc.status === 'draft' ? 25 : 75,
+      complianceStatus: doc.status === 'approved' ? 'compliant' : 'pending',
+      riskClassification: 'medium',
+      regulatoryImpact: true
+    }));
+
+    res.json(enhancedDocuments);
   } catch (error) {
-    console.error("Error fetching enhanced technical documents:", error);
-    res.status(500).json({ error: "Failed to fetch enhanced technical documents" });
+    console.error('Error fetching enhanced technical documents:', error);
+    res.status(500).json({ error: 'Failed to fetch enhanced technical documents' });
   }
 });
 
-// GET /api/technical-documentation-enhanced/projects - Get documents grouped by project
-router.get("/projects", authMiddleware.isAuthenticated, async (req, res) => {
+// Create new enhanced technical document
+router.post('/', async (req, res) => {
   try {
-    const projectDocuments = await db
+    const { title, deviceModel, description, status = 'draft' } = req.body;
+    const userId = (req as any).user?.id || 1;
+
+    if (!title || !deviceModel) {
+      return res.status(400).json({ error: 'Title and device model are required' });
+    }
+
+    const db = await getDatabaseInstance();
+    
+    const [newDocument] = await db.insert(technicalDocuments).values({
+      title,
+      deviceModel,
+      status,
+      version: '1.0',
+      revisionLevel: 'A',
+      createdBy: userId,
+      designProjectId: null,
+      approvedBy: null,
+      approvedAt: null
+    }).returning();
+
+    res.status(201).json(newDocument);
+  } catch (error) {
+    console.error('Error creating enhanced technical document:', error);
+    res.status(500).json({ error: 'Failed to create enhanced technical document' });
+  }
+});
+
+// Get enhanced technical documents grouped by project
+router.get('/projects', async (req, res) => {
+  try {
+    const db = await getDatabaseInstance();
+    
+    // Get project statistics
+    const projectStats = await db
       .select({
         projectId: designProjects.id,
         projectCode: designProjects.projectCode,
         projectTitle: designProjects.title,
         projectDescription: designProjects.description,
-        documentCount: sql`COUNT(${technicalDocuments.id})`.as('documentCount'),
-        approvedCount: sql`COUNT(CASE WHEN ${technicalDocuments.status} = 'APPROVED' THEN 1 END)`.as('approvedCount'),
-        draftCount: sql`COUNT(CASE WHEN ${technicalDocuments.status} = 'DRAFT' THEN 1 END)`.as('draftCount'),
-        reviewCount: sql`COUNT(CASE WHEN ${technicalDocuments.status} = 'IN_REVIEW' THEN 1 END)`.as('reviewCount'),
-        completionRate: sql`ROUND(COUNT(CASE WHEN ${technicalDocuments.status} = 'APPROVED' THEN 1 END) * 100.0 / NULLIF(COUNT(${technicalDocuments.id}), 0), 2)`.as('completionRate')
+        documentCount: sql<number>`count(${technicalDocuments.id})::int`,
+        approvedCount: sql<number>`count(case when ${technicalDocuments.status} = 'approved' then 1 end)::int`,
+        draftCount: sql<number>`count(case when ${technicalDocuments.status} = 'draft' then 1 end)::int`,
+        reviewCount: sql<number>`count(case when ${technicalDocuments.status} = 'review' then 1 end)::int`
       })
       .from(designProjects)
-      .leftJoin(technicalDocuments, eq(designProjects.id, technicalDocuments.designProjectId))
-      .groupBy(designProjects.id, designProjects.projectCode, designProjects.title, designProjects.description)
-      .orderBy(desc(sql`COUNT(${technicalDocuments.id})`));
+      .leftJoin(technicalDocuments, eq(technicalDocuments.designProjectId, designProjects.id))
+      .groupBy(designProjects.id, designProjects.projectCode, designProjects.title, designProjects.description);
+
+    // Calculate completion rates
+    const projectDocuments = projectStats.map(project => ({
+      ...project,
+      completionRate: project.documentCount > 0 ? 
+        Math.round((project.approvedCount / project.documentCount) * 100) : 0
+    }));
 
     res.json(projectDocuments);
   } catch (error) {
-    console.error("Error fetching project documents:", error);
-    res.status(500).json({ error: "Failed to fetch project documents" });
+    console.error('Error fetching project documents:', error);
+    res.status(500).json({ error: 'Failed to fetch project documents' });
   }
 });
 
-// POST /api/technical-documentation-enhanced - Create enhanced document
-router.post("/", authMiddleware.isAuthenticated, async (req, res) => {
+// Get compliance dashboard metrics
+router.get('/compliance/dashboard', async (req, res) => {
   try {
-    const documentSchema = z.object({
-      title: z.string().min(1, "Title is required"),
-      deviceModel: z.string().min(1, "Device model is required"),
-      designProjectId: z.number().optional(),
-      version: z.string().default("1.0"),
-      status: z.enum(["DRAFT", "IN_REVIEW", "APPROVED", "SUPERSEDED"]).default("DRAFT")
-    });
-
-    const validatedData = documentSchema.parse(req.body);
-    const userId = (req.user as any)?.id || 9999; // Development fallback
-
-    // Generate document number
-    const documentNumber = `TD-${Date.now()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
-
-    const [document] = await db
-      .insert(technicalDocuments)
-      .values({
-        title: validatedData.title,
-        deviceModel: validatedData.deviceModel,
-        documentNumber,
-        status: validatedData.status,
-        version: validatedData.version,
-        designProjectId: validatedData.designProjectId,
-        createdBy: userId,
+    const db = await getDatabaseInstance();
+    
+    // Get overall document metrics
+    const overallStats = await db
+      .select({
+        totalDocuments: sql<number>`count(*)::int`,
+        approvedDocuments: sql<number>`count(case when ${technicalDocuments.status} = 'approved' then 1 end)::int`,
+        draftDocuments: sql<number>`count(case when ${technicalDocuments.status} = 'draft' then 1 end)::int`,
+        reviewDocuments: sql<number>`count(case when ${technicalDocuments.status} = 'review' then 1 end)::int`
       })
-      .returning();
+      .from(technicalDocuments);
 
-    res.status(201).json({
-      success: true,
-      document,
-      message: "Enhanced technical document created successfully"
-    });
+    const overall = overallStats[0] || {
+      totalDocuments: 0,
+      approvedDocuments: 0,
+      draftDocuments: 0,
+      reviewDocuments: 0
+    };
+
+    const complianceRate = overall.totalDocuments > 0 ? 
+      Math.round((overall.approvedDocuments / overall.totalDocuments) * 100) : 0;
+
+    // Get project-level metrics
+    const projectMetrics = await db
+      .select({
+        projectCode: designProjects.projectCode,
+        projectTitle: designProjects.title,
+        documentCount: sql<number>`count(${technicalDocuments.id})::int`,
+        approvedCount: sql<number>`count(case when ${technicalDocuments.status} = 'approved' then 1 end)::int`
+      })
+      .from(designProjects)
+      .leftJoin(technicalDocuments, eq(technicalDocuments.designProjectId, designProjects.id))
+      .groupBy(designProjects.id, designProjects.projectCode, designProjects.title)
+      .having(sql`count(${technicalDocuments.id}) > 0`);
+
+    const projectComplianceMetrics = projectMetrics.map(project => ({
+      ...project,
+      complianceRate: project.documentCount > 0 ? 
+        Math.round((project.approvedCount / project.documentCount) * 100) : 0
+    }));
+
+    const complianceMetrics = {
+      overallMetrics: {
+        ...overall,
+        complianceRate
+      },
+      projectMetrics: projectComplianceMetrics
+    };
+
+    res.json(complianceMetrics);
   } catch (error) {
-    console.error("Error creating enhanced technical document:", error);
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: "Validation failed", details: error.errors });
-    }
-    res.status(500).json({ error: "Failed to create enhanced technical document" });
+    console.error('Error fetching compliance dashboard:', error);
+    res.status(500).json({ error: 'Failed to fetch compliance dashboard' });
   }
 });
 
-// GET /api/technical-documentation-enhanced/:id - Get specific document with enhanced details
-router.get("/:id", authMiddleware.isAuthenticated, async (req, res) => {
+// Update enhanced technical document
+router.put('/:id', async (req, res) => {
   try {
     const documentId = parseInt(req.params.id);
+    const updateData = req.body;
+
+    if (isNaN(documentId)) {
+      return res.status(400).json({ error: 'Invalid document ID' });
+    }
+
+    const db = await getDatabaseInstance();
     
-    const document = await db
+    const [updatedDocument] = await db
+      .update(technicalDocuments)
+      .set({
+        ...updateData,
+        updatedAt: new Date()
+      })
+      .where(eq(technicalDocuments.id, documentId))
+      .returning();
+
+    if (!updatedDocument) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+
+    res.json(updatedDocument);
+  } catch (error) {
+    console.error('Error updating enhanced technical document:', error);
+    res.status(500).json({ error: 'Failed to update enhanced technical document' });
+  }
+});
+
+// Delete enhanced technical document
+router.delete('/:id', async (req, res) => {
+  try {
+    const documentId = parseInt(req.params.id);
+
+    if (isNaN(documentId)) {
+      return res.status(400).json({ error: 'Invalid document ID' });
+    }
+
+    const db = await getDatabaseInstance();
+    
+    const [deletedDocument] = await db
+      .delete(technicalDocuments)
+      .where(eq(technicalDocuments.id, documentId))
+      .returning();
+
+    if (!deletedDocument) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+
+    res.json({ message: 'Document deleted successfully', id: documentId });
+  } catch (error) {
+    console.error('Error deleting enhanced technical document:', error);
+    res.status(500).json({ error: 'Failed to delete enhanced technical document' });
+  }
+});
+
+// Get enhanced technical document by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const documentId = parseInt(req.params.id);
+
+    if (isNaN(documentId)) {
+      return res.status(400).json({ error: 'Invalid document ID' });
+    }
+
+    const db = await getDatabaseInstance();
+    
+    const [document] = await db
       .select({
         id: technicalDocuments.id,
-        documentNumber: technicalDocuments.documentNumber,
         title: technicalDocuments.title,
         deviceModel: technicalDocuments.deviceModel,
         status: technicalDocuments.status,
@@ -150,133 +270,34 @@ router.get("/:id", authMiddleware.isAuthenticated, async (req, res) => {
         approvedAt: technicalDocuments.approvedAt,
         createdAt: technicalDocuments.createdAt,
         updatedAt: technicalDocuments.updatedAt,
-        authorName: sql`${users.firstName} || ' ' || ${users.lastName}`.as('authorName'),
+        authorName: users.firstName,
         projectCode: designProjects.projectCode,
         projectTitle: designProjects.title
       })
       .from(technicalDocuments)
       .leftJoin(users, eq(technicalDocuments.createdBy, users.id))
       .leftJoin(designProjects, eq(technicalDocuments.designProjectId, designProjects.id))
-      .where(eq(technicalDocuments.id, documentId))
-      .limit(1);
+      .where(eq(technicalDocuments.id, documentId));
 
-    if (!document.length) {
-      return res.status(404).json({ error: "Enhanced technical document not found" });
+    if (!document) {
+      return res.status(404).json({ error: 'Document not found' });
     }
 
-    res.json(document[0]);
+    // Add enhanced properties
+    const enhancedDocument = {
+      ...document,
+      documentNumber: `TD-${document.id.toString().padStart(4, '0')}`,
+      description: `Technical documentation for ${document.deviceModel}`,
+      completionPercentage: document.status === 'approved' ? 100 : document.status === 'draft' ? 25 : 75,
+      complianceStatus: document.status === 'approved' ? 'compliant' : 'pending',
+      riskClassification: 'medium',
+      regulatoryImpact: true
+    };
+
+    res.json(enhancedDocument);
   } catch (error) {
-    console.error("Error fetching enhanced technical document:", error);
-    res.status(500).json({ error: "Failed to fetch enhanced technical document" });
-  }
-});
-
-// PUT /api/technical-documentation-enhanced/:id - Update document
-router.put("/:id", authMiddleware.isAuthenticated, async (req, res) => {
-  try {
-    const documentId = parseInt(req.params.id);
-    
-    const updateSchema = z.object({
-      title: z.string().min(1).optional(),
-      deviceModel: z.string().min(1).optional(),
-      status: z.enum(["DRAFT", "IN_REVIEW", "APPROVED", "SUPERSEDED"]).optional(),
-      version: z.string().optional(),
-      designProjectId: z.number().optional()
-    });
-
-    const validatedData = updateSchema.parse(req.body);
-
-    const [updatedDocument] = await db
-      .update(technicalDocuments)
-      .set({
-        ...validatedData,
-        updatedAt: new Date()
-      })
-      .where(eq(technicalDocuments.id, documentId))
-      .returning();
-
-    if (!updatedDocument) {
-      return res.status(404).json({ error: "Enhanced technical document not found" });
-    }
-
-    res.json({
-      success: true,
-      document: updatedDocument,
-      message: "Enhanced technical document updated successfully"
-    });
-  } catch (error) {
-    console.error("Error updating enhanced technical document:", error);
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: "Validation failed", details: error.errors });
-    }
-    res.status(500).json({ error: "Failed to update enhanced technical document" });
-  }
-});
-
-// DELETE /api/technical-documentation-enhanced/:id - Delete document
-router.delete("/:id", authMiddleware.isAuthenticated, async (req, res) => {
-  try {
-    const documentId = parseInt(req.params.id);
-    
-    const [deletedDocument] = await db
-      .delete(technicalDocuments)
-      .where(eq(technicalDocuments.id, documentId))
-      .returning();
-
-    if (!deletedDocument) {
-      return res.status(404).json({ error: "Enhanced technical document not found" });
-    }
-
-    res.json({
-      success: true,
-      message: "Enhanced technical document deleted successfully"
-    });
-  } catch (error) {
-    console.error("Error deleting enhanced technical document:", error);
-    res.status(500).json({ error: "Failed to delete enhanced technical document" });
-  }
-});
-
-// GET /api/technical-documentation-enhanced/compliance/dashboard - Compliance dashboard
-router.get("/compliance/dashboard", authMiddleware.isAuthenticated, async (req, res) => {
-  try {
-    const complianceMetrics = await db
-      .select({
-        totalDocuments: sql`COUNT(*)`.as('totalDocuments'),
-        approvedDocuments: sql`COUNT(CASE WHEN ${technicalDocuments.status} = 'APPROVED' THEN 1 END)`.as('approvedDocuments'),
-        draftDocuments: sql`COUNT(CASE WHEN ${technicalDocuments.status} = 'DRAFT' THEN 1 END)`.as('draftDocuments'),
-        reviewDocuments: sql`COUNT(CASE WHEN ${technicalDocuments.status} = 'IN_REVIEW' THEN 1 END)`.as('reviewDocuments'),
-        complianceRate: sql`ROUND(COUNT(CASE WHEN ${technicalDocuments.status} = 'APPROVED' THEN 1 END) * 100.0 / NULLIF(COUNT(*), 0), 2)`.as('complianceRate')
-      })
-      .from(technicalDocuments);
-
-    const projectMetrics = await db
-      .select({
-        projectCode: designProjects.projectCode,
-        projectTitle: designProjects.title,
-        documentCount: sql`COUNT(${technicalDocuments.id})`.as('documentCount'),
-        approvedCount: sql`COUNT(CASE WHEN ${technicalDocuments.status} = 'APPROVED' THEN 1 END)`.as('approvedCount'),
-        complianceRate: sql`ROUND(COUNT(CASE WHEN ${technicalDocuments.status} = 'APPROVED' THEN 1 END) * 100.0 / NULLIF(COUNT(${technicalDocuments.id}), 0), 2)`.as('complianceRate')
-      })
-      .from(designProjects)
-      .leftJoin(technicalDocuments, eq(designProjects.id, technicalDocuments.designProjectId))
-      .groupBy(designProjects.id, designProjects.projectCode, designProjects.title)
-      .having(sql`COUNT(${technicalDocuments.id}) > 0`)
-      .orderBy(desc(sql`COUNT(${technicalDocuments.id})`));
-
-    res.json({
-      overallMetrics: complianceMetrics[0] || {
-        totalDocuments: 0,
-        approvedDocuments: 0,
-        draftDocuments: 0,
-        reviewDocuments: 0,
-        complianceRate: 0
-      },
-      projectMetrics
-    });
-  } catch (error) {
-    console.error("Error fetching compliance dashboard:", error);
-    res.status(500).json({ error: "Failed to fetch compliance dashboard" });
+    console.error('Error fetching enhanced technical document:', error);
+    res.status(500).json({ error: 'Failed to fetch enhanced technical document' });
   }
 });
 

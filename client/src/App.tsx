@@ -49,13 +49,13 @@ const TechnicalDocumentationInteractive = React.lazy(() => import("./pages/Techn
 const ModulePage = () => {
   const [location] = useLocation();
 
-            <Route path="/design-control/enhanced-steering" element={
+            <Route path="/design-control/enhanced-steering" component={() => (
               <ProtectedRoute>
                 <React.Suspense fallback={<div>Loading...</div>}>
-                  {React.createElement(React.lazy(() => import('./pages/design-control/enhanced-steering-module')))}
+                  {React.createElement(React.lazy(() => import('./pages/design-control/enhanced-steering-module-fixed')))}
                 </React.Suspense>
               </ProtectedRoute>
-            } />
+            )} />
 
   return (
     <div className="container py-8">
