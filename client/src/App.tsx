@@ -30,6 +30,8 @@ import SupplierDetailPage from './pages/supplier-management/detail';
 import CreateSupplierPage from "./pages/supplier-management/create";
 import AuditManagementPage from "./pages/audit-management";
 import AuditCreatePage from "./pages/audit-create";
+import AuditCenter from "./pages/audit-management/audit-center";
+import AuditWorkspace from "./pages/audit-management/audit-workspace";
 import ManagementReviewPage from "./pages/management-review-page";
 import ManagementReviewList from "./pages/management-review/index";
 import CreateManagementReview from "./pages/management-review/create";
@@ -451,9 +453,16 @@ function App() {
           </Layout>
         )} />
 
+        {/* Enhanced Audit Management Module Routes */}
+        <ProtectedRoute path="/audit-management/audit/:id" component={() => (
+          <Layout>
+            <AuditWorkspace />
+          </Layout>
+        )} />
+
         <ProtectedRoute path="/audit-management" component={() => (
           <Layout>
-            <AuditManagementPage />
+            <AuditCenter />
           </Layout>
         )} />
 
