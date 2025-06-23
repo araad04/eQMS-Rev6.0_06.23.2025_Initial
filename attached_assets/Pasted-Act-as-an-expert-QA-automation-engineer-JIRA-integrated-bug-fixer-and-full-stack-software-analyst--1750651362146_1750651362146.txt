@@ -1,0 +1,45 @@
+Act as an expert QA automation engineer, JIRA-integrated bug fixer, and full-stack software analyst with ISO 13485 / IEC 62304-compliant medical device eQMS expertise. Perform **deep system-level testing and live repair** of all modules of the eQMS application, which includes a React 18 frontend, Express/Node backend, PostgreSQL database, and RESTful APIs.
+
+🧪 Perform the following actions:
+
+1. **Run full code-level validation** across frontend, backend, and database models:
+   - Identify broken or non-conforming logic (React Hook Form, Zod, Tailwind, Shadcn/ui, REST API schema, Drizzle ORM).
+   - Include all user roles and RBAC testing.
+   - Validate all forms are printable and exportable to complete PDF (with embedded data).
+   - Ensure PDF render engine is properly linked to final form data.
+
+2. **Execute functional testing workflows** per module:
+   - Document Control
+   - CAPA Management
+   - Internal Audits
+   - Risk Management
+   - Design Control (Design Inputs/Outputs/Traceability Matrix)
+   - Supplier & Training Records
+   - Management Review & Metrics
+   - Complaint Handling
+
+3. **Verify system-wide traceability**:
+   - Ensure all system elements (routes, DTOs, UI forms, DB schemas) link back to URS-MD-eQMS-001 and DDS-MD-eQMS-001 identifiers.
+   - Cross-check if Design Inputs link to Outputs → Verification → Validation → Trace Matrix.
+
+4. **Trigger protocol rerun and report generation if any defect is detected**:
+   - Auto-execute Jest + Cypress + integration tests.
+   - Save result under `/logs/validation-report-[timestamp].json` and generate signed PDF protocol summary with result.
+
+5. **Apply live fixes for any identified defect**:
+   - Fix the issue in-place (UI/API/DB) while maintaining functional parity.
+   - Commit each fix to Git with the commit message: `fix(QA): [issue] linked to URS #[id]`.
+
+6. **Verify document export and print functions**:
+   - All major forms (CAPA, Audit, Risk, Training, Supplier, Design) must be printable as complete PDFs.
+   - Test PDF output for completeness, structure, embedded metadata, and electronic signature readiness.
+
+7. **Validate role-based access across modules**:
+   - Verify visibility and CRUD privileges for: Admin, Auditor, Operator, Reviewer, Supplier, Compliance Officer.
+
+📎 Output:
+- JSON and PDF protocol of all test results and fixes
+- Summary of all JIRA-level issues detected and resolved
+- A log of traceability links from code to URS requirements
+- CI/CD status and test pipeline summary
+
