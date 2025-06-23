@@ -533,11 +533,12 @@ export function registerRoutes(app: Express): Server {
       }
 
       try {
-        const suppliers = await db.select()
-      .from(suppliers)
-      .limit(10)
-      .execute() || [];
-        dashboardData.summary.totalSuppliers = suppliers ? suppliers.length : 0;
+        const { suppliers } = await import("../shared/schema");
+        const supplierData = await db.select()
+          .from(suppliers)
+          .limit(10)
+          .execute() || [];
+        dashboardData.summary.totalSuppliers = supplierData ? supplierData.length : 0;
       } catch (error) {
         console.warn("Error fetching suppliers for dashboard:", error);
         dashboardData.summary.totalSuppliers = 0;
