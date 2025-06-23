@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-interface URSRequirement {
+interface PlanningAndURSRequirement {
   id: number;
   ursId: string;
   title: string;
