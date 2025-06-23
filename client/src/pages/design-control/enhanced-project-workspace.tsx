@@ -43,6 +43,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
   const [showURSDialog, setShowURSDialog] = useState(false);
   const [showPhaseReviewDialog, setShowPhaseReviewDialog] = useState(false);
   const [showAddItemDialog, setShowAddItemDialog] = useState(false);
+  const [showEditPhaseDialog, setShowEditPhaseDialog] = useState(false);
   const [addItemType, setAddItemType] = useState<string>('');
   const [selectedPhaseId, setSelectedPhaseId] = useState<number | null>(null);
 
@@ -67,6 +68,13 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
     description: '',
     category: '',
     priority: 'medium'
+  });
+
+  const [editPhaseForm, setEditPhaseForm] = useState({
+    name: '',
+    description: '',
+    status: 'not_started',
+    progress: 0
   });
 
   const { data: projectDetails, isLoading: projectDetailsLoading } = useQuery({
@@ -236,6 +244,41 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
     } catch (error) {
       console.error('Failed to add item:', error);
     }
+  };
+
+  const handleEditPhase = async () => {
+    try {
+      if (!selectedPhaseId) return;
+      
+      const response = await fetch(`/api/design-control-enhanced/project/${projectId}/phases/${selectedPhaseId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Auth-Local': 'true'
+        },
+        body: JSON.stringify(editPhaseForm)
+      });
+      
+      if (response.ok) {
+        setShowEditPhaseDialog(false);
+        setEditPhaseForm({ name: '', description: '', status: 'not_started', progress: 0 });
+        setSelectedPhaseId(null);
+        refetchPhases();
+      }
+    } catch (error) {
+      console.error('Failed to edit phase:', error);
+    }
+  };
+
+  const openEditDialog = (phase: any) => {
+    setEditPhaseForm({
+      name: phase.name || '',
+      description: phase.description || '',
+      status: phase.status || 'not_started',
+      progress: phase.progress || 0
+    });
+    setSelectedPhaseId(phase.id);
+    setShowEditPhaseDialog(true);
   };
 
   if (projectDetailsLoading) {
@@ -485,6 +528,65 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
                     </DialogContent>
                   </Dialog>
 
+                  {/* Edit Phase Dialog */}
+                  <Dialog open={showEditPhaseDialog} onOpenChange={setShowEditPhaseDialog}>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Edit Phase</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="phase-name">Phase Name</Label>
+                          <Input
+                            id="phase-name"
+                            value={editPhaseForm.name}
+                            onChange={(e) => setEditPhaseForm({ ...editPhaseForm, name: e.target.value })}
+                            placeholder="Phase name"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="phase-description">Description</Label>
+                          <Textarea
+                            id="phase-description"
+                            value={editPhaseForm.description}
+                            onChange={(e) => setEditPhaseForm({ ...editPhaseForm, description: e.target.value })}
+                            placeholder="Phase description"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="phase-status">Status</Label>
+                          <Select value={editPhaseForm.status} onValueChange={(value) => setEditPhaseForm({ ...editPhaseForm, status: value })}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="not_started">Not Started</SelectItem>
+                              <SelectItem value="in_progress">In Progress</SelectItem>
+                              <SelectItem value="completed">Completed</SelectItem>
+                              <SelectItem value="blocked">Blocked</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label htmlFor="phase-progress">Progress (%)</Label>
+                          <Input
+                            id="phase-progress"
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={editPhaseForm.progress}
+                            onChange={(e) => setEditPhaseForm({ ...editPhaseForm, progress: parseInt(e.target.value) || 0 })}
+                            placeholder="Progress percentage"
+                          />
+                        </div>
+                        <div className="flex gap-4">
+                          <Button onClick={handleEditPhase}>Save Changes</Button>
+                          <Button variant="outline" onClick={() => setShowEditPhaseDialog(false)}>Cancel</Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
                   <Button 
                     variant="outline" 
                     className="flex items-center gap-2"
@@ -625,7 +727,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
                         variant="outline" 
                         className="flex-1"
                         disabled={gateStatus.status === 'blocked'}
-                        onClick={() => setSelectedPhaseId(phase.id || index)}
+                        onClick={() => openEditDialog(phase)}
                       >
                         <Edit className="h-3 w-3 mr-1" />
                         Edit
