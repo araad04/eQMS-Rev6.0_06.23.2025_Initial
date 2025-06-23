@@ -121,12 +121,13 @@ export default function AuditWorkspace() {
     enabled: !!auditId,
   });
 
+  // Type-safe audit data with fallbacks
+  const auditData = audit as any || {};
+  const checklistData = Array.isArray(checklist) ? checklist as any[] : [];
+
   // Update audit mutation
   const updateAuditMutation = useMutation({
-    mutationFn: (data: any) => apiRequest(`/api/audits/${auditId}`, {
-      method: "PUT",
-      body: data,
-    }),
+    mutationFn: (data: any) => apiRequest(`/api/audits/${auditId}`, "PUT", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/audits", auditId] });
       setIsEditingDetails(false);
@@ -139,10 +140,7 @@ export default function AuditWorkspace() {
 
   // Phase transition mutation
   const phaseTransitionMutation = useMutation({
-    mutationFn: (phaseId: number) => apiRequest(`/api/audits/${auditId}/phase`, {
-      method: "PUT",
-      body: { phaseId },
-    }),
+    mutationFn: (phaseId: number) => apiRequest(`/api/audits/${auditId}/phase`, "PUT", { phaseId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/audits", auditId] });
       toast({
@@ -211,8 +209,8 @@ export default function AuditWorkspace() {
   return (
     <div className="space-y-6">
       <Helmet>
-        <title>{audit.title} - Audit Workspace - eQMS</title>
-        <meta name="description" content={`Audit workspace for ${audit.title} with comprehensive workflow management.`} />
+        <title>{`${audit.title || "Audit"} - Audit Workspace - eQMS`}</title>
+        <meta name="description" content={`Audit workspace for ${audit.title || "audit"} with comprehensive workflow management.`} />
       </Helmet>
 
       {/* Header */}

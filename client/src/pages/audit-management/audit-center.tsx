@@ -121,10 +121,7 @@ export default function AuditCenter() {
 
   // Create audit mutation
   const createAuditMutation = useMutation({
-    mutationFn: (data: any) => apiRequest("/api/audits", {
-      method: "POST",
-      body: data,
-    }),
+    mutationFn: (data: any) => apiRequest("/api/audits", "POST", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/audits"] });
       setIsCreateDialogOpen(false);
