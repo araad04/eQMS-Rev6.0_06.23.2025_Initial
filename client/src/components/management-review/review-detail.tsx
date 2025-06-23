@@ -283,7 +283,7 @@ export function ReviewDetail({
                     className="bg-green-600 hover:bg-green-700"
                   >
                     <Plus className="h-4 w-4 mr-2" />
-                    Add First Input
+                    Add Input
                   </Button>
                   <Button 
                     onClick={() => onAddParticipant()} 
@@ -439,7 +439,7 @@ export function ReviewDetail({
                 {review.status !== 'completed' && (
                   <Button onClick={onAddInput}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Add First Input
+                    Add Input
                   </Button>
                 )}
               </CardContent>

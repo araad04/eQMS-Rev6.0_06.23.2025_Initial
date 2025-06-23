@@ -501,7 +501,7 @@ const ManagementReviewDetail = () => {
                         </div>
                         <Button onClick={() => setShowComprehensiveInputDialog(true)}>
                           <Plus className="h-4 w-4 mr-2" />
-                          Add Comprehensive Input
+                          Add Input
                         </Button>
                       </div>
                       
@@ -614,11 +614,11 @@ const ManagementReviewDetail = () => {
                           <FileText className="h-16 w-16 mx-auto text-gray-300 mb-4" />
                           <h3 className="text-lg font-medium mb-2">No Management Review Inputs</h3>
                           <p className="text-muted-foreground mb-4">
-                            Add comprehensive inputs following ISO 13485:2016 Section 5.6 requirements
+                            Add Inputs following ISO 13485:2016 Section 5.6 requirements
                           </p>
                           <Button onClick={() => setShowComprehensiveInputDialog(true)}>
                             <Plus className="h-4 w-4 mr-2" />
-                            Add First Input
+                            Add Input
                           </Button>
                         </div>
                       )}
