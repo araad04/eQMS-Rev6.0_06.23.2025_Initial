@@ -94,7 +94,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
     enabled: !!projectId
   });
 
-  const { data: projectArtifacts } = useQuery({
+  const { data: designArtifacts } = useQuery({
     queryKey: ['/api/design-control-enhanced/project', projectId, 'design-artifacts'],
     queryFn: async () => {
       const response = await fetch(`/api/design-control-enhanced/project/${projectId}/design-artifacts`, {
@@ -753,7 +753,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {phases.map((phase: any, index: number) => (
+                  {(projectPhases || []).map((phase: any, index: number) => (
                     <Card key={index} className="border-l-4 border-l-blue-500">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between mb-2">
@@ -831,7 +831,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
                 </div>
 
                 <div className="space-y-3">
-                  {designArtifacts?.designInputs?.map((input: any, index: number) => (
+                  {(designArtifacts?.designInputs || []).map((input: any, index: number) => (
                     <Card key={index} className="border-l-4 border-l-green-500">
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between">
@@ -926,7 +926,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
                 </div>
 
                 <div className="space-y-3">
-                  {designArtifacts?.designOutputs?.map((output: any, index: number) => (
+                  {(designArtifacts?.designOutputs || []).map((output: any, index: number) => (
                     <Card key={index} className="border-l-4 border-l-blue-500">
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between">
@@ -1021,7 +1021,7 @@ const EnhancedProjectWorkspace: React.FC<EnhancedProjectWorkspaceProps> = () => 
                 </div>
 
                 <div className="space-y-3">
-                  {designArtifacts?.verificationActivities?.map((activity: any, index: number) => (
+                  {(designArtifacts?.verificationActivities || []).map((activity: any, index: number) => (
                     <Card key={index} className="border-l-4 border-l-purple-500">
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between">
